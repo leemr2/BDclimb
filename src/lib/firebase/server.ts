@@ -13,7 +13,8 @@ export const getAuthenticatedAppForUser = async (): Promise<{
   firebaseServerApp: FirebaseApp;
   currentUser: User | null;
 }> => {
-  const authIdToken = headers().get("Authorization")?.split("Bearer ")[1];
+  const headersList = await headers();
+  const authIdToken = headersList.get("Authorization")?.split("Bearer ")[1];
   const firebaseServerApp = initializeServerApp(
     firebaseConfig,
     authIdToken ? { authIdToken } : {}
