@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/lib/firebase/auth";
 import { getUserProfile } from "@/lib/firebase/users";
-import { Calendar } from "@/components/Calendar/Calendar";
+import { CalendarDaySummary } from "@/components/Calendar/CalendarDaySummary";
 import { Chat } from "@/components/Chat/Chat";
 import { DisplayNameSetup } from "@/components/DisplayNameSetup";
 
@@ -114,7 +114,7 @@ export default function CommunityPage() {
       </div>
       <div className="community-content">
         <div className="calendar-section">
-          <Calendar />
+          <CalendarDaySummary />
         </div>
         <div className="chat-section">
           <Chat />

@@ -666,6 +666,230 @@ a {
   background-color: rgba(34, 197, 94, 0.25);
 }
 
+/* Calendar day summary (community page) */
+.calendar-day-summary {
+  background-color: rgba(0, 0, 0, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 0.75rem;
+  padding: 1.25rem;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.3);
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+  backdrop-filter: blur(8px);
+  cursor: pointer;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.calendar-day-summary:hover {
+  border-color: rgba(255, 255, 255, 0.2);
+  box-shadow: 0 4px 28px rgba(0, 0, 0, 0.35);
+}
+
+.calendar-summary-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.5rem;
+  flex-shrink: 0;
+}
+
+.calendar-summary-header h2 {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 300;
+  letter-spacing: -0.02em;
+  color: #fff;
+}
+
+.date-picker-summary {
+  padding: 0.4rem 0.6rem;
+  font-size: 0.9rem;
+}
+
+.calendar-summary-date-label {
+  margin: 0 0 0.5rem;
+  font-size: 0.85rem;
+  color: rgba(255, 255, 255, 0.6);
+  font-weight: 300;
+}
+
+.calendar-summary-loading {
+  text-align: center;
+  padding: 0.75rem;
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 0.85rem;
+  font-weight: 300;
+}
+
+/* Condensed: compact day strip (no individual times) */
+.calendar-day-summary-condensed {
+  padding: 0.875rem 1rem;
+  min-height: 0;
+}
+
+.calendar-day-summary-condensed .calendar-summary-header {
+  margin-bottom: 0.25rem;
+}
+
+.calendar-day-summary-condensed .calendar-summary-header h2 {
+  font-size: 1.1rem;
+}
+
+.calendar-day-summary-condensed .calendar-summary-cta {
+  margin-top: 0.5rem;
+  padding-top: 0.5rem;
+  font-size: 0.75rem;
+}
+
+.calendar-summary-strip {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-shrink: 0;
+}
+
+.calendar-summary-strip-label {
+  font-size: 0.7rem;
+  color: rgba(255, 255, 255, 0.45);
+  font-weight: 400;
+  flex-shrink: 0;
+}
+
+.calendar-summary-strip-segments {
+  display: flex;
+  flex: 1;
+  min-width: 0;
+  gap: 2px;
+}
+
+.calendar-summary-segment {
+  flex: 1;
+  min-width: 3px;
+  height: 20px;
+  border-radius: 2px;
+  transition: background-color 0.15s, opacity 0.15s;
+}
+
+.calendar-summary-segment-empty {
+  background-color: rgba(255, 255, 255, 0.08);
+  opacity: 0.6;
+}
+
+.calendar-summary-segment-thinking {
+  background-color: rgba(251, 191, 36, 0.5);
+  border: 1px solid rgba(251, 191, 36, 0.4);
+}
+
+.calendar-summary-segment-confirmed {
+  background-color: rgba(34, 197, 94, 0.5);
+  border: 1px solid rgba(34, 197, 94, 0.4);
+}
+
+.calendar-summary-cta {
+  margin-top: 0.5rem;
+  padding-top: 0.5rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  font-size: 0.75rem;
+  color: rgba(255, 255, 255, 0.5);
+  text-align: center;
+  flex-shrink: 0;
+}
+
+/* Calendar modal (full schedule popout) */
+.calendar-modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+}
+
+.calendar-modal-backdrop {
+  position: absolute;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(4px);
+}
+
+.calendar-modal-content {
+  position: relative;
+  width: 100%;
+  max-width: 420px;
+  max-height: 90vh;
+  background-color: rgba(0, 0, 0, 0.92);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 1rem;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.calendar-modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 1.25rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  flex-shrink: 0;
+}
+
+.calendar-modal-header h2 {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 300;
+  letter-spacing: -0.02em;
+  color: #fff;
+}
+
+.calendar-modal-close {
+  width: 2.25rem;
+  height: 2.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  border-radius: 0.5rem;
+  background: rgba(255, 255, 255, 0.08);
+  color: #fff;
+  font-size: 1.5rem;
+  line-height: 1;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.calendar-modal-close:hover {
+  background: rgba(255, 255, 255, 0.15);
+}
+
+.calendar-modal-body {
+  flex: 1;
+  overflow: hidden;
+  padding: 1rem 1.25rem;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.calendar-modal-body .calendar-container {
+  padding: 0;
+  box-shadow: none;
+  border: none;
+  background: transparent;
+}
+
+.calendar-modal-body .calendar-header {
+  margin-bottom: 1rem;
+}
+
+.calendar-modal-body .calendar-grid {
+  max-height: 50vh;
+}
+
 /* Chat – dark theme to match landing */
 .chat-container {
   background-color: rgba(0, 0, 0, 0.5);
@@ -1015,6 +1239,77 @@ a {
 
 .community-page.day-mode .legend-color.confirmed {
   background-color: #d4edda;
+}
+
+/* Day mode: calendar day summary */
+.community-page.day-mode .calendar-day-summary {
+  background-color: #fff;
+  border-color: #eaeaea;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.community-page.day-mode .calendar-day-summary:hover {
+  border-color: #ccc;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.community-page.day-mode .calendar-summary-header h2 {
+  color: #333;
+}
+
+.community-page.day-mode .calendar-summary-date-label {
+  color: #666;
+}
+
+.community-page.day-mode .calendar-summary-loading {
+  color: #666;
+}
+
+.community-page.day-mode .calendar-summary-strip-label {
+  color: #999;
+}
+
+.community-page.day-mode .calendar-summary-segment-empty {
+  background-color: rgba(0, 0, 0, 0.06);
+}
+
+.community-page.day-mode .calendar-summary-segment-thinking {
+  background-color: rgba(251, 191, 36, 0.35);
+  border-color: rgba(251, 191, 36, 0.3);
+}
+
+.community-page.day-mode .calendar-summary-segment-confirmed {
+  background-color: rgba(34, 197, 94, 0.35);
+  border-color: rgba(34, 197, 94, 0.3);
+}
+
+.community-page.day-mode .calendar-summary-cta {
+  border-top-color: #eaeaea;
+  color: #666;
+}
+
+/* Day mode: calendar modal popout */
+.community-page.day-mode .calendar-modal-backdrop {
+  background-color: rgba(0, 0, 0, 0.4);
+}
+
+.community-page.day-mode .calendar-modal-content {
+  background-color: #fff;
+  border-color: #eaeaea;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+}
+
+.community-page.day-mode .calendar-modal-header h2 {
+  color: #333;
+}
+
+.community-page.day-mode .calendar-modal-close {
+  background: rgba(0, 0, 0, 0.06);
+  color: #333;
+}
+
+.community-page.day-mode .calendar-modal-close:hover {
+  background: rgba(0, 0, 0, 0.12);
 }
 
 .community-page.day-mode .chat-container {

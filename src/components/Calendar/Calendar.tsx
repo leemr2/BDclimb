@@ -11,15 +11,28 @@ import {
 } from "@/lib/firebase/calendar";
 import { TimeBlock } from "./TimeBlock";
 
-export const Calendar = () => {
+interface CalendarProps {
+  /** When provided (e.g. from modal), use this as the initial selected date */
+  defaultSelectedDate?: string;
+}
+
+export const Calendar = ({ defaultSelectedDate }: CalendarProps) => {
   const { user } = useAuth();
   const [selectedDate, setSelectedDate] = useState<string>(() => {
+    if (defaultSelectedDate) return defaultSelectedDate;
     const today = new Date();
     return today.toISOString().split("T")[0];
   });
   const [entries, setEntries] = useState<CalendarEntry[]>([]);
   const [displayName, setDisplayName] = useState<string>("");
   const [loading, setLoading] = useState(true);
+
+  // Sync with parent when defaultSelectedDate changes (e.g. modal opened with new date)
+  useEffect(() => {
+    if (defaultSelectedDate != null && defaultSelectedDate !== selectedDate) {
+      setSelectedDate(defaultSelectedDate);
+    }
+  }, [defaultSelectedDate]); // eslint-disable-line react-hooks/exhaustive-deps -- only sync when prop from parent changes
 
   // Get user's display name
   useEffect(() => {
