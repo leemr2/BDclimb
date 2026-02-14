@@ -9,7 +9,7 @@ import { Chat } from "@/components/Chat/Chat";
 import { DisplayNameSetup } from "@/components/DisplayNameSetup";
 
 export default function CommunityPage() {
-  const { user, loading: authLoading } = useAuth();
+  const { user, loading: authLoading, signOut } = useAuth();
   const router = useRouter();
   const [displayName, setDisplayName] = useState<string | null>(null);
   const [checkingProfile, setCheckingProfile] = useState(true);
@@ -76,6 +76,9 @@ export default function CommunityPage() {
         <h1>The BD Climbing Association</h1>
         <div className="user-info">
           <span>Welcome, {displayName || user.email}!</span>
+          <button type="button" onClick={() => signOut()} className="logout-btn">
+            Log out
+          </button>
         </div>
       </div>
       <div className="community-content">

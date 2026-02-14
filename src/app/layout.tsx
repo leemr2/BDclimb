@@ -6,8 +6,8 @@ import type { Metadata, Viewport } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "NextJS Firebase Starter (App Router)",
-  description: "A starter kit created by @carledwardfp",
+  title: "The BD Climbing Community Page",
+  description: "A community page for BD Climbing",
 };
 
 export const viewport: Viewport = {
