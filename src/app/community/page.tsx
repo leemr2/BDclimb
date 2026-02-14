@@ -8,12 +8,34 @@ import { Calendar } from "@/components/Calendar/Calendar";
 import { Chat } from "@/components/Chat/Chat";
 import { DisplayNameSetup } from "@/components/DisplayNameSetup";
 
+const DAY_MODE_KEY = "bdclimb-day-mode";
+
 export default function CommunityPage() {
   const { user, loading: authLoading, signOut } = useAuth();
   const router = useRouter();
   const [displayName, setDisplayName] = useState<string | null>(null);
   const [checkingProfile, setCheckingProfile] = useState(true);
   const [showDisplayNameSetup, setShowDisplayNameSetup] = useState(false);
+  const [dayMode, setDayMode] = useState(false);
+
+  useEffect(() => {
+    try {
+      const stored = localStorage.getItem(DAY_MODE_KEY);
+      setDayMode(stored === "1");
+    } catch {
+      setDayMode(false);
+    }
+  }, []);
+
+  const toggleDayMode = () => {
+    setDayMode((prev) => {
+      const next = !prev;
+      try {
+        localStorage.setItem(DAY_MODE_KEY, next ? "1" : "0");
+      } catch {}
+      return next;
+    });
+  };
 
   useEffect(() => {
     if (!authLoading && !user) {
@@ -68,13 +90,22 @@ export default function CommunityPage() {
   }
 
   return (
-    <div className="community-page">
+    <div className={`community-page${dayMode ? " day-mode" : ""}`}>
       {showDisplayNameSetup && (
         <DisplayNameSetup onComplete={handleDisplayNameComplete} />
       )}
       <div className="community-header">
         <h1>The BD Climbing Association</h1>
         <div className="user-info">
+          <button
+            type="button"
+            onClick={toggleDayMode}
+            className="day-mode-btn"
+            aria-pressed={dayMode}
+            aria-label={dayMode ? "Switch to night mode" : "Switch to day mode"}
+          >
+            {dayMode ? "Night mode" : "Day mode"}
+          </button>
           <span>Welcome, {displayName || user.email}!</span>
           <button type="button" onClick={() => signOut()} className="logout-btn">
             Log out

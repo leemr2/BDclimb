@@ -248,54 +248,84 @@ a {
   align-items: center;
   min-height: 100vh;
   font-size: 1.2rem;
+  background-color: #000;
+  color: rgba(255, 255, 255, 0.85);
+  font-weight: 300;
 }
 
-/* Community Page */
+/* Community Page – matches landing/login styling (no hero/animations) */
 .community-page {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
-  background-color: #f5f5f5;
+  background-color: #000;
+  color: rgba(255, 255, 255, 0.9);
+  font-weight: 300;
 }
 
 .community-header {
-  background-color: #fff;
+  background-color: rgba(0, 0, 0, 0.6);
   padding: 1rem 2rem;
-  border-bottom: 1px solid #eaeaea;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
   display: flex;
   justify-content: space-between;
   align-items: center;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  backdrop-filter: blur(8px);
 }
 
 .community-header h1 {
   margin: 0;
   font-size: 1.5rem;
-  color: #333;
+  font-weight: 300;
+  letter-spacing: -0.025em;
+  color: #fff;
 }
 
 .user-info {
-  color: #666;
+  color: rgba(255, 255, 255, 0.75);
   font-size: 0.9rem;
+  font-weight: 300;
   display: flex;
   align-items: center;
   gap: 1rem;
 }
 
 .user-info .logout-btn {
-  padding: 0.35rem 0.75rem;
-  font-size: 0.85rem;
-  color: #666;
-  background: transparent;
-  border: 1px solid #ccc;
-  border-radius: 4px;
+  padding: 0.5rem 1rem;
+  font-size: 0.875rem;
+  font-weight: 300;
+  letter-spacing: 0.01em;
+  color: #fff;
+  background: rgba(255, 255, 255, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 1rem;
   cursor: pointer;
+  transition: background-color 0.2s, border-color 0.2s;
 }
 
 .user-info .logout-btn:hover {
-  background: #f5f5f5;
-  border-color: #999;
-  color: #333;
+  background: rgba(255, 255, 255, 0.25);
+  border-color: rgba(255, 255, 255, 0.3);
+  color: #fff;
+}
+
+.user-info .day-mode-btn {
+  padding: 0.5rem 1rem;
+  font-size: 0.875rem;
+  font-weight: 300;
+  letter-spacing: 0.01em;
+  color: #fff;
+  background: rgba(255, 255, 255, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 1rem;
+  cursor: pointer;
+  transition: background-color 0.2s, border-color 0.2s, color 0.2s;
+}
+
+.user-info .day-mode-btn:hover {
+  background: rgba(255, 255, 255, 0.25);
+  border-color: rgba(255, 255, 255, 0.3);
+  color: #fff;
 }
 
 .community-content {
@@ -327,7 +357,7 @@ a {
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: rgba(0, 0, 0, 0.5);
+  background-color: rgba(0, 0, 0, 0.7);
   display: flex;
   justify-content: center;
   align-items: center;
@@ -335,13 +365,15 @@ a {
 }
 
 .display-name-setup-modal {
-  background-color: #fff;
+  background-color: rgba(0, 0, 0, 0.85);
   padding: 2rem;
-  border-radius: 10px;
+  border-radius: 1rem;
+  border: 1px solid rgba(255, 255, 255, 0.1);
   max-width: 400px;
   width: 90%;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
   margin: 1rem;
+  backdrop-filter: blur(12px);
 }
 
 @media (max-width: 480px) {
@@ -363,12 +395,15 @@ a {
 .display-name-setup-modal h2 {
   margin: 0 0 1rem 0;
   font-size: 1.5rem;
-  color: #333;
+  font-weight: 300;
+  letter-spacing: -0.02em;
+  color: #fff;
 }
 
 .display-name-setup-modal p {
   margin: 0 0 1.5rem 0;
-  color: #666;
+  color: rgba(255, 255, 255, 0.75);
+  font-weight: 300;
 }
 
 .display-name-form {
@@ -378,53 +413,68 @@ a {
 }
 
 .display-name-input {
-  padding: 0.75rem;
-  border: 1px solid #ddd;
-  border-radius: 5px;
+  padding: 0.75rem 1rem;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 0.75rem;
   font-size: 1rem;
+  background: rgba(255, 255, 255, 0.05);
+  color: #fff;
+  font-weight: 300;
+}
+
+.display-name-input::placeholder {
+  color: rgba(255, 255, 255, 0.4);
 }
 
 .display-name-input:focus {
   outline: none;
-  border-color: #0070f3;
+  border-color: rgba(255, 255, 255, 0.2);
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.2);
 }
 
 .display-name-submit {
-  padding: 0.75rem;
-  background-color: #0070f3;
+  padding: 0.75rem 1rem;
+  background: rgba(255, 255, 255, 0.2);
   color: #fff;
-  border: none;
-  border-radius: 5px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 1rem;
   font-size: 1rem;
+  font-weight: 300;
   cursor: pointer;
-  transition: background-color 0.2s;
+  transition: background-color 0.2s, border-color 0.2s;
 }
 
 .display-name-submit:hover:not(:disabled) {
-  background-color: #0051cc;
+  background: rgba(255, 255, 255, 0.3);
+  border-color: rgba(255, 255, 255, 0.3);
 }
 
 .display-name-submit:disabled {
-  background-color: #ccc;
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.08);
   cursor: not-allowed;
+  opacity: 0.7;
 }
 
 .error-message {
-  color: #ff0000;
+  color: rgba(254, 202, 202, 0.95);
   font-size: 0.9rem;
   margin: 0;
+  font-weight: 300;
 }
 
-/* Calendar */
+/* Calendar – dark theme to match landing */
 .calendar-container {
-  background-color: #fff;
-  border-radius: 8px;
+  background-color: rgba(0, 0, 0, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 0.75rem;
   padding: 1.5rem;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.3);
   display: flex;
   flex-direction: column;
   height: 100%;
   overflow: hidden;
+  backdrop-filter: blur(8px);
 }
 
 .calendar-header {
@@ -438,26 +488,33 @@ a {
 .calendar-header h2 {
   margin: 0;
   font-size: 1.5rem;
-  color: #333;
+  font-weight: 300;
+  letter-spacing: -0.02em;
+  color: #fff;
 }
 
 .date-picker {
-  padding: 0.5rem;
-  border: 1px solid #ddd;
-  border-radius: 5px;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 0.5rem;
   font-size: 1rem;
   cursor: pointer;
+  background: rgba(255, 255, 255, 0.05);
+  color: #fff;
+  font-weight: 300;
 }
 
 .date-picker:focus {
   outline: none;
-  border-color: #0070f3;
+  border-color: rgba(255, 255, 255, 0.2);
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.2);
 }
 
 .calendar-loading {
   text-align: center;
   padding: 2rem;
-  color: #666;
+  color: rgba(255, 255, 255, 0.6);
+  font-weight: 300;
 }
 
 .calendar-grid {
@@ -474,46 +531,46 @@ a {
 }
 
 .calendar-grid::-webkit-scrollbar-track {
-  background: #f1f1f1;
+  background: rgba(255, 255, 255, 0.05);
   border-radius: 4px;
 }
 
 .calendar-grid::-webkit-scrollbar-thumb {
-  background: #888;
+  background: rgba(255, 255, 255, 0.2);
   border-radius: 4px;
 }
 
 .calendar-grid::-webkit-scrollbar-thumb:hover {
-  background: #555;
+  background: rgba(255, 255, 255, 0.35);
 }
 
 .time-block {
   padding: 1rem;
-  border: 2px solid #eaeaea;
-  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 0.5rem;
   cursor: pointer;
   transition: all 0.2s;
-  background-color: #fff;
+  background-color: rgba(255, 255, 255, 0.03);
 }
 
 .time-block:hover {
-  border-color: #0070f3;
+  border-color: rgba(255, 255, 255, 0.25);
   transform: translateY(-2px);
-  box-shadow: 0 2px 8px rgba(0, 112, 243, 0.2);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
 }
 
 .time-block.empty {
-  background-color: #fafafa;
+  background-color: rgba(255, 255, 255, 0.04);
 }
 
 .time-block.thinking {
-  background-color: #fff3cd;
-  border-color: #ffc107;
+  background-color: rgba(251, 191, 36, 0.12);
+  border-color: rgba(251, 191, 36, 0.35);
 }
 
 .time-block.confirmed {
-  background-color: #d4edda;
-  border-color: #28a745;
+  background-color: rgba(34, 197, 94, 0.12);
+  border-color: rgba(34, 197, 94, 0.35);
 }
 
 .time-block-header {
@@ -524,28 +581,28 @@ a {
 }
 
 .time-label {
-  font-weight: 600;
-  color: #333;
+  font-weight: 300;
+  color: rgba(255, 255, 255, 0.9);
   font-size: 1rem;
 }
 
 .user-status {
   font-size: 0.85rem;
-  color: #666;
-  font-weight: 500;
+  color: rgba(255, 255, 255, 0.6);
+  font-weight: 300;
 }
 
 .time-block-others {
   margin-top: 0.75rem;
   padding-top: 0.75rem;
-  border-top: 1px solid #eaeaea;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 .others-label {
   font-size: 0.8rem;
-  color: #666;
+  color: rgba(255, 255, 255, 0.6);
   margin-bottom: 0.5rem;
-  font-weight: 500;
+  font-weight: 300;
 }
 
 .others-list {
@@ -556,18 +613,19 @@ a {
 
 .other-entry {
   font-size: 0.85rem;
-  color: #555;
+  color: rgba(255, 255, 255, 0.75);
   padding: 0.25rem 0.5rem;
-  border-radius: 4px;
-  background-color: rgba(255, 255, 255, 0.5);
+  border-radius: 0.25rem;
+  background-color: rgba(255, 255, 255, 0.06);
+  font-weight: 300;
 }
 
 .other-entry.confirmed {
-  background-color: rgba(40, 167, 69, 0.1);
+  background-color: rgba(34, 197, 94, 0.15);
 }
 
 .other-entry.thinking {
-  background-color: rgba(255, 193, 7, 0.1);
+  background-color: rgba(251, 191, 36, 0.15);
 }
 
 .calendar-legend {
@@ -575,7 +633,7 @@ a {
   gap: 1.5rem;
   margin-top: 1rem;
   padding-top: 1rem;
-  border-top: 1px solid #eaeaea;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
   flex-shrink: 0;
   flex-wrap: wrap;
 }
@@ -585,49 +643,54 @@ a {
   align-items: center;
   gap: 0.5rem;
   font-size: 0.85rem;
-  color: #666;
+  color: rgba(255, 255, 255, 0.6);
+  font-weight: 300;
 }
 
 .legend-color {
   width: 20px;
   height: 20px;
   border-radius: 4px;
-  border: 1px solid #ddd;
+  border: 1px solid rgba(255, 255, 255, 0.15);
 }
 
 .legend-color.empty {
-  background-color: #fafafa;
+  background-color: rgba(255, 255, 255, 0.06);
 }
 
 .legend-color.thinking {
-  background-color: #fff3cd;
+  background-color: rgba(251, 191, 36, 0.25);
 }
 
 .legend-color.confirmed {
-  background-color: #d4edda;
+  background-color: rgba(34, 197, 94, 0.25);
 }
 
-/* Chat */
+/* Chat – dark theme to match landing */
 .chat-container {
-  background-color: #fff;
-  border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  background-color: rgba(0, 0, 0, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 0.75rem;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.3);
   display: flex;
   flex-direction: column;
   height: 100%;
   overflow: hidden;
+  backdrop-filter: blur(8px);
 }
 
 .chat-header {
   padding: 1.5rem;
-  border-bottom: 1px solid #eaeaea;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
   flex-shrink: 0;
 }
 
 .chat-header h2 {
   margin: 0;
   font-size: 1.5rem;
-  color: #333;
+  font-weight: 300;
+  letter-spacing: -0.02em;
+  color: #fff;
 }
 
 .chat-messages {
@@ -644,35 +707,40 @@ a {
 }
 
 .chat-messages::-webkit-scrollbar-track {
-  background: #f1f1f1;
+  background: rgba(255, 255, 255, 0.05);
   border-radius: 4px;
 }
 
 .chat-messages::-webkit-scrollbar-thumb {
-  background: #888;
+  background: rgba(255, 255, 255, 0.2);
   border-radius: 4px;
 }
 
 .chat-messages::-webkit-scrollbar-thumb:hover {
-  background: #555;
+  background: rgba(255, 255, 255, 0.35);
 }
 
 .chat-empty {
   text-align: center;
-  color: #999;
+  color: rgba(255, 255, 255, 0.5);
   padding: 2rem;
   font-style: italic;
+  font-weight: 300;
 }
 
 .message {
   padding: 0.75rem 1rem;
-  border-radius: 8px;
-  background-color: #f5f5f5;
+  border-radius: 0.5rem;
+  background-color: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.08);
   max-width: 80%;
+  color: rgba(255, 255, 255, 0.9);
+  font-weight: 300;
 }
 
 .message.own-message {
-  background-color: #0070f3;
+  background-color: rgba(255, 255, 255, 0.2);
+  border-color: rgba(255, 255, 255, 0.2);
   color: #fff;
   align-self: flex-end;
 }
@@ -683,6 +751,7 @@ a {
   gap: 0.5rem;
   margin-bottom: 0.25rem;
   font-size: 0.85rem;
+  font-weight: 300;
 }
 
 .message.own-message .message-header {
@@ -690,12 +759,13 @@ a {
 }
 
 .message-author {
-  font-weight: 600;
+  font-weight: 400;
 }
 
 .message-time {
-  color: #999;
+  color: rgba(255, 255, 255, 0.5);
   font-size: 0.75rem;
+  font-weight: 300;
 }
 
 .message.own-message .message-time {
@@ -705,7 +775,7 @@ a {
 .message-delete {
   background: none;
   border: none;
-  color: rgba(255, 255, 255, 0.8);
+  color: rgba(255, 255, 255, 0.6);
   cursor: pointer;
   font-size: 1.2rem;
   padding: 0;
@@ -716,11 +786,12 @@ a {
   align-items: center;
   justify-content: center;
   border-radius: 50%;
-  transition: background-color 0.2s;
+  transition: background-color 0.2s, color 0.2s;
 }
 
 .message-delete:hover {
-  background-color: rgba(255, 255, 255, 0.2);
+  background-color: rgba(255, 255, 255, 0.1);
+  color: rgba(255, 255, 255, 0.9);
 }
 
 .message-content {
@@ -732,47 +803,381 @@ a {
   display: flex;
   gap: 0.5rem;
   padding: 1rem;
-  border-top: 1px solid #eaeaea;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
   flex-shrink: 0;
 }
 
 .chat-input {
   flex: 1;
-  padding: 0.75rem;
-  border: 1px solid #ddd;
-  border-radius: 5px;
+  padding: 0.75rem 1rem;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 0.5rem;
   font-size: 1rem;
+  background: rgba(255, 255, 255, 0.05);
+  color: #fff;
+  font-weight: 300;
+}
+
+.chat-input::placeholder {
+  color: rgba(255, 255, 255, 0.4);
 }
 
 .chat-input:focus {
   outline: none;
-  border-color: #0070f3;
+  border-color: rgba(255, 255, 255, 0.2);
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.2);
 }
 
 .chat-input:disabled {
-  background-color: #f5f5f5;
+  background: rgba(255, 255, 255, 0.03);
   cursor: not-allowed;
+  opacity: 0.7;
 }
 
 .chat-send-button {
   padding: 0.75rem 1.5rem;
-  background-color: #0070f3;
+  background: rgba(255, 255, 255, 0.2);
   color: #fff;
-  border: none;
-  border-radius: 5px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 0.75rem;
   font-size: 1rem;
+  font-weight: 300;
   cursor: pointer;
-  transition: background-color 0.2s;
+  transition: background-color 0.2s, border-color 0.2s;
   white-space: nowrap;
 }
 
 .chat-send-button:hover:not(:disabled) {
-  background-color: #0051cc;
+  background: rgba(255, 255, 255, 0.3);
+  border-color: rgba(255, 255, 255, 0.3);
 }
 
 .chat-send-button:disabled {
-  background-color: #ccc;
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.08);
   cursor: not-allowed;
+  opacity: 0.6;
+}
+
+/* Day mode – inverted (light) color scheme */
+.community-page.day-mode {
+  background-color: #f5f5f5;
+  color: #333;
+}
+
+.community-page.day-mode .community-header {
+  background-color: #fff;
+  border-bottom-color: #eaeaea;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.06);
+}
+
+.community-page.day-mode .community-header h1 {
+  color: #333;
+}
+
+.community-page.day-mode .user-info {
+  color: #666;
+}
+
+.community-page.day-mode .user-info .day-mode-btn {
+  color: #333;
+  background: #f0f0f0;
+  border-color: #ddd;
+}
+
+.community-page.day-mode .user-info .day-mode-btn:hover {
+  background: #e5e5e5;
+  border-color: #ccc;
+  color: #111;
+}
+
+.community-page.day-mode .user-info .logout-btn {
+  color: #333;
+  background: #f0f0f0;
+  border-color: #ddd;
+}
+
+.community-page.day-mode .user-info .logout-btn:hover {
+  background: #e5e5e5;
+  border-color: #ccc;
+  color: #111;
+}
+
+.community-page.day-mode .calendar-container {
+  background-color: #fff;
+  border-color: #eaeaea;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.community-page.day-mode .calendar-header h2 {
+  color: #333;
+}
+
+.community-page.day-mode .date-picker {
+  background: #fff;
+  color: #333;
+  border-color: #ddd;
+}
+
+.community-page.day-mode .date-picker:focus {
+  border-color: #999;
+  box-shadow: 0 0 0 1px #999;
+}
+
+.community-page.day-mode .calendar-loading {
+  color: #666;
+}
+
+.community-page.day-mode .calendar-grid::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+.community-page.day-mode .calendar-grid::-webkit-scrollbar-thumb {
+  background: #bbb;
+}
+
+.community-page.day-mode .calendar-grid::-webkit-scrollbar-thumb:hover {
+  background: #999;
+}
+
+.community-page.day-mode .time-block {
+  background-color: #fafafa;
+  border-color: #eaeaea;
+}
+
+.community-page.day-mode .time-block:hover {
+  border-color: #999;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.community-page.day-mode .time-block.empty {
+  background-color: #f5f5f5;
+}
+
+.community-page.day-mode .time-block.thinking {
+  background-color: #fff8e6;
+  border-color: #e6c35c;
+}
+
+.community-page.day-mode .time-block.confirmed {
+  background-color: #e8f5e9;
+  border-color: #81c784;
+}
+
+.community-page.day-mode .time-label {
+  color: #333;
+}
+
+.community-page.day-mode .user-status {
+  color: #666;
+}
+
+.community-page.day-mode .time-block-others {
+  border-top-color: #eaeaea;
+}
+
+.community-page.day-mode .others-label {
+  color: #666;
+}
+
+.community-page.day-mode .other-entry {
+  color: #555;
+  background-color: rgba(0, 0, 0, 0.04);
+}
+
+.community-page.day-mode .other-entry.confirmed {
+  background-color: rgba(34, 197, 94, 0.12);
+}
+
+.community-page.day-mode .other-entry.thinking {
+  background-color: rgba(251, 191, 36, 0.15);
+}
+
+.community-page.day-mode .calendar-legend {
+  border-top-color: #eaeaea;
+}
+
+.community-page.day-mode .legend-item {
+  color: #666;
+}
+
+.community-page.day-mode .legend-color {
+  border-color: #ddd;
+}
+
+.community-page.day-mode .legend-color.empty {
+  background-color: #f5f5f5;
+}
+
+.community-page.day-mode .legend-color.thinking {
+  background-color: #fff3cd;
+}
+
+.community-page.day-mode .legend-color.confirmed {
+  background-color: #d4edda;
+}
+
+.community-page.day-mode .chat-container {
+  background-color: #fff;
+  border-color: #eaeaea;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.community-page.day-mode .chat-header h2 {
+  color: #333;
+}
+
+.community-page.day-mode .chat-messages::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+.community-page.day-mode .chat-messages::-webkit-scrollbar-thumb {
+  background: #bbb;
+}
+
+.community-page.day-mode .chat-messages::-webkit-scrollbar-thumb:hover {
+  background: #999;
+}
+
+.community-page.day-mode .chat-empty {
+  color: #999;
+}
+
+.community-page.day-mode .message {
+  background-color: #f5f5f5;
+  border-color: #eee;
+  color: #333;
+}
+
+.community-page.day-mode .message.own-message {
+  background-color: #2563eb;
+  border-color: #2563eb;
+  color: #fff;
+}
+
+.community-page.day-mode .message.own-message .message-header {
+  color: rgba(255, 255, 255, 0.95);
+}
+
+.community-page.day-mode .message-time {
+  color: #666;
+}
+
+.community-page.day-mode .message.own-message .message-time {
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.community-page.day-mode .message .message-delete {
+  color: #666;
+}
+
+.community-page.day-mode .message .message-delete:hover {
+  background-color: rgba(0, 0, 0, 0.08);
+  color: #333;
+}
+
+.community-page.day-mode .message.own-message .message-delete {
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.community-page.day-mode .message.own-message .message-delete:hover {
+  background-color: rgba(255, 255, 255, 0.2);
+  color: #fff;
+}
+
+.community-page.day-mode .chat-input-form {
+  border-top-color: #eaeaea;
+}
+
+.community-page.day-mode .chat-input {
+  background: #fff;
+  color: #333;
+  border-color: #ddd;
+}
+
+.community-page.day-mode .chat-input::placeholder {
+  color: #999;
+}
+
+.community-page.day-mode .chat-input:focus {
+  border-color: #999;
+  box-shadow: 0 0 0 1px #999;
+}
+
+.community-page.day-mode .chat-input:disabled {
+  background: #f5f5f5;
+}
+
+.community-page.day-mode .chat-send-button {
+  background: #2563eb;
+  border-color: #2563eb;
+  color: #fff;
+}
+
+.community-page.day-mode .chat-send-button:hover:not(:disabled) {
+  background: #1d4ed8;
+  border-color: #1d4ed8;
+}
+
+.community-page.day-mode .chat-send-button:disabled {
+  background: #ccc;
+  border-color: #ccc;
+  color: #666;
+}
+
+/* Display name modal in day mode */
+.community-page.day-mode .display-name-setup-overlay {
+  background-color: rgba(0, 0, 0, 0.4);
+}
+
+.community-page.day-mode .display-name-setup-modal {
+  background-color: #fff;
+  border-color: #eaeaea;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.15);
+}
+
+.community-page.day-mode .display-name-setup-modal h2 {
+  color: #333;
+}
+
+.community-page.day-mode .display-name-setup-modal p {
+  color: #666;
+}
+
+.community-page.day-mode .display-name-input {
+  background: #fff;
+  color: #333;
+  border-color: #ddd;
+}
+
+.community-page.day-mode .display-name-input::placeholder {
+  color: #999;
+}
+
+.community-page.day-mode .display-name-input:focus {
+  border-color: #999;
+  box-shadow: 0 0 0 1px #999;
+}
+
+.community-page.day-mode .display-name-submit {
+  background: #2563eb;
+  border-color: #2563eb;
+  color: #fff;
+}
+
+.community-page.day-mode .display-name-submit:hover:not(:disabled) {
+  background: #1d4ed8;
+  border-color: #1d4ed8;
+}
+
+.community-page.day-mode .display-name-submit:disabled {
+  background: #e5e5e5;
+  border-color: #e5e5e5;
+  color: #999;
+}
+
+.community-page.day-mode .error-message {
+  color: #b91c1c;
 }
 
 /* Responsive Design */
