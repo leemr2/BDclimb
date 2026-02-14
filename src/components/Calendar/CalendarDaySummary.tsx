@@ -62,6 +62,33 @@ export const CalendarDaySummary = () => {
     return hasConfirmed ? "confirmed" : "thinking";
   };
 
+  const getSegmentTitle = (timeBlock: string) => {
+    const time = formatTimeBlock(timeBlock);
+    const blockEntries = entries.filter((e) => e.timeBlock === timeBlock);
+    if (blockEntries.length === 0) return time;
+    const who = blockEntries
+      .map(
+        (e) =>
+          `${e.displayName} (${e.status === "confirmed" ? "will be there" : "thinking"})`
+      )
+      .join(", ");
+    return `${time} — ${who}`;
+  };
+
+  const daySummaryLines = (() => {
+    if (entries.length === 0) return null;
+    const sorted = [...entries].sort(
+      (a, b) => a.timeBlock.localeCompare(b.timeBlock)
+    );
+    return sorted.map((e) => {
+      const name = e.displayName?.trim() || "Someone";
+      const time = formatTimeBlock(e.timeBlock);
+      const status =
+        e.status === "confirmed" ? "will be there" : "thinking about";
+      return { key: e.id, text: `${name} ${status} at ${time}` };
+    });
+  })();
+
   return (
     <>
       <div
@@ -100,7 +127,7 @@ export const CalendarDaySummary = () => {
                 <div
                   key={timeBlock}
                   className={`calendar-summary-segment calendar-summary-segment-${getSegmentStatus(timeBlock)}`}
-                  title={formatTimeBlock(timeBlock)}
+                  title={getSegmentTitle(timeBlock)}
                 />
               ))}
             </div>
@@ -108,6 +135,15 @@ export const CalendarDaySummary = () => {
           </div>
         )}
         <div className="calendar-summary-cta">Click to edit</div>
+        {!loading && daySummaryLines && daySummaryLines.length > 0 && (
+          <div className="calendar-summary-day-summary">
+            {daySummaryLines.map((line) => (
+              <div key={line.key} className="calendar-summary-day-summary-line">
+                {line.text}
+              </div>
+            ))}
+          </div>
+        )}
       </div>
 
       {modalOpen && (
