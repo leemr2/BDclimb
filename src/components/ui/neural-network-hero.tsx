@@ -232,6 +232,8 @@ export interface NeuralNetworkHeroProps {
   ctaButtons?: Array<{ text: string; href: string; primary?: boolean }>;
   microDetails?: Array<string>;
   children?: React.ReactNode;
+  /** When false, only the shader background is shown (no badge, title, description, or CTAs). Use for login/signup overlays. */
+  contentVisible?: boolean;
 }
 
 export default function NeuralNetworkHero({
@@ -245,6 +247,7 @@ export default function NeuralNetworkHero({
   ],
   microDetails = ["Low‑weight font", "Tight tracking", "Subtle motion"],
   children,
+  contentVisible = true,
 }: NeuralNetworkHeroProps) {
   const sectionRef = useRef<HTMLElement | null>(null);
   const headerRef = useRef<HTMLHeadingElement | null>(null);
@@ -258,7 +261,7 @@ export default function NeuralNetworkHero({
 
   useGSAP(
     () => {
-      if (!headerRef.current) return;
+      if (!contentVisible || !headerRef.current) return;
 
       const runAnimation = () => {
         if (badgeRef.current) {
@@ -310,50 +313,52 @@ export default function NeuralNetworkHero({
     <section ref={sectionRef} className="relative isolate min-h-screen w-full overflow-hidden">
       <ShaderBackground />
 
-      <div className="relative z-10 mx-auto flex max-w-7xl flex-col items-start gap-6 px-6 pb-24 pt-36 sm:gap-8 sm:pt-44 md:px-10 lg:px-16">
-        <div ref={badgeRef} className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1.5 backdrop-blur-sm">
-          <span className="text-[10px] font-light uppercase tracking-[0.08em] text-white/70">{badgeLabel}</span>
-          <span className="h-1 w-1 rounded-full bg-white/40" />
-          <span className="text-xs font-light tracking-tight text-white/80">{badgeText}</span>
+      {contentVisible && (
+        <div className="relative z-10 mx-auto flex max-w-7xl flex-col items-start gap-6 px-6 pb-24 pt-36 sm:gap-8 sm:pt-44 md:px-10 lg:px-16">
+          <div ref={badgeRef} className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1.5 backdrop-blur-sm">
+            <span className="text-[10px] font-light uppercase tracking-[0.08em] text-white/70">{badgeLabel}</span>
+            <span className="h-1 w-1 rounded-full bg-white/40" />
+            <span className="text-xs font-light tracking-tight text-white/80">{badgeText}</span>
+          </div>
+
+          <h1 ref={headerRef} className="max-w-2xl text-left text-5xl font-extralight leading-[1.05] tracking-tight text-white sm:text-6xl md:text-7xl">
+            {title}
+          </h1>
+
+          <p ref={paraRef} className="max-w-xl text-left text-base font-light leading-relaxed tracking-tight text-white/75 sm:text-lg">
+            {description}
+          </p>
+
+          {children}
+
+          <div ref={ctaRef} className="relative z-10 flex flex-wrap items-center gap-3 pt-2">
+            {ctaButtons.map((button, index) => (
+              <a
+                key={index}
+                href={button.href}
+                className={`relative z-10 rounded-2xl border border-white/20 px-5 py-3 text-sm font-light tracking-tight transition-colors focus:outline-none focus:ring-2 focus:ring-white/40 duration-300 ${
+                  button.primary
+                    ? "bg-white/20 text-white shadow-lg shadow-black/20 backdrop-blur-md hover:bg-white/30"
+                    : "bg-white/10 text-white/90 backdrop-blur-sm hover:bg-white/15 hover:text-white"
+                }`}
+              >
+                {button.text}
+              </a>
+            ))}
+          </div>
+
+          <ul ref={microRef} className="mt-8 flex flex-wrap gap-6 text-xs font-extralight tracking-tight text-white/60">
+            {microDetails.map((detail, index) => {
+              const refMap = [microItem1Ref, microItem2Ref, microItem3Ref];
+              return (
+                <li key={index} ref={refMap[index]} className="flex items-center gap-2">
+                  <span className="h-1 w-1 rounded-full bg-white/40" /> {detail}
+                </li>
+              );
+            })}
+          </ul>
         </div>
-
-        <h1 ref={headerRef} className="max-w-2xl text-left text-5xl font-extralight leading-[1.05] tracking-tight text-white sm:text-6xl md:text-7xl">
-          {title}
-        </h1>
-
-        <p ref={paraRef} className="max-w-xl text-left text-base font-light leading-relaxed tracking-tight text-white/75 sm:text-lg">
-          {description}
-        </p>
-
-        {children}
-
-        <div ref={ctaRef} className="relative z-10 flex flex-wrap items-center gap-3 pt-2">
-          {ctaButtons.map((button, index) => (
-            <a
-              key={index}
-              href={button.href}
-              className={`relative z-10 rounded-2xl border border-white/20 px-5 py-3 text-sm font-light tracking-tight transition-colors focus:outline-none focus:ring-2 focus:ring-white/40 duration-300 ${
-                button.primary
-                  ? "bg-white/20 text-white shadow-lg shadow-black/20 backdrop-blur-md hover:bg-white/30"
-                  : "bg-white/10 text-white/90 backdrop-blur-sm hover:bg-white/15 hover:text-white"
-              }`}
-            >
-              {button.text}
-            </a>
-          ))}
-        </div>
-
-        <ul ref={microRef} className="mt-8 flex flex-wrap gap-6 text-xs font-extralight tracking-tight text-white/60">
-          {microDetails.map((detail, index) => {
-            const refMap = [microItem1Ref, microItem2Ref, microItem3Ref];
-            return (
-              <li key={index} ref={refMap[index]} className="flex items-center gap-2">
-                <span className="h-1 w-1 rounded-full bg-white/40" /> {detail}
-              </li>
-            );
-          })}
-        </ul>
-      </div>
+      )}
 
       <div className="pointer-events-none absolute inset-x-0 bottom-0 z-0 h-24 bg-gradient-to-t from-black/40 to-transparent" />
     </section>

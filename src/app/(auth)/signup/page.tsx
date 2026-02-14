@@ -1,5 +1,6 @@
 "use client";
 
+import NeuralNetworkHero from "@/components/ui/neural-network-hero";
 import { useAuth } from "@/lib/firebase/auth";
 import { setErrorMessage } from "@/lib/utils/set-error-message";
 import Link from "next/link";
@@ -18,59 +19,106 @@ const SignupPage = () => {
 
     signUp(email, password)
       .then(() => {
-        // do something after signing in. For example, router.push("/");
         router.push("/");
       })
       .catch((error) => {
         const { title, description } = setErrorMessage(error);
-        // do something with error title and description here
         alert(title + ": " + description);
       });
   };
 
-  // loading state
   if (loading) {
-    return <p>Loading...</p>;
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-black">
+        <p className="text-sm font-light text-white/70">Loading…</p>
+      </div>
+    );
   }
 
-  // if a user is logged in, redirect to a page of your liking
   if (user) {
     router.push("/");
     return null;
   }
 
-  // if there is no signed in user
-  if (!user) {
-    return (
-      <div className="container">
-        <main className="main">
-          <h1 className="title">Create account</h1>
-          <br />
-          <form onSubmit={handleSignUp} className="form">
-            <label htmlFor="email">Email Address</label>
-            <input
-              type="email"
-              name="email"
-              value={email}
-              onChange={(event) => setEmail(event.target.value)}
-            />
-            <label htmlFor="password">Password</label>
-            <input
-              type="password"
-              name="password"
-              value={password}
-              onChange={(event) => setPassword(event.target.value)}
-            />
-            <button type="submit">Submit</button>
+  return (
+    <div className="relative min-h-screen w-full">
+      <NeuralNetworkHero
+        title=""
+        description=""
+        badgeText=""
+        badgeLabel=""
+        ctaButtons={[]}
+        microDetails={[]}
+        contentVisible={false}
+      />
+
+      <div className="absolute inset-0 z-20 flex items-center justify-center p-4 sm:p-6">
+        <div className="w-full max-w-sm rounded-2xl border border-white/10 bg-black/70 p-6 shadow-2xl backdrop-blur-md sm:p-8">
+          <h2 className="text-2xl font-light tracking-tight text-white">
+            Create account
+          </h2>
+
+          <form onSubmit={handleSignUp} className="mt-6 space-y-4">
+            <div>
+              <label
+                htmlFor="email"
+                className="mb-1.5 block text-xs font-light text-white/70"
+              >
+                Email
+              </label>
+              <input
+                id="email"
+                type="email"
+                name="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-white placeholder:text-white/40 focus:border-white/20 focus:outline-none focus:ring-1 focus:ring-white/20"
+                placeholder="you@example.com"
+              />
+            </div>
+            <div>
+              <label
+                htmlFor="password"
+                className="mb-1.5 block text-xs font-light text-white/70"
+              >
+                Password
+              </label>
+              <input
+                id="password"
+                type="password"
+                name="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-white placeholder:text-white/40 focus:border-white/20 focus:outline-none focus:ring-1 focus:ring-white/20"
+                placeholder="••••••••"
+              />
+            </div>
+            <button
+              type="submit"
+              className="w-full rounded-2xl border border-white/20 bg-white/20 px-4 py-3 text-sm font-light text-white shadow-lg shadow-black/20 transition-colors hover:bg-white/30 focus:outline-none focus:ring-2 focus:ring-white/40"
+            >
+              Create account
+            </button>
           </form>
-          <p>
-            Already have an account? <Link href="/login">Sign in</Link>
+
+          <p className="mt-6 text-center text-xs text-white/60">
+            Already have an account?{" "}
+            <Link
+              href="/login"
+              className="text-white/80 underline underline-offset-2 hover:text-white"
+            >
+              Sign in
+            </Link>
           </p>
-          <Link href="/">&larr; Go back</Link>
-        </main>
+          <p className="mt-2 text-center text-xs text-white/50">
+            <Link href="/" className="hover:text-white/70">
+              ← Back to home
+            </Link>
+          </p>
+        </div>
       </div>
-    );
-  }
+    </div>
+  );
 };
 
 export default SignupPage;

@@ -40,12 +40,13 @@ const LoginPage = () => {
   return (
     <div className="relative min-h-screen w-full">
       <NeuralNetworkHero
-        title="Where the community climbs."
-        description="Sign in to access the BD Climbing community — training, events, and messaging."
-        badgeText="BD Climbing"
-        badgeLabel="Community"
-        ctaButtons={[{ text: "Sign up", href: "/signup" }]}
-        microDetails={["Secure sign-in", "Google or email", "Free to join"]}
+        title=""
+        description=""
+        badgeText=""
+        badgeLabel=""
+        ctaButtons={[]}
+        microDetails={[]}
+        contentVisible={false}
       />
 
       <div className="absolute inset-0 z-20 flex items-center justify-center p-4 sm:p-6">
