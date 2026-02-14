@@ -70,7 +70,7 @@ export const DisplayNameSetup = ({ onComplete }: DisplayNameSetupProps) => {
   return (
     <div className="display-name-setup-overlay">
       <div className="display-name-setup-modal">
-        <h2>Welcome to the Climbing Gym Community!</h2>
+        <h2>Welcome to the BD Climbing Community!</h2>
         <p>Please set a display name that will be shown to other members.</p>
         <form onSubmit={handleSubmit} className="display-name-form">
           <input

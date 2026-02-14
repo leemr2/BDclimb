@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { useAuth } from "@/lib/firebase/auth";
 import { getUserProfile } from "@/lib/firebase/users";
 import { CalendarDaySummary } from "@/components/Calendar/CalendarDaySummary";
@@ -95,7 +96,7 @@ export default function CommunityPage() {
         <DisplayNameSetup onComplete={handleDisplayNameComplete} />
       )}
       <div className="community-header">
-        <h1>The BD Climbing Association</h1>
+        <h1>The BD Climbing Community</h1>
         <div className="user-info">
           <button
             type="button"
@@ -113,8 +114,21 @@ export default function CommunityPage() {
         </div>
       </div>
       <div className="community-content">
-        <div className="calendar-section">
-          <CalendarDaySummary />
+        <div className="community-left">
+          <div className="calendar-section">
+            <CalendarDaySummary />
+          </div>
+          <div className="training-center-section">
+            <div className="training-center-card">
+              <h2>Training Center</h2>
+              <p className="training-center-description">
+                Level up your climbing with structured training plans.
+              </p>
+              <Link href="/training-center" className="training-center-cta">
+                Start Training Now
+              </Link>
+            </div>
+          </div>
         </div>
         <div className="chat-section">
           <Chat />
