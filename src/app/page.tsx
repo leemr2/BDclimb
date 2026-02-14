@@ -1,9 +1,9 @@
 "use client";
 
+import NeuralNetworkHero from "@/components/ui/neural-network-hero";
 import { useAuth } from "@/lib/firebase/auth";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
-import Link from "next/link";
 
 const HomePage = () => {
   const { user, loading } = useAuth();
@@ -17,10 +17,8 @@ const HomePage = () => {
 
   if (loading) {
     return (
-      <div className="container">
-        <main className="main">
-          <div>Loading...</div>
-        </main>
+      <div className="flex min-h-screen items-center justify-center bg-black">
+        <p className="text-sm font-light text-white/70">Loading…</p>
       </div>
     );
   }
@@ -30,13 +28,17 @@ const HomePage = () => {
   }
 
   return (
-    <div className="container">
-      <main className="main">
-        <Link href="/login">
-          <h1 className="title">Login</h1>
-        </Link>
-      </main>
-    </div>
+    <NeuralNetworkHero
+      title="Where the BD comes together to climb."
+      description="Sign in to access the BD Climbing community — training, events, and messaging."
+      badgeText="BD Climbing"
+      badgeLabel="Community"
+      ctaButtons={[
+        { text: "Sign in", href: "/login", primary: true },
+        { text: "Sign up", href: "/signup" },
+      ]}
+      microDetails={["Secure sign-in", "Google or email", "Free to join"]}
+    />
   );
 };
 
