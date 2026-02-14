@@ -8,9 +8,9 @@ import {
   onAuthStateChanged,
   signInWithEmailAndPassword,
   signInWithPopup,
+  GoogleAuthProvider,
   type User,
 } from "firebase/auth";
-import { GoogleAuthProvider } from "firebase/auth/web-extension";
 import { useRouter } from "next/navigation";
 import { createContext, useContext, useEffect, useState } from "react";
 import { auth } from "./client";

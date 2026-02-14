@@ -7,6 +7,8 @@ enum ErrorCode {
   TooManyRequests = "auth/too-many-requests",
   UserNotFound = "auth/user-not-found",
   WrongPassword = "auth/wrong-password",
+  PopupClosedByUser = "auth/popup-closed-by-user",
+  CancelledPopupRequest = "auth/cancelled-popup-request",
 }
 
 // Update the messages according to your preference
@@ -42,6 +44,16 @@ export const setErrorMessage = (error: FirebaseError) => {
     case ErrorCode.WrongPassword:
       title = "Incorrect password";
       description = "You have entered a wrong password. Please try again.";
+      break;
+
+    case ErrorCode.PopupClosedByUser:
+      title = "Sign-in cancelled";
+      description = "The sign-in window was closed. Please try again.";
+      break;
+
+    case ErrorCode.CancelledPopupRequest:
+      title = "Sign-in cancelled";
+      description = "Another sign-in attempt is in progress or was cancelled.";
       break;
 
     default:
