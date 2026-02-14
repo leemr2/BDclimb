@@ -1,13 +1,19 @@
 import { AuthProvider } from "@/lib/firebase/auth";
 import { getAuthenticatedAppForUser } from "@/lib/firebase/server";
 import type { User } from "firebase/auth";
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 
 import "./globals.css";
 
 export const metadata: Metadata = {
   title: "NextJS Firebase Starter (App Router)",
   description: "A starter kit created by @carledwardfp",
+};
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 5,
 };
 
 const RootLayout = async ({

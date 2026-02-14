@@ -46,7 +46,7 @@ const SignupPage = () => {
         <main className="main">
           <h1 className="title">Login</h1>
           <br />
-          <form onSubmit={handleSignUp}>
+          <form onSubmit={handleSignUp} className="form">
             <label htmlFor="email">Email Address</label>
             <input
               type="email"

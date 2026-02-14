@@ -25,6 +25,14 @@ a {
   height: 100vh;
 }
 
+@media (max-width: 768px) {
+  .container {
+    padding: 1rem;
+    height: auto;
+    min-height: 100vh;
+  }
+}
+
 .main {
   padding: 5rem 0;
   flex: 1;
@@ -32,6 +40,19 @@ a {
   flex-direction: column;
   justify-content: center;
   align-items: center;
+}
+
+@media (max-width: 768px) {
+  .main {
+    padding: 2rem 0;
+    width: 100%;
+  }
+
+  .main h2 {
+    font-size: 1.25rem;
+    text-align: center;
+    padding: 0 1rem;
+  }
 }
 
 .footer {
@@ -65,6 +86,18 @@ a {
   margin: 0;
   line-height: 1.15;
   font-size: 4rem;
+}
+
+@media (max-width: 768px) {
+  .title {
+    font-size: 2.5rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .title {
+    font-size: 2rem;
+  }
 }
 
 .title,
@@ -130,10 +163,30 @@ a {
   margin-left: 0.5rem;
 }
 
+@media (max-width: 768px) {
+  .grid {
+    width: 100%;
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .card {
+    width: 100%;
+    max-width: 400px;
+    margin: 0;
+  }
+}
+
 @media (max-width: 600px) {
   .grid {
     width: 100%;
     flex-direction: column;
+    padding: 0 1rem;
+  }
+
+  .card {
+    width: 100%;
+    max-width: 100%;
   }
 }
 
@@ -141,6 +194,49 @@ a {
   display: flex;
   flex-direction: column;
   gap: 8px;
+  width: 100%;
+  max-width: 400px;
+}
+
+.form label {
+  font-weight: 500;
+  margin-top: 0.5rem;
+}
+
+.form input {
+  padding: 0.75rem;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  font-size: 1rem;
+  width: 100%;
+}
+
+.form input:focus {
+  outline: none;
+  border-color: #0070f3;
+}
+
+.form button {
+  padding: 0.75rem;
+  background-color: #0070f3;
+  color: #fff;
+  border: none;
+  border-radius: 5px;
+  font-size: 1rem;
+  cursor: pointer;
+  margin-top: 1rem;
+  transition: background-color 0.2s;
+}
+
+.form button:hover {
+  background-color: #0051cc;
+}
+
+@media (max-width: 480px) {
+  .form {
+    max-width: 100%;
+    padding: 0 1rem;
+  }
 }
 
 /* Loading */
@@ -224,6 +320,23 @@ a {
   max-width: 400px;
   width: 90%;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  margin: 1rem;
+}
+
+@media (max-width: 480px) {
+  .display-name-setup-modal {
+    padding: 1.5rem;
+    width: 95%;
+    margin: 0.5rem;
+  }
+
+  .display-name-setup-modal h2 {
+    font-size: 1.25rem;
+  }
+
+  .display-name-setup-modal p {
+    font-size: 0.9rem;
+  }
 }
 
 .display-name-setup-modal h2 {
@@ -642,7 +755,7 @@ a {
 }
 
 /* Responsive Design */
-@media (max-width: 968px) {
+@media (max-width: 1024px) {
   .community-content {
     flex-direction: column;
   }
@@ -650,12 +763,57 @@ a {
   .calendar-section,
   .chat-section {
     height: 50vh;
+    min-height: 400px;
+  }
+}
+
+@media (max-width: 968px) {
+  .community-content {
+    flex-direction: column;
+    padding: 0.75rem;
+  }
+
+  .calendar-section,
+  .chat-section {
+    height: 50vh;
+    min-height: 350px;
+  }
+
+  .community-header {
+    padding: 1rem 1.5rem;
+  }
+
+  .community-header h1 {
+    font-size: 1.5rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .community-content {
+    flex-direction: column;
+    padding: 0.5rem;
+    gap: 0.75rem;
+  }
+
+  .calendar-section,
+  .chat-section {
+    height: 50vh;
+    min-height: 300px;
   }
 
   .community-header {
     flex-direction: column;
     align-items: flex-start;
-    gap: 0.5rem;
+    gap: 0.75rem;
+    padding: 1rem;
+  }
+
+  .community-header h1 {
+    font-size: 1.35rem;
+  }
+
+  .user-info {
+    font-size: 0.85rem;
   }
 
   .calendar-header {
@@ -664,15 +822,48 @@ a {
     gap: 1rem;
   }
 
+  .calendar-header h2 {
+    font-size: 1.25rem;
+  }
+
+  .date-picker {
+    width: 100%;
+  }
+
   .calendar-legend {
-    flex-direction: column;
-    gap: 0.75rem;
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 1rem;
+    font-size: 0.8rem;
+  }
+
+  .chat-header h2 {
+    font-size: 1.25rem;
   }
 }
 
 @media (max-width: 600px) {
+  .community-header {
+    padding: 0.75rem;
+  }
+
   .community-header h1 {
     font-size: 1.25rem;
+  }
+
+  .user-info {
+    font-size: 0.8rem;
+  }
+
+  .community-content {
+    padding: 0.5rem;
+    gap: 0.5rem;
+  }
+
+  .calendar-section,
+  .chat-section {
+    height: 50vh;
+    min-height: 250px;
   }
 
   .calendar-container,
@@ -680,12 +871,84 @@ a {
     padding: 1rem;
   }
 
+  .calendar-header h2 {
+    font-size: 1.1rem;
+  }
+
   .time-block {
     padding: 0.75rem;
   }
 
+  .time-label {
+    font-size: 0.9rem;
+  }
+
+  .user-status {
+    font-size: 0.8rem;
+  }
+
   .message {
     max-width: 90%;
+    padding: 0.6rem 0.8rem;
+  }
+
+  .message-header {
+    font-size: 0.8rem;
+  }
+
+  .message-content {
+    font-size: 0.9rem;
+  }
+
+  .chat-input-form {
+    flex-direction: row;
+    padding: 0.75rem;
+    gap: 0.5rem;
+  }
+
+  .chat-input {
+    font-size: 0.9rem;
+    padding: 0.6rem;
+  }
+
+  .chat-send-button {
+    padding: 0.6rem 1rem;
+    font-size: 0.9rem;
+    white-space: nowrap;
+  }
+
+  .calendar-legend {
+    flex-direction: column;
+    gap: 0.5rem;
+    font-size: 0.75rem;
+  }
+
+  .legend-item {
+    font-size: 0.75rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .community-header h1 {
+    font-size: 1.1rem;
+  }
+
+  .calendar-section,
+  .chat-section {
+    min-height: 200px;
+  }
+
+  .calendar-container,
+  .chat-container {
+    padding: 0.75rem;
+  }
+
+  .time-block {
+    padding: 0.6rem;
+  }
+
+  .time-label {
+    font-size: 0.85rem;
   }
 
   .chat-input-form {
