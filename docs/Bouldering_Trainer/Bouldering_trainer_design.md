@@ -1,11 +1,13 @@
-# CruxTracker — Bouldering Training Web App
-## Complete Design & Architecture Document
+# Bouldering Training Module — Design Document
+## Part of Training Center (One of Four 12-Week Training Programs)
 
 ---
 
-## 1. App Overview
+## 1. Module Overview
 
-**CruxTracker** is a guided bouldering training app that walks users through evidence-based 12-week periodized programs. It replaces paper tracking sheets with an interactive, step-by-step workout experience that automatically calculates load metrics, monitors recovery, flags injury risks, and surfaces educational content at key training milestones.
+The **Bouldering Training Module** is one of four goal-based training programs available in the Training Center. When users visit `/training-center`, they select their goal (bouldering, route endurance, route power, or route power/endurance), which starts a 12-week training cycle. After completing a cycle, they can select a new goal.
+
+This module focuses on guided bouldering training through evidence-based 12-week periodized programs. It provides an interactive, step-by-step workout experience that automatically calculates load metrics, monitors recovery, flags injury risks, and surfaces educational content at key training milestones.
 
 ### Core Value Props
 - **Guided workouts**: Step-by-step drill execution (not just a list of exercises)
@@ -14,30 +16,46 @@
 - **Education at milestones**: When a user hits a new mesocycle or deload week, explain *why*
 - **Visual progress**: Charts showing max hang, campus, send rates, and load trends over 12 weeks
 
+### Integration with Existing System
+- Uses existing **Firebase Auth** (already implemented in `/src/lib/firebase/auth.tsx`)
+- Uses existing **Firestore database** (configured in `/src/lib/firebase/`)
+- Uses existing **AuthProvider** (wraps entire app in root layout)
+- Uses existing **Next.js App Router** structure
+- Uses existing **Tailwind CSS v4** styling system
+- Uses existing **path aliases** (`@/*` → `./src/*`)
+
 ---
 
 ## 2. Information Architecture
 
-### Page Structure
+### Page Structure (Updated for Training Center Integration)
+
+The module integrates into the existing app structure:
 
 ```
-/                         → Landing (training center)
-/onboarding               → Profile setup + plan selection
-/dashboard                → Main hub (progress overview + start workout)
-/workout/[sessionId]      → Active workout flow (step-by-step)
-/assessment               → Baseline / retest assessment flow
-/history                  → Past workout logs + detailed data
-/history/[workoutId]      → Individual workout detail
-/progress                 → Charts + progress testing comparison
-/education                → Library of training articles
-/education/[slug]         → Individual education piece
-/settings                 → Profile, plan changes, preferences
+/                              → Landing/hero (existing)
+/community                     → Community page (existing)
+/training-center               → Training center hub (select goal or view active program)
+/training-center/onboarding    → Goal selection + training profile setup
+/training-center/dashboard     → Active training program dashboard
+/training-center/workout/[sessionId] → Active workout flow (step-by-step)
+/training-center/assessment    → Baseline / retest assessment flow
+/training-center/history       → Past workout logs + detailed data
+/training-center/history/[workoutId] → Individual workout detail
+/training-center/progress      → Charts + progress testing comparison
+/training-center/education     → Library of training articles
+/training-center/education/[slug] → Individual education piece
 ```
+
+**Note:** Settings are accessed via existing `/settings` or user menu. No separate auth routes needed.
 
 ### User Flow (High Level)
 
 ```
-Sign Up → Onboarding (age/weight/experience) → Select Plan (2/3/4 day)
+[User already authenticated via existing auth system]
+  → Visits /training-center (first time: sees 4 goal options)
+  → Selects "Bouldering" goal
+  → Training onboarding (age/weight/experience/frequency: 2/3/4 day)
   → Week 0 Assessment (guided step-by-step)
   → Dashboard appears with Week 1 schedule
   → User taps "Start Workout" → guided session → logs each drill → summary
@@ -46,24 +64,33 @@ Sign Up → Onboarding (age/weight/experience) → Select Plan (2/3/4 day)
   → Week 5: Education ("Power/RFD phase") → New mesocycle begins
   → ... continues through Week 12
   → Final assessment + progress report
+  → Returns to /training-center to select new goal (starts new 12-week cycle)
 ```
 
 ---
 
 ## 3. Data Model (Firebase Firestore)
 
-### Why Firestore?
-Firestore's document/collection model maps well to this app: each user has nested collections for workouts, assessments, and daily check-ins. Real-time listeners let the dashboard update live as workout data flows in.
+### Integration with Existing Collections
 
-### Collections & Documents
+The app already has these collections:
+- `users` — User profiles (displayName, email)
+- `calendar` — Community workout commitments
+- `messages` — Community chat messages
+
+We'll extend the `users` collection and add new subcollections specific to training modules.
+
+### Updated Collections & Documents
 
 ```
 users/
   {userId}/
-    profile: {
-      displayName: string
+    // Existing fields (displayName, email)
+    
+    // NEW: Training profile (shared across all 4 training modules)
+    trainingProfile: {
       age: number
-      weight: number          // in lbs or kg (store unit preference)
+      weight: number          // in lbs or kg
       weightUnit: "lbs" | "kg"
       experienceLevel: "beginner" | "intermediate" | "advanced"
       currentLimitGrade: string   // e.g., "V6"
@@ -71,19 +98,31 @@ users/
       updatedAt: Timestamp
     }
 
-    plan: {
+    // NEW: Active training program (only one active at a time)
+    activeProgram: {
+      goalType: "bouldering" | "route_endurance" | "route_power" | "route_power_endurance"
       frequency: 2 | 3 | 4           // days per week
       startDate: Timestamp
       currentWeek: number             // 1-12
       currentMesocycle: 1 | 2 | 3
       status: "assessment" | "active" | "deload" | "complete"
-      planVersion: string             // for future plan updates
-    }
+      programVersion: string          // for future plan updates
+    } | null  // null if no active program
 
-    // --- ASSESSMENTS (Week 0, 4, 8, 12) ---
-    assessments/
+    // NEW: Program history (tracks completed programs)
+    programHistory/
+      {programId}/
+        goalType: "bouldering" | "route_endurance" | "route_power" | "route_power_endurance"
+        frequency: number
+        startDate: Timestamp
+        completedDate: Timestamp
+        finalMetrics: object    // summary data from Week 12
+
+    // --- BOULDERING-SPECIFIC: ASSESSMENTS (Week 0, 4, 8, 12) ---
+    boulderingAssessments/
       {assessmentId}/
-        week: number                  // 0, 4, 8, 12
+        programId: string           // links to programHistory
+        week: number                // 0, 4, 8, 12
         date: Timestamp
         maxHang: {
           attempts: [{
@@ -139,9 +178,10 @@ users/
           concerns: string
         }
 
-    // --- WORKOUTS ---
-    workouts/
+    // --- BOULDERING-SPECIFIC: WORKOUTS ---
+    boulderingWorkouts/
       {workoutId}/
+        programId: string           // links to programHistory
         date: Timestamp
         week: number
         mesocycle: 1 | 2 | 3
@@ -169,13 +209,13 @@ users/
         fingerPainDuring: number      // 0-10
         skinCondition: "good" | "fair" | "poor"
 
-    // --- DAILY CHECK-INS ---
+    // --- DAILY CHECK-INS (shared across all training modules) ---
     dailyCheckins/
       {date-string}/                  // e.g., "2026-02-16"
         date: Timestamp
         fingerStiffness: number       // 0-10
         fingerPain: number            // 0-10
-        energyLevel: number           // 1-5 (or 1-10)
+        energyLevel: number           // 1-5
         sleepQuality: number          // 1-5
         sleepHours: number
         motivation: number            // 1-5
@@ -183,6 +223,8 @@ users/
         readinessForTraining: number  // 1-5
         notes: string
 ```
+
+**Note:** Route endurance, route power, and route power/endurance modules would have their own subcollections: `routeEnduranceWorkouts`, `routePowerWorkouts`, etc., following a similar pattern.
 
 ### Drill Data Shapes (the `data` field in each drill)
 
@@ -286,16 +328,16 @@ type MobilityData = {
 
 ---
 
-## 4. Plan Engine — How the App Knows What Workout to Show
+## 4. Plan Engine — How the Module Knows What Workout to Show
 
-This is the brain of the app. Based on the user's selected frequency (2/3/4 day) and current week, the app generates the correct session.
+This is the brain of the bouldering module. Based on the user's selected frequency (2/3/4 day) and current week, the module generates the correct session.
 
 ### Plan Definition Structure
 
-Store these as static JSON (not in Firestore — they're config, not user data). Put them in `/lib/plans/`.
+Store these as static TypeScript/JSON files in `/src/lib/plans/bouldering/` (not in Firestore — they're config, not user data).
 
 ```typescript
-// /lib/plans/types.ts
+// /src/lib/plans/bouldering/types.ts
 type PlanDefinition = {
   frequency: 2 | 3 | 4
   weeks: WeekDefinition[]
@@ -405,11 +447,12 @@ type DrillDefinition = {
 
 ### How Intensity Auto-Calculates
 
-When a drill says "85-90% of max hang," the app looks up the user's most recent assessment `maxHang.bestLoad` and computes the target:
+When a drill says "85-90% of max hang," the module looks up the user's most recent assessment `maxHang.bestLoad` and computes the target:
 
 ```typescript
-function getTargetLoad(user: User, percentage: number): number {
-  const latestAssessment = getLatestAssessment(user.id)
+// /src/lib/plans/bouldering/calculations.ts
+function getTargetLoad(userId: string, percentage: number): number {
+  const latestAssessment = getLatestBoulderingAssessment(userId)
   const maxLoad = latestAssessment.maxHang.bestLoad
   return Math.round(maxLoad * percentage)
 }
@@ -423,27 +466,29 @@ This means the user sees: **"Target load: 162 lbs (87% of your 186 lb max)"** �
 
 ### When Education Triggers
 
-Education content appears at specific points in the 12-week cycle. These are defined in the plan definitions via `educationSlug`:
+Education content appears at specific points in the 12-week bouldering cycle. These are defined in the plan definitions via `educationSlug`:
 
 | Trigger Point | Slug | Title |
 |---|---|---|
-| Before Week 0 assessment | `intro-why-test` | "Why We Test Before Training" |
-| Start of Week 1 | `meso1-max-strength` | "Mesocycle 1: Building Your Strength Foundation" |
-| Week 4 deload | `why-deload` | "Why Deload Weeks Make You Stronger" |
-| Start of Week 5 | `meso2-power-rfd` | "Mesocycle 2: Developing Power & Explosiveness" |
-| Week 5 campus intro | `campus-safety` | "Campus Board: High Reward, High Risk" |
-| Week 8 deload | `mid-program-check` | "Halfway Check: Reading Your Data" |
-| Start of Week 9 | `meso3-performance` | "Mesocycle 3: Time to Perform" |
-| Week 12 taper | `taper-peak` | "Tapering: Less Is More" |
-| After Week 12 | `program-complete` | "What Your Numbers Mean & What's Next" |
+| Before Week 0 assessment | `bouldering-intro-why-test` | "Why We Test Before Training" |
+| Start of Week 1 | `bouldering-meso1-max-strength` | "Mesocycle 1: Building Your Strength Foundation" |
+| Week 4 deload | `bouldering-why-deload` | "Why Deload Weeks Make You Stronger" |
+| Start of Week 5 | `bouldering-meso2-power-rfd` | "Mesocycle 2: Developing Power & Explosiveness" |
+| Week 5 campus intro | `bouldering-campus-safety` | "Campus Board: High Reward, High Risk" |
+| Week 8 deload | `bouldering-mid-program-check` | "Halfway Check: Reading Your Data" |
+| Start of Week 9 | `bouldering-meso3-performance` | "Mesocycle 3: Time to Perform" |
+| Week 12 taper | `bouldering-taper-peak` | "Tapering: Less Is More" |
+| After Week 12 | `bouldering-program-complete` | "What Your Numbers Mean & What's Next" |
 
 ### Education Content Structure
 
-Store as MDX files in `/content/education/` for rich formatting:
+Store as MDX files in `/src/content/training/bouldering/` for rich formatting:
 
 ```typescript
+// /src/lib/types/education.ts
 type EducationPiece = {
   slug: string
+  goalType: "bouldering" | "route_endurance" | "route_power" | "route_power_endurance"
   title: string
   subtitle: string
   readTimeMinutes: number
@@ -756,166 +801,242 @@ function evaluateMaxHangProgression(
 
 ## 10. Tech Stack & Project Structure
 
-### Stack
+### Stack (Leverages Existing Framework)
 
-| Layer | Technology | Why |
+| Layer | Technology | Status |
 |---|---|---|
-| Framework | Next.js 14+ (App Router) | SSR for SEO pages, client components for app |
-| Auth | Firebase Auth | Email/password + Google. Simple, reliable |
-| Database | Cloud Firestore | Real-time listeners, offline support, scales |
-| State | Zustand or React Context | Lightweight; Firestore handles persistence |
-| Styling | Tailwind CSS + custom design tokens | Rapid iteration, consistent design system |
-| Charts | Recharts | React-native, composable, good for dashboards |
-| Animations | Framer Motion | Polish for workout flow transitions |
-| MDX | next-mdx-remote | Education content with rich formatting |
-| Deployment | Vercel | Zero-config Next.js hosting |
-| PWA | next-pwa | Offline workout logging (critical for gyms) |
+| Framework | Next.js 14+ (App Router) | ✅ Already in place |
+| Auth | Firebase Auth | ✅ Already in place (`/src/lib/firebase/auth.tsx`) |
+| Database | Cloud Firestore | ✅ Already in place (`/src/lib/firebase/`) |
+| State | React Context + hooks | ✅ Pattern established (AuthProvider) |
+| Styling | Tailwind CSS v4 | ✅ Already in place |
+| Charts | Recharts (to be added) | 🆕 New for training modules |
+| Animations | Framer Motion (optional) | 🆕 Optional for polish |
+| MDX | next-mdx-remote | 🆕 New for education content |
+| Deployment | Vercel | ✅ Assumed from existing setup |
+| PWA | next-pwa (optional) | 🆕 Optional for offline workouts |
 
-### Project Structure
+### Updated Project Structure (Training Center Module)
 
 ```
-/app
-  /layout.tsx                    # Root layout with auth provider
-  /page.tsx                      # Landing page
-  /(auth)
-    /login/page.tsx
-    /signup/page.tsx
-  /(app)                         # Authenticated routes
-    /layout.tsx                  # App shell with nav
-    /dashboard/page.tsx
-    /workout/[sessionId]/page.tsx
-    /assessment/page.tsx
-    /history/page.tsx
-    /history/[workoutId]/page.tsx
-    /progress/page.tsx
-    /education/page.tsx
-    /education/[slug]/page.tsx
-    /settings/page.tsx
-    /onboarding/page.tsx
+src/
+  app/
+    layout.tsx                        # ✅ Root layout with AuthProvider (existing)
+    page.tsx                          # ✅ Landing/hero (existing)
+    (auth)/                           # ✅ Existing auth routes (login/signup)
+    community/                        # ✅ Existing community page
+    
+    training-center/                  # 🆕 NEW MODULE
+      page.tsx                        # Goal selection hub or active program dashboard
+      layout.tsx                      # Shared layout for all training pages
+      
+      onboarding/
+        page.tsx                      # Training profile + frequency selection
+      
+      dashboard/
+        page.tsx                      # Active program dashboard (shows current week/workouts)
+      
+      workout/
+        [sessionId]/
+          page.tsx                    # Active workout flow (step-by-step)
+      
+      assessment/
+        page.tsx                      # Assessment flow (Week 0, 4, 8, 12)
+      
+      history/
+        page.tsx                      # Past workout logs list
+        [workoutId]/
+          page.tsx                    # Individual workout detail
+      
+      progress/
+        page.tsx                      # Progress charts and metrics
+      
+      education/
+        page.tsx                      # Education library
+        [slug]/
+          page.tsx                    # Individual education piece
 
-/components
-  /ui                            # Design system primitives
-    /Button.tsx
-    /Card.tsx
-    /Input.tsx
-    /Slider.tsx                  # For RPE input
-    /Timer.tsx                   # Countdown timer component
-    /ProgressBar.tsx
-    /Badge.tsx
-    /Modal.tsx
-    /SafetyBanner.tsx            # Red/yellow flag alerts
-  /dashboard
-    /TodayWorkoutCard.tsx
-    /WeekSchedule.tsx
-    /KeyMetrics.tsx
-    /SafetyMonitor.tsx
-    /MorningCheckin.tsx
-  /workout
-    /WorkoutProvider.tsx          # Context for active workout state
-    /DrillCard.tsx               # Renders drill instructions
-    /SetLogger.tsx               # Log individual set results
-    /RestTimer.tsx               # Between-set rest countdown
-    /HangTimer.tsx               # 10s hang countdown with audio
-    /BoulderLogger.tsx           # Log problem attempts
-    /SafetyInterrupt.tsx         # Pain/warning overlay
-    /WorkoutSummary.tsx          # Post-workout stats + RPE entry
-    /ProgressComparison.tsx      # "Last time vs now" mini-display
-  /assessment
-    /AssessmentFlow.tsx
-    /MaxHangTest.tsx
-    /CampusTest.tsx
-    /BoulderBenchmark.tsx
-    /InjuryScreen.tsx
-  /progress
-    /MaxHangChart.tsx
-    /LoadChart.tsx
-    /SendRateChart.tsx
-    /CampusChart.tsx
-    /RecoveryChart.tsx
-    /RadarComparison.tsx
-  /education
-    /EducationCard.tsx
-    /MilestoneModal.tsx          # Full-screen education at milestones
+  components/
+    ui/                               # ✅ Existing design system primitives
+      Button.tsx                      # ✅ Existing
+      Card.tsx                        # ✅ Existing
+      Input.tsx                       # (add if needed)
+      
+    # 🆕 NEW TRAINING-SPECIFIC COMPONENTS
+    training/
+      dashboard/
+        TodayWorkoutCard.tsx
+        WeekSchedule.tsx
+        KeyMetrics.tsx
+        SafetyMonitor.tsx
+        MorningCheckin.tsx
+        
+      workout/
+        WorkoutProvider.tsx           # Context for active workout state
+        DrillCard.tsx                 # Renders drill instructions
+        SetLogger.tsx                 # Log individual set results
+        RestTimer.tsx                 # Between-set rest countdown
+        HangTimer.tsx                 # 10s hang countdown with audio
+        BoulderLogger.tsx             # Log problem attempts
+        SafetyInterrupt.tsx           # Pain/warning overlay
+        WorkoutSummary.tsx            # Post-workout stats + RPE entry
+        ProgressComparison.tsx        # "Last time vs now" display
+        
+      assessment/
+        AssessmentFlow.tsx
+        MaxHangTest.tsx
+        CampusTest.tsx
+        BoulderBenchmark.tsx
+        InjuryScreen.tsx
+        
+      progress/
+        MaxHangChart.tsx
+        LoadChart.tsx
+        SendRateChart.tsx
+        CampusChart.tsx
+        RecoveryChart.tsx
+        RadarComparison.tsx
+        
+      education/
+        EducationCard.tsx
+        MilestoneModal.tsx            # Full-screen education at milestones
+      
+      shared/
+        Timer.tsx                     # General timer component
+        ProgressBar.tsx
+        SafetyBanner.tsx              # Red/yellow flag alerts
 
-/lib
-  /firebase
-    /config.ts                   # Firebase init
-    /auth.ts                     # Auth helpers
-    /firestore.ts                # Firestore helpers + typed queries
-  /plans
-    /types.ts                    # Plan type definitions
-    /2day.ts                     # 2-day plan definition
-    /3day.ts                     # 3-day plan definition
-    /4day.ts                     # 4-day plan definition
-    /drills.ts                   # Drill definition catalog
-    /planEngine.ts               # Logic: user state → next workout
-  /calculations
-    /srpe.ts                     # sRPE calculations
-    /progression.ts              # Load progression suggestions
-    /safety.ts                   # Safety flag detection
-    /metrics.ts                  # Derived metrics (send rate, trends)
-  /hooks
-    /useAuth.ts
-    /useWorkout.ts               # Active workout state management
-    /usePlan.ts                  # Current plan/week/session
-    /useMetrics.ts               # Dashboard metrics
-    /useSafety.ts                # Real-time safety monitoring
-    /useTimer.ts                 # Timer hook with audio
+  lib/
+    firebase/                         # ✅ Existing Firebase setup
+      auth.tsx                        # ✅ Existing
+      client.ts                       # ✅ Existing
+      server.ts                       # ✅ Existing
+      
+      # 🆕 NEW: Training-specific Firestore operations
+      training/
+        profile.ts                    # Training profile CRUD
+        program.ts                    # Active program management
+        bouldering-assessments.ts     # Bouldering assessment operations
+        bouldering-workouts.ts        # Bouldering workout operations
+        daily-checkins.ts             # Daily check-in operations
+    
+    plans/
+      bouldering/                     # 🆕 Bouldering plan definitions
+        types.ts                      # Plan type definitions
+        2day.ts                       # 2-day plan definition
+        3day.ts                       # 3-day plan definition
+        4day.ts                       # 4-day plan definition
+        drills.ts                     # Drill definition catalog
+        planEngine.ts                 # Logic: user state → next workout
+        calculations.ts               # Target load, progression logic
+      
+      # Future: route-endurance/, route-power/, etc.
+    
+    calculations/                     # 🆕 Training calculations
+      srpe.ts                         # sRPE calculations
+      progression.ts                  # Load progression suggestions
+      safety.ts                       # Safety flag detection
+      metrics.ts                      # Derived metrics (send rate, trends)
+    
+    hooks/
+      useAuth.ts                      # ✅ Existing (or similar)
+      
+      # 🆕 NEW: Training-specific hooks
+      training/
+        useActiveProgram.ts           # Current program state
+        useWorkout.ts                 # Active workout state management
+        usePlan.ts                    # Current week/session logic
+        useMetrics.ts                 # Dashboard metrics
+        useSafety.ts                  # Real-time safety monitoring
+        useTimer.ts                   # Timer hook with audio
+    
+    envs/                             # ✅ Existing
+      client.ts                       # ✅ Existing
+      server.ts                       # ✅ Existing
 
-/content
-  /education                     # MDX files for education pieces
-    /intro-why-test.mdx
-    /meso1-max-strength.mdx
-    /why-deload.mdx
-    /meso2-power-rfd.mdx
-    /campus-safety.mdx
-    /mid-program-check.mdx
-    /meso3-performance.mdx
-    /taper-peak.mdx
-    /program-complete.mdx
+  content/
+    training/                         # 🆕 Training education content
+      bouldering/                     # Bouldering-specific MDX files
+        intro-why-test.mdx
+        meso1-max-strength.mdx
+        why-deload.mdx
+        meso2-power-rfd.mdx
+        campus-safety.mdx
+        mid-program-check.mdx
+        meso3-performance.mdx
+        taper-peak.mdx
+        program-complete.mdx
+      
+      # Future: route-endurance/, route-power/, etc.
 ```
+
+### Key Integration Points
+
+1. **Auth**: Use existing `useAuth()` hook from `/src/lib/firebase/auth.tsx`
+2. **Database**: Use existing Firestore setup from `/src/lib/firebase/client.ts`
+3. **Styling**: Follow existing Tailwind patterns from `/src/app/globals.css`
+4. **Navigation**: Integrate with existing app navigation structure
+5. **User Profile**: Extend existing `users` collection (don't create separate profile system)
 
 ---
 
 ## 11. Implementation Priority (Build Order)
 
-### Phase 1: Foundation (Week 1-2 of dev)
-1. Firebase setup (auth + Firestore rules)
-2. Auth flow (signup/login)
-3. Onboarding (profile + plan selection)
-4. Plan engine (generate correct workout from user state)
-5. Basic dashboard (today's workout card + week schedule)
+### Phase 1: Foundation & Goal Selection (Week 1-2 of dev)
+1. ✅ Firebase/Auth already in place — leverage existing setup
+2. Training Center hub page (`/training-center`) with 4 goal cards
+3. Training profile setup (onboarding flow for age/weight/experience/frequency)
+4. Plan engine foundation (generate correct workout from user state)
+5. Basic dashboard for active program (today's workout card + week schedule)
 
-### Phase 2: Core Workout Flow (Week 3-4)
+### Phase 2: Core Bouldering Workout Flow (Week 3-4)
 6. Workout flow shell (step-by-step navigation)
 7. Drill components (MaxHangLogger, BoulderLogger, etc.)
 8. Timer components (hang timer, rest timer)
 9. Post-workout summary + RPE logging
 10. Workout history list
+11. Firestore operations for bouldering workouts subcollection
 
 ### Phase 3: Assessment & Intelligence (Week 5-6)
-11. Assessment flow (Week 0 baseline)
-12. Auto-calculations (sRPE, target loads, send rates)
-13. Safety flag detection system
-14. Progression suggestions
-15. Morning check-in flow
+12. Assessment flow (Week 0 baseline)
+13. Auto-calculations (sRPE, target loads, send rates)
+14. Safety flag detection system
+15. Progression suggestions
+16. Morning check-in flow
+17. Firestore operations for assessments and daily check-ins
 
 ### Phase 4: Visualization & Education (Week 7-8)
-16. Progress charts (max hang, load, send rate)
-17. Assessment comparison (radar chart, before/after tables)
-18. Education content (MDX pages)
-19. Milestone modals (triggered at mesocycle transitions)
+18. Progress charts (max hang, load, send rate)
+19. Assessment comparison (radar chart, before/after tables)
+20. Education content (MDX pages)
+21. Milestone modals (triggered at mesocycle transitions)
+22. Education library page
 
-### Phase 5: Polish & PWA (Week 9-10)
-20. Offline support (critical: gyms often have bad wifi)
-21. Animations and transitions (Framer Motion)
-22. Push notifications (rest timer done, morning check-in reminder)
-23. Export/share progress report
-24. Edge cases and error handling
+### Phase 5: Polish & Additional Goal Types (Week 9-10)
+23. Offline support (optional: critical for gyms with poor wifi)
+24. Animations and transitions (Framer Motion)
+25. Push notifications (rest timer done, morning check-in reminder)
+26. Export/share progress report
+27. Begin other goal types (route endurance, route power, etc.)
+
+### Phase 6: Testing & Refinement (Week 11-12)
+28. Edge cases and error handling
+29. User testing with real climbers
+30. Performance optimization
+31. Documentation for other developers
 
 ---
 
 ## 12. Key Design Decisions Explained
+
+### Why integrate as a module instead of a standalone app?
+
+The original design was for a standalone app. By integrating as one of four training modules:
+- **Single auth system**: Users don't need separate accounts
+- **Shared community**: Users can still see who's at the gym and chat
+- **Unified profile**: One user profile across community and training features
+- **Easier migration**: Users already using the community features can seamlessly add training
+- **Reduced code duplication**: Leverage existing Firebase setup, UI components, and patterns
 
 ### Why step-by-step instead of a workout list?
 
@@ -925,17 +1046,27 @@ Most training apps show a list of exercises and let users check them off. This w
 - Enables safety interrupts (can't ignore a pain warning)
 - Captures higher-quality data (logging happens in context, not after the fact)
 
-### Why Firestore over a SQL database?
+### Why separate subcollections per goal type?
 
-The data is hierarchical (users → workouts → drills → sets) and the access patterns are user-scoped. You'll almost never query across users. Firestore's document model matches perfectly, and you get real-time listeners + offline support for free — critical since gyms often have poor connectivity.
+Each goal (bouldering, route endurance, route power, route power/endurance) has different:
+- Assessment metrics (max hang vs. ARC test vs. anaerobic capacity)
+- Drill types (campus board vs. 4x4s vs. linked boulder problems)
+- Progress tracking (send rate vs. endurance minutes vs. power output)
 
-### Why store plan definitions as static JSON, not in Firestore?
+Keeping them in separate subcollections (`boulderingWorkouts`, `routeEnduranceWorkouts`, etc.):
+- Makes queries simpler and faster
+- Prevents schema conflicts between different training types
+- Allows each module to evolve independently
+- Makes it easier to add new goal types in the future
+
+### Why store plan definitions as static TypeScript, not in Firestore?
 
 Plans are *configuration*, not user data. They change rarely and identically for all users on the same plan. Storing them as code:
 - Makes version control easy (Git tracks changes)
 - Avoids Firestore reads for every workout load
 - Enables type safety (TypeScript enforces drill shapes)
 - Makes testing simple (unit test plan generation logic)
+- Allows easy A/B testing of different plan variations
 
 ### Why MDX for education content?
 
@@ -943,15 +1074,23 @@ Education pieces need rich formatting (headers, bold, diagrams, embedded metric 
 
 ### Why PWA support matters
 
-Climbing gyms frequently have poor or no wifi. The app needs to:
+Climbing gyms frequently have poor or no wifi. The training module needs to:
 - Cache the current workout definition offline
 - Let users log drills while offline
 - Sync to Firestore when connectivity returns
 - Show timers without network dependency
 
+### Why prefix education slugs with goal type?
+
+Education content is goal-specific. Prefixing slugs (`bouldering-why-deload` vs. `route-endurance-why-deload`) allows:
+- Separate education libraries per goal type
+- Different explanations for similar concepts (e.g., deload means different things for power vs. endurance)
+- Clearer content organization
+- Easier content management as more goals are added
+
 ---
 
-## 13. Firestore Security Rules (Starter)
+## 13. Firestore Security Rules (Updated for Training Modules)
 
 ```javascript
 rules_version = '2';
@@ -962,47 +1101,75 @@ service cloud.firestore {
     match /users/{userId} {
       allow read, write: if request.auth != null && request.auth.uid == userId;
 
-      // All subcollections inherit the same rule
-      match /{subcollection}/{docId} {
-        allow read, write: if request.auth != null && request.auth.uid == userId;
+      // Existing community subcollections (already in place)
+      // calendar, messages handled separately with their own rules
+
+      // NEW: Training-specific subcollections
+      // All training data (workouts, assessments, check-ins) is user-scoped
+      match /{trainingCollection}/{docId} {
+        allow read, write: if request.auth != null 
+                           && request.auth.uid == userId
+                           && trainingCollection in [
+                             'programHistory',
+                             'boulderingAssessments',
+                             'boulderingWorkouts',
+                             'routeEnduranceWorkouts',
+                             'routePowerWorkouts',
+                             'routePowerEnduranceWorkouts',
+                             'dailyCheckins'
+                           ];
       }
     }
   }
 }
 ```
 
+**Note:** The existing security rules for `calendar` and `messages` collections remain unchanged. This adds rules for training-specific subcollections only.
+
 ---
 
 ## 14. UI/UX Design Direction
 
-### Aesthetic: "Chalk & Stone"
+### Aesthetic: Consistent with Existing App
 
-Inspired by the texture of climbing — rough, tactile, confident. Not a fitness-bro neon app. Not a minimal corporate SaaS.
+The training modules should feel like a natural extension of the existing bdclimb app, not a separate product. 
 
-**Color Palette:**
-- Background: Warm off-white (#F5F0EB) — like chalk-dusted limestone
-- Primary surface: #FFFFFF with subtle warm shadows
-- Accent: Deep terracotta (#C75B39) — like sandstone
-- Secondary accent: Slate blue (#4A6274) — like granite
-- Success: Sage green (#6B8F71)
-- Warning: Amber (#D4A843)
-- Danger: Deep red (#B33A3A)
-- Text: Charcoal (#2C2C2C)
+**Integration Guidelines:**
+- Use the existing Tailwind CSS v4 configuration from `/src/app/globals.css`
+- Follow existing component patterns from `/src/components/ui/`
+- Maintain existing day/night mode support (already implemented with localStorage)
+- Use existing button, card, and input styles for consistency
+
+**Additional Design Elements for Training:**
+- **Progress indicators**: Use existing or create progress bars for week completion
+- **Metric displays**: Bold, confident number presentation (large font for key metrics)
+- **Timers**: Clear countdown displays with visual/audio cues
+- **Safety banners**: Distinct red/yellow/green system for injury prevention
+- **Charts**: Clean, readable charts using Recharts (match existing color scheme)
+
+**Color System (Integrate with Existing Palette):**
+- Use existing day/night mode colors as base
+- Add training-specific semantic colors:
+  - Success/Progress: Green tone (for PRs, completed workouts)
+  - Warning: Amber/yellow (for caution flags)
+  - Danger: Red (for injury risk flags)
+  - Neutral/Info: Blue tone (for educational content)
 
 **Typography:**
-- Display/Headers: **DM Serif Display** — authoritative, editorial, distinct
-- Body: **Source Sans 3** — clean readability for data-heavy screens
-- Mono (for numbers/metrics): **JetBrains Mono** — crisp metric display
+- Follow existing font stack from globals.css
+- For metric displays: Use larger sizes with clear hierarchy
+- For timers: Monospace or tabular numbers for countdown clarity
 
-**Components:**
-- Cards with subtle texture (noise overlay, like rock grain)
-- Progress bars that look like crack systems filling in
-- Timers with a bold, confident countdown aesthetic
-- Safety banners with clear visual hierarchy (red = stop, amber = caution)
+**Components (Training-Specific):**
+- Cards with subtle elevation (consistent with existing Card component)
+- Progress bars for week/mesocycle/program completion
+- Timers with clear visual countdown
+- Safety banners with clear visual hierarchy
+- Drill instruction cards with step-by-step layout
 
-**Motion:**
-- Smooth page transitions in workout flow (slide left/right)
-- Celebration micro-animation on sends and PRs
+**Motion (Optional Enhancement):**
+- Smooth page transitions in workout flow
+- Celebration micro-animation on PRs
 - Subtle pulse on active timers
 - Staggered reveal on dashboard metrics
 
@@ -1033,14 +1200,48 @@ Inspired by the texture of climbing — rough, tactile, confident. Not a fitness
 
 ## Summary
 
-This document gives you a complete blueprint:
+This document provides a complete blueprint for the **Bouldering Training Module** as part of the Training Center feature:
 
-- **Data model** that maps directly to the tracking templates in your training plans
+### What's Different from Standalone Design:
+- ✅ **Integrated with existing auth system** — No separate login/signup flows
+- ✅ **Extends existing user profiles** — Uses existing `users` collection
+- ✅ **Lives under `/training-center`** — Part of multi-goal training system
+- ✅ **Follows existing patterns** — Uses established Firebase, Next.js, and Tailwind setup
+- ✅ **Separated data by goal type** — Each training goal has its own subcollections
+
+### Core Components:
+- **Data model** that extends existing Firestore structure for training-specific data
 - **Plan engine** that generates the correct workout for any user/week/day
 - **Step-by-step workout flow** that guides users through each drill
 - **Auto-calculations** for sRPE, load targets, progression, and safety flags
 - **Education system** that explains the "why" at every milestone
 - **Visual progress tracking** with charts showing real improvement
-- **Practical tech stack** (Next.js + Firebase) with offline-first design for gym use
+- **Multi-goal architecture** that supports 4 different training types
 
-The next step would be to pick a phase from the build order and start implementing. Phase 1 (foundation) gets you auth, onboarding, and a working dashboard — enough to start testing the flow with real users.
+### Technical Integration:
+- Uses existing **Firebase Auth** from `/src/lib/firebase/auth.tsx`
+- Uses existing **Firestore setup** from `/src/lib/firebase/`
+- Uses existing **Next.js App Router** structure
+- Uses existing **Tailwind CSS v4** configuration
+- Uses existing **path aliases** (`@/*` → `./src/*`)
+
+### Implementation Approach:
+Start with **Phase 1 (Foundation)** which builds:
+1. Training Center hub page with 4 goal cards
+2. Training profile onboarding
+3. Plan engine and dashboard
+4. Basic integration with existing app structure
+
+Then progressively add workout flows, assessments, calculations, visualizations, and education content.
+
+### For Other Goal Types:
+The same architecture applies to the other three training modules:
+- **Route Endurance**: Different drills (4x4s, ARC training), different assessments (time to exhaustion tests)
+- **Route Power**: Power-focused drills, different progression metrics
+- **Route Power/Endurance**: Hybrid training, balanced assessment suite
+
+Each will have its own:
+- Subcollections: `routeEnduranceWorkouts`, `routePowerWorkouts`, etc.
+- Plan definitions: `/src/lib/plans/route-endurance/`, etc.
+- Education content: `/src/content/training/route-endurance/`, etc.
+- Assessment types specific to that goal
