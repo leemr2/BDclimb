@@ -4,32 +4,48 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useAuth } from "@/lib/firebase/auth";
+import { getActiveProgram } from "@/lib/firebase/training/program";
 
-const DAY_MODE_KEY = "bdclimb-day-mode";
+const GOALS = [
+  {
+    id: "bouldering" as const,
+    title: "Bouldering",
+    description:
+      "12-week periodized program: max strength, power/RFD, and peak performance. Guided workouts, assessments, and progress tracking.",
+    href: "/training-center/onboarding?goal=bouldering",
+    available: true,
+  },
+  {
+    id: "route_endurance" as const,
+    title: "Route Endurance",
+    description:
+      "Build endurance for longer routes. ARC training, 4x4s, and aerobic capacity work.",
+    href: "#",
+    available: false,
+  },
+  {
+    id: "route_power" as const,
+    title: "Route Power",
+    description:
+      "Power and anaerobic capacity for short, hard route efforts.",
+    href: "#",
+    available: false,
+  },
+  {
+    id: "route_power_endurance" as const,
+    title: "Route Power/Endurance",
+    description:
+      "Hybrid program for routes that demand both power and sustained effort.",
+    href: "#",
+    available: false,
+  },
+];
 
 export default function TrainingCenterPage() {
   const { user, loading: authLoading } = useAuth();
   const router = useRouter();
-  const [dayMode, setDayMode] = useState(false);
-
-  useEffect(() => {
-    try {
-      const stored = localStorage.getItem(DAY_MODE_KEY);
-      setDayMode(stored === "1");
-    } catch {
-      setDayMode(false);
-    }
-  }, []);
-
-  const toggleDayMode = () => {
-    setDayMode((prev) => {
-      const next = !prev;
-      try {
-        localStorage.setItem(DAY_MODE_KEY, next ? "1" : "0");
-      } catch {}
-      return next;
-    });
-  };
+  const [checkingProgram, setCheckingProgram] = useState(true);
+  const [hasActiveProgram, setHasActiveProgram] = useState(false);
 
   useEffect(() => {
     if (!authLoading && !user) {
@@ -37,7 +53,23 @@ export default function TrainingCenterPage() {
     }
   }, [user, authLoading, router]);
 
-  if (authLoading) {
+  useEffect(() => {
+    if (!user) {
+      setCheckingProgram(false);
+      return;
+    }
+    getActiveProgram(user.uid)
+      .then((program) => {
+        setHasActiveProgram(program != null);
+        if (program != null) {
+          router.replace("/training-center/dashboard");
+        }
+      })
+      .catch(() => setCheckingProgram(false))
+      .finally(() => setCheckingProgram(false));
+  }, [user, router]);
+
+  if (authLoading || checkingProgram) {
     return (
       <div className="loading-container">
         <div>Loading...</div>
@@ -50,29 +82,39 @@ export default function TrainingCenterPage() {
   }
 
   return (
-    <div className={`community-page${dayMode ? " day-mode" : ""}`}>
-      <div className="community-header">
-        <h1>Training Center</h1>
-        <div className="user-info">
-          <button
-            type="button"
-            onClick={toggleDayMode}
-            className="day-mode-btn"
-            aria-pressed={dayMode}
-            aria-label={dayMode ? "Switch to night mode" : "Switch to day mode"}
+    <div className="training-center-hub">
+      <h2 className="training-center-hub-title">Choose your goal</h2>
+      <p className="training-center-hub-subtitle">
+        Select a 12-week program to get started. Complete the cycle, then pick a
+        new goal.
+      </p>
+      <div className="training-center-goal-cards">
+        {GOALS.map((goal) => (
+          <div
+            key={goal.id}
+            className={`training-center-goal-card ${goal.available ? "available" : "coming-soon"}`}
           >
-            {dayMode ? "Night mode" : "Day mode"}
-          </button>
-          <Link href="/community" className="training-center-back">
-            Back to Community
-          </Link>
-        </div>
-      </div>
-      <div className="training-center-content">
-        <div className="training-center-coming-soon">
-          <h2>Coming soon</h2>
-          <p>Structured training plans and progress tracking are on the way.</p>
-        </div>
+            {!goal.available && (
+              <span className="training-center-goal-badge">Coming soon</span>
+            )}
+            <h3 className="training-center-goal-title">{goal.title}</h3>
+            <p className="training-center-goal-description">
+              {goal.description}
+            </p>
+            {goal.available ? (
+              <Link
+                href={goal.href}
+                className="training-center-goal-cta training-center-cta"
+              >
+                Start Bouldering Program
+              </Link>
+            ) : (
+              <span className="training-center-goal-cta disabled">
+                Not available yet
+              </span>
+            )}
+          </div>
+        ))}
       </div>
     </div>
   );
