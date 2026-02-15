@@ -1,0 +1,25 @@
+---
+description: Firebase and Firestore conventions
+globs: "**/firebase/**/*.ts,**/lib/**/training/**/*.ts"
+alwaysApply: false
+---
+
+# Firebase & Firestore
+
+## Client vs server
+- Use **`client.ts`** (and `db` from it) in client components and client-side logic.
+- Use **`server.ts`** only in server components or server-only code. Do not import client Firebase in server code that runs at build time without guarding.
+
+## Data access
+- Put Firestore operations in **`src/lib/firebase/`** (or `src/lib/firebase/training/` for training). Keep pages and components thin; they call these functions or hooks that wrap them.
+- Use **`onSnapshot()`** for real-time data where the UI must stay in sync; use `getDocs`/`getDoc` for one-off reads.
+- Store timestamps as Firestore **`Timestamp`**; convert for display in the UI layer.
+
+## Training data (from design)
+- Extend the existing **`users`** document (e.g. `trainingProfile`, `activeProgram`); do not create a separate profile system.
+- Training-specific data lives in **user subcollections**: `programHistory`, `boulderingAssessments`, `boulderingWorkouts`, `dailyCheckins` (and future `routeEnduranceWorkouts`, etc.).
+- Security: only the authenticated user can read/write their own user doc and these subcollections. Update **`firestore.rules`** when adding new training collections.
+
+## Patterns
+- Prefer **typed interfaces** for document shapes; keep them next to the module that reads/writes the data or in a shared types file.
+- When adding a new collection or subcollection, add it to the allowlist in `firestore.rules` under the user match block.

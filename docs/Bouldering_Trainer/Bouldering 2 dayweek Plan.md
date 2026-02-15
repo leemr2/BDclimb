@@ -15,6 +15,8 @@ Complete the same baseline tests:
 
 ## 12-Week Training Structure
 
+Sessions are numbered **1–24** in order (e.g., Session 1 = Week 1 first session, Session 2 = Week 1 second session, …, Session 24 = Week 12 second session).
+
 With only 2 sessions/week, we'll combine elements that were separated in the 3-day plan:
 
 - **Weeks 1-3:** Max strength foundation
@@ -30,7 +32,7 @@ With only 2 sessions/week, we'll combine elements that were separated in the 3-d
 
 ### Week 1-3 Training Schedule (2x/week)
 
-**SESSION A (e.g., Tuesday): Max Hangs + Limit Bouldering**
+**SESSION A (e.g., Tuesday) — Sessions 1, 3, 5: Max Hangs + Limit Bouldering**
 
 *What to do:*
 
@@ -58,7 +60,7 @@ With only 2 sessions/week, we'll combine elements that were separated in the 3-d
 - Finger pain during session (0-10)
 - Skin condition
 
-**SESSION B (e.g., Friday): Limit Bouldering Focus + Antagonists**
+**SESSION B (e.g., Friday) — Sessions 2, 4, 6: Limit Bouldering Focus + Antagonists**
 
 *What to do:*
 
@@ -111,13 +113,13 @@ With only 2 sessions/week, we'll combine elements that were separated in the 3-d
 
 ### Week 4: Deload + Retest
 
-**Session A (Tuesday):**
+**Session A (Tuesday) — Session 7:**
 
 - Max hang retest (same protocol as Week 0)
 - Easy climbing: 20-30 min at comfortable intensity
 - Light antagonists: 2 sets each
 
-**Session B (Friday):**
+**Session B (Friday) — Session 8:**
 
 - Limit boulder benchmark retest (same 3-5 problems from Week 0)
 - Additional easy volume: 30 min
@@ -135,7 +137,7 @@ With only 2 sessions/week, we'll combine elements that were separated in the 3-d
 
 ### Week 5-7 Training Schedule
 
-**SESSION A (Tuesday): Campus Board + Max Hang Maintenance + Power Bouldering**
+**SESSION A (Tuesday) — Sessions 9, 11, 13: Campus Board + Max Hang Maintenance + Power Bouldering**
 
 *What to do:*
 
@@ -174,7 +176,7 @@ With only 2 sessions/week, we'll combine elements that were separated in the 3-d
 - sRPE
 - **CRITICAL:** Any finger, shoulder, or elbow pain (0-10)
 
-**SESSION B (Friday): Limit Bouldering (Coordination + Technique) + Strength**
+**SESSION B (Friday) — Sessions 10, 12, 14: Limit Bouldering (Coordination + Technique) + Strength**
 
 *What to do:*
 
@@ -217,13 +219,13 @@ With only 2 sessions/week, we'll combine elements that were separated in the 3-d
 
 ### Week 8: Deload + Retest
 
-**Session A (Tuesday):**
+**Session A (Tuesday) — Session 15:**
 
 - Campus max reach test (if you've been campus training)
 - Max hang check: 4 sets × 7s at 90%, record best
 - Easy climbing: 20 min
 
-**Session B (Friday):**
+**Session B (Friday) — Session 16:**
 
 - Easy bouldering: 30-40 min at comfortable intensity
 - Mobility and light antagonists
@@ -241,7 +243,7 @@ With only 2 sessions/week, we'll combine elements that were separated in the 3-d
 
 ### Week 9-11 Training Schedule
 
-**SESSION A (Tuesday): Project Bouldering + Finger Maintenance**
+**SESSION A (Tuesday) — Sessions 17, 19, 21: Project Bouldering + Finger Maintenance**
 
 *What to do:*
 
@@ -265,7 +267,7 @@ With only 2 sessions/week, we'll combine elements that were separated in the 3-d
 - sRPE
 - Performance quality notes
 
-**SESSION B (Friday): Performance Attempts + Volume**
+**SESSION B (Friday) — Sessions 18, 20, 22: Performance Attempts + Volume**
 
 *What to do:*
 
@@ -303,14 +305,14 @@ With only 2 sessions/week, we'll combine elements that were separated in the 3-d
 
 ### Week 12: Taper + Performance Week
 
-**Session A (Tuesday):**
+**Session A (Tuesday) — Session 23:**
 
 - Light warm-up climbing: 20 min
 - Max hang test: Work up to new max (this is your final strength test)
 - Easy bouldering: 20 min
 - Light mobility
 
-**Session B (Friday): PERFORMANCE DAY**
+**Session B (Friday) — Session 24: PERFORMANCE DAY**
 
 - Treat as test/competition day
 - Full warm-up: 30 min progressive

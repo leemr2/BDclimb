@@ -27,6 +27,8 @@ Before starting, complete these baseline tests:
 
 ## 12-Week Training Structure
 
+Sessions are numbered **1–36** in order (e.g., Session 1 = Week 1 Monday, Session 2 = Week 1 Wednesday, …, Session 36 = Week 12 Friday).
+
 The plan uses three 4-week blocks:
 
 - **Weeks 1-3:** Max strength accumulation
@@ -42,7 +44,7 @@ The plan uses three 4-week blocks:
 
 ### Week 1-3 Training Schedule (3x/week)
 
-**SESSION A (Monday): Max Hangs + Limit Bouldering**
+**SESSION A (Monday) — Sessions 1, 4, 7: Max Hangs + Limit Bouldering**
 
 *What to do:*
 
@@ -66,7 +68,7 @@ The plan uses three 4-week blocks:
 - Calculate sRPE: Duration × RPE
 - Any finger pain during session (0-10)
 
-**SESSION B (Wednesday): Antagonist Work + Technical Volume**
+**SESSION B (Wednesday) — Sessions 2, 5, 8: Antagonist Work + Technical Volume**
 
 *What to do:*
 
@@ -87,7 +89,7 @@ The plan uses three 4-week blocks:
 - Skin condition (good/fair/poor)
 - Recovery quality from Monday (1-5 scale)
 
-**SESSION C (Friday): Pulling Strength + Limit Bouldering (Different Style)**
+**SESSION C (Friday) — Sessions 3, 6, 9: Pulling Strength + Limit Bouldering (Different Style)**
 
 *What to do:*
 
@@ -131,7 +133,11 @@ The plan uses three 4-week blocks:
 
 ### Week 4: Deload + Retest
 
-**Monday:** Max hang retest (same protocol as Week 0) **Wednesday:** Easy climbing only (30 min), mobility work **Friday:** Limit boulder benchmark retest (same 3-5 problems from Week 0)
+**Session 10 (Monday):** Max hang retest (same protocol as Week 0)
+
+**Session 11 (Wednesday):** Easy climbing only (30 min), mobility work
+
+**Session 12 (Friday):** Limit boulder benchmark retest (same 3-5 problems from Week 0)
 
 *Track:*
 
@@ -146,7 +152,7 @@ The plan uses three 4-week blocks:
 
 ### Week 5-7 Training Schedule
 
-**SESSION A (Monday): Campus Board + Short Limit Boulders**
+**SESSION A (Monday) — Sessions 13, 16, 19: Campus Board + Short Limit Boulders**
 
 *What to do:*
 
@@ -187,7 +193,7 @@ The plan uses three 4-week blocks:
 - sRPE
 - **Critical:** Any finger/shoulder/elbow pain
 
-**SESSION B (Wednesday): Max Hang Maintenance + Easy Volume**
+**SESSION B (Wednesday) — Sessions 14, 17, 20: Max Hang Maintenance + Easy Volume**
 
 *What to do:*
 
@@ -203,7 +209,7 @@ The plan uses three 4-week blocks:
 - Overall fatigue level
 - sRPE
 
-**SESSION C (Friday): Limit Bouldering (Coordination Focus) + Core**
+**SESSION C (Friday) — Sessions 15, 18, 21: Limit Bouldering (Coordination Focus) + Core**
 
 *What to do:*
 
@@ -238,7 +244,11 @@ The plan uses three 4-week blocks:
 
 ### Week 8: Deload + Retest
 
-**Monday:** Campus max reach test (if doing campus training) **Wednesday:** Rest or 20 min easy climbing **Friday:** Max hang check (4 sets × 7s, record best)
+**Session 22 (Monday):** Campus max reach test (if doing campus training)
+
+**Session 23 (Wednesday):** Rest or 20 min easy climbing
+
+**Session 24 (Friday):** Max hang check (4 sets × 7s, record best)
 
 *Track:*
 
@@ -253,7 +263,7 @@ The plan uses three 4-week blocks:
 
 ### Week 9-11 Training Schedule
 
-**SESSION A (Monday): Project-Style Limit Bouldering**
+**SESSION A (Monday) — Sessions 25, 28, 31: Project-Style Limit Bouldering**
 
 *What to do:*
 
@@ -273,7 +283,7 @@ The plan uses three 4-week blocks:
 - Performance quality vs. fatigue
 - sRPE
 
-**SESSION B (Wednesday): Active Recovery + Technique Refinement**
+**SESSION B (Wednesday) — Sessions 26, 29, 32: Active Recovery + Technique Refinement**
 
 *What to do:*
 
@@ -290,7 +300,7 @@ The plan uses three 4-week blocks:
 - Readiness for Friday (1-5)
 - sRPE
 
-**SESSION C (Friday): Performance Attempts**
+**SESSION C (Friday) — Sessions 27, 30, 33: Performance Attempts**
 
 *What to do:*
 
@@ -318,7 +328,11 @@ The plan uses three 4-week blocks:
 
 ### Week 12: Taper + Performance Week
 
-**Monday:** Light warm-up climbing (20 min) + 2 sets max hangs at 85% **Wednesday:** Rest or 15 min very easy movement **Friday:** PERFORMANCE DAY
+**Session 34 (Monday):** Light warm-up climbing (20 min) + 2 sets max hangs at 85%
+
+**Session 35 (Wednesday):** Rest or 15 min very easy movement
+
+**Session 36 (Friday):** PERFORMANCE DAY
 
 - Treat as test/comp day
 - Attempt benchmark problems + any new limit problems

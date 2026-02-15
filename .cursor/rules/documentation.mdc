@@ -1,0 +1,24 @@
+---
+description: Documentation and comment standards
+alwaysApply: true
+---
+
+# Documentation Standards
+
+## Design and product docs
+- **Design documents** live in **`docs/`**, organized by feature (e.g. `docs/Bouldering_Trainer/`, `docs/PowerRoute_Trainer/`).
+- When adding a new feature described in a design doc, follow the doc’s data model, flows, and naming; update the doc if the implementation diverges intentionally.
+
+## Code comments
+- Comment **why**, not **what**: explain non-obvious decisions, constraints, or business rules.
+- Document public functions and exported types with a short JSDoc when the purpose isn’t clear from the name.
+- For complex algorithms (e.g. safety rules, progression logic), add a brief comment or reference to the design doc section.
+
+## README and CLAUDE.md
+- **README.md**: project setup, env vars, how to run and build; keep it accurate when changing tooling or structure.
+- **CLAUDE.md**: high-level architecture, stack, and conventions for AI/developers; update when adding major areas (e.g. Training Center, new Firebase usage).
+
+## When to update docs
+- New Firestore collections or security rules → update `firestore.rules` and any doc that describes the data model.
+- New routes or major UI flows → update README or the relevant design doc.
+- New environment variables → document in README and in `src/lib/envs/` (client/server) as applicable.

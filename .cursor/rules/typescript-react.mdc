@@ -1,0 +1,43 @@
+---
+description: TypeScript and React coding standards
+globs: "**/*.ts,**/*.tsx"
+alwaysApply: false
+---
+
+# TypeScript & React Standards
+
+## TypeScript
+- Prefer **explicit types** for function parameters and return values when not obvious from context.
+- Use **interfaces** for object shapes; use **type** for unions, intersections, or mapped types.
+- Avoid `any`; use `unknown` and narrow, or proper types.
+- Export types that are part of the public surface of a module.
+
+## React
+- Use **functional components** only.
+- Extract reusable logic into **custom hooks** (e.g. `useAuth()`, `useWorkout()`).
+- Colocate component-specific styles with the component (Tailwind in JSX or same folder).
+- Use `"use client"` only where needed (client hooks, event handlers, browser APIs).
+
+## Error handling
+- Do not swallow errors: log and/or rethrow with context.
+- In async code, handle rejections; avoid empty `catch` blocks.
+
+```typescript
+// ❌ BAD
+try {
+  await saveWorkout(data);
+} catch (e) {}
+
+// ✅ GOOD
+try {
+  await saveWorkout(data);
+} catch (e) {
+  console.error("Failed to save workout", e);
+  throw e; // or set error state and show UI
+}
+```
+
+## File and naming
+- Components: PascalCase (`CalendarDaySummary.tsx`).
+- Hooks: `use` prefix (`useActiveProgram.ts`).
+- Utilities and lib: camelCase files are fine; match existing style in the folder.

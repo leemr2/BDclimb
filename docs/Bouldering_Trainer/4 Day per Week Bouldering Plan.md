@@ -15,6 +15,8 @@ Complete these baseline tests:
 
 ## 12-Week Training Structure
 
+Sessions are numbered **1–48** in order (e.g., Session 1 = Week 1 Monday, Session 2 = Week 1 Tuesday, …, Session 48 = Week 12 Saturday).
+
 **Weeks 1-3:** Max strength accumulation **Week 4:** Deload + retest **Weeks 5-7:** Power/RFD block **Week 8:** Deload + retest **Weeks 9-11:** Performance peak **Week 12:** Taper + performance week
 
 ------
@@ -23,7 +25,7 @@ Complete these baseline tests:
 
 ### Week 1-3 Training Schedule (4x/week)
 
-**SESSION A (Monday): Max Hangs + Limit Bouldering (Power Focus)**
+**SESSION A (Monday) — Sessions 1, 5, 9: Max Hangs + Limit Bouldering (Power Focus)**
 
 *What to do:*
 
@@ -53,7 +55,7 @@ Complete these baseline tests:
 
 ------
 
-**SESSION B (Tuesday): Antagonists + Technical Volume + Mobility**
+**SESSION B (Tuesday) — Sessions 2, 6, 10: Antagonists + Technical Volume + Mobility**
 
 *What to do:*
 
@@ -85,7 +87,7 @@ Complete these baseline tests:
 
 ------
 
-**SESSION C (Thursday): Max Hangs + Limit Bouldering (Technical/Crimpy Focus)**
+**SESSION C (Thursday) — Sessions 3, 7, 11: Max Hangs + Limit Bouldering (Technical/Crimpy Focus)**
 
 *What to do:*
 
@@ -116,7 +118,7 @@ Complete these baseline tests:
 
 ------
 
-**SESSION D (Saturday): Pulling Strength + Limit Bouldering (Mixed Styles)**
+**SESSION D (Saturday) — Sessions 4, 8, 12: Pulling Strength + Limit Bouldering (Mixed Styles)**
 
 *What to do:*
 
@@ -196,25 +198,25 @@ Complete these baseline tests:
 
 ### Week 4: Deload + Retest
 
-**Monday:**
+**Session 13 (Monday):**
 
 - Max hang retest: Work up to new 7-second max
 - Easy bouldering: 20-30 min, 2-3 grades below max
 - Light mobility: 15 min
 
-**Tuesday:**
+**Session 14 (Tuesday):**
 
 - Antagonists: 2 sets each (reduced from 3)
 - Easy climbing: 30 min
 - Extended mobility: 20 min
 
-**Thursday:**
+**Session 15 (Thursday):**
 
 - Light technique bouldering: 40 min
 - Focus: movement quality, no intensity
 - Mobility work
 
-**Saturday:**
+**Session 16 (Saturday):**
 
 - Limit boulder benchmark retest: Same 3-5 problems from Week 0
 - Pull-up test: Find new 3-5RM
@@ -238,7 +240,7 @@ Complete these baseline tests:
 
 ### Week 5-7 Training Schedule
 
-**SESSION A (Monday): Campus Board + Power Bouldering**
+**SESSION A (Monday) — Sessions 17, 21, 25: Campus Board + Power Bouldering**
 
 *What to do:*
 
@@ -281,7 +283,7 @@ Complete these baseline tests:
 
 ------
 
-**SESSION B (Tuesday): Active Recovery + Technique Refinement**
+**SESSION B (Tuesday) — Sessions 18, 22, 26: Active Recovery + Technique Refinement**
 
 *What to do:*
 
@@ -312,7 +314,7 @@ Complete these baseline tests:
 
 ------
 
-**SESSION C (Thursday): Max Hangs + Coordination Bouldering**
+**SESSION C (Thursday) — Sessions 19, 23, 27: Max Hangs + Coordination Bouldering**
 
 *What to do:*
 
@@ -344,7 +346,7 @@ Complete these baseline tests:
 
 ------
 
-**SESSION D (Saturday): Limit Bouldering Volume + Pulling Strength**
+**SESSION D (Saturday) — Sessions 20, 24, 28: Limit Bouldering Volume + Pulling Strength**
 
 *What to do:*
 
@@ -405,25 +407,25 @@ Complete these baseline tests:
 
 ### Week 8: Deload + Retest
 
-**Monday:**
+**Session 29 (Monday):**
 
 - Campus max reach test (if you've been campus training)
 - Light explosive bouldering: 3-4 problems, 2-3 attempts each
 - Mobility: 15 min
 
-**Tuesday:**
+**Session 30 (Tuesday):**
 
 - Easy climbing: 40 min
 - Antagonists: 2 sets each
 - Extended mobility: 20 min
 
-**Thursday:**
+**Session 31 (Thursday):**
 
 - Max hang check: 4 sets × 7s at 90%, record best
 - Easy technique bouldering: 30 min
 - Core: 2 sets each exercise
 
-**Saturday:**
+**Session 32 (Saturday):**
 
 - Pull-up test: New 3-5RM
 - Easy bouldering: 40 min, variety of styles
@@ -446,7 +448,7 @@ Complete these baseline tests:
 
 ### Week 9-11 Training Schedule
 
-**SESSION A (Monday): Project Bouldering + Finger Maintenance**
+**SESSION A (Monday) — Sessions 33, 37, 41: Project Bouldering + Finger Maintenance**
 
 *What to do:*
 
@@ -481,7 +483,7 @@ Complete these baseline tests:
 
 ------
 
-**SESSION B (Tuesday): Movement Quality + Light Volume**
+**SESSION B (Tuesday) — Sessions 34, 38, 42: Movement Quality + Light Volume**
 
 *What to do:*
 
@@ -512,7 +514,7 @@ Complete these baseline tests:
 
 ------
 
-**SESSION C (Thursday): Performance Attempts (Fresh Problems)**
+**SESSION C (Thursday) — Sessions 35, 39, 43: Performance Attempts (Fresh Problems)**
 
 *What to do:*
 
@@ -543,7 +545,7 @@ Complete these baseline tests:
 
 ------
 
-**SESSION D (Saturday): Mixed Volume + Strength Maintenance**
+**SESSION D (Saturday) — Sessions 36, 40, 44: Mixed Volume + Strength Maintenance**
 
 *What to do:*
 
@@ -608,26 +610,26 @@ Complete these baseline tests:
 
 ### Week 12: Taper + Performance Week
 
-**Monday:**
+**Session 45 (Monday):**
 
 - Light warm-up: 25 min progressive climbing
 - Max hang test: Work up to new 7-second max (final strength test)
 - Easy bouldering: 20-30 min, just movement quality
 - Mobility: 15 min
 
-**Tuesday:**
+**Session 46 (Tuesday):**
 
 - Easy climbing: 30-40 min
 - Light antagonists: 2 sets each
 - Extended mobility + relaxation: 20 min
 
-**Thursday:**
+**Session 47 (Thursday):**
 
 - Light warm-up: 20 min
 - Movement prep: 15 min (practice specific movement patterns)
 - Rest
 
-**Saturday: PERFORMANCE DAY**
+**Session 48 (Saturday): PERFORMANCE DAY**
 
 - Treat as competition/test day
 - Warm-up: 30-40 min thorough progressive preparation

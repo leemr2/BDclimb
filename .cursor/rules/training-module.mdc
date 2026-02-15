@@ -1,0 +1,26 @@
+---
+description: Training Center and bouldering module conventions
+globs: "**/training/**/*,**/plans/**/*,**/content/training/**/*,**/calculations/**/*"
+alwaysApply: false
+---
+
+# Training Module Conventions
+
+## Plan definitions
+- Store **plan definitions** (weeks, sessions, drills) as **static TypeScript/JSON** in `src/lib/plans/bouldering/` (or the relevant goal folder). Do not store plans in Firestore.
+- Plan engine: given user state (frequency, current week), return the correct session/drill list. Keep this logic in `planEngine.ts` and related files under `lib/plans/`.
+
+## Drill and workout data
+- Drill result shapes (e.g. `MaxHangData`, `LimitBoulderData`) are defined in the design doc; implement matching TypeScript types and use them for the `data` field of each completed drill.
+- Workout documents include: `programId`, `week`, `mesocycle`, `sessionLabel`, `drills[]`, `rpe`, `srpe`, `status`, etc. Match the schema in `docs/Bouldering_Trainer/Bouldering_trainer_design.md`.
+
+## Safety and calculations
+- **Safety rules** (red/yellow flags) are pure functions: `(userData) => boolean` (or similar). Keep rule definitions and evaluation in a dedicated module (e.g. `lib/calculations/safety.ts`).
+- **sRPE**, target loads, progression suggestions: implement in `lib/calculations/` and use the user’s latest assessment/workout data; avoid hardcoding formulas in UI components.
+
+## Education content
+- Education pieces: **MDX** in `src/content/training/bouldering/` (or per goal). Use **slugs prefixed by goal type** (e.g. `bouldering-why-deload`).
+- Trigger education at milestones from plan definitions (e.g. `educationSlug` on the week); show via modal or dedicated page.
+
+## UI
+- Training UI lives under `src/components/training/` (dashboard, workout, assessment, progress, education). Reuse existing `src/components/ui/` and Tailwind; keep training-specific semantics (e.g. safety banners, timers) in training components.

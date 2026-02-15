@@ -1,0 +1,28 @@
+---
+description: Project overview, stack, and Training Center direction
+alwaysApply: true
+---
+
+# Project Overview
+
+**bdclimb** is a climbing-gym app: community scheduling + chat today; **Training Center** (four 12-week goal-based programs) is the growth direction.
+
+## Stack
+- **Next.js 14+** App Router, **TypeScript**, **Tailwind CSS v4**, **Firebase** (Auth + Firestore)
+- No traditional API routes; all backend via Firebase.
+- Path alias: **`@/*`** → `./src/*` (use for all imports under `src/`).
+
+## Commands
+- `npm run dev` — dev server
+- `npm run build` — builds `auth-service-worker.js` with esbuild, then `next build`
+- `npm run lint` — ESLint
+
+## Where the Project Is Going
+- **Training Center** at `/training-center`: goal selection (bouldering, route endurance, route power, route power/endurance), then 12-week guided programs.
+- Bouldering module first: step-by-step workouts, assessments, sRPE/load calculations, safety flags, education at milestones, progress charts.
+- New code lives under: `src/app/training-center/`, `src/components/training/`, `src/lib/plans/`, `src/lib/firebase/training/`, `src/lib/calculations/`, `src/content/training/`.
+- Integrate with **existing** auth (`useAuth()`), Firestore client, and Tailwind; do not duplicate auth or profile systems.
+
+## Reference
+- High-level architecture: **CLAUDE.md**
+- Training design: **docs/Bouldering_Trainer/Bouldering_trainer_design.md** (and other docs in `docs/`).
