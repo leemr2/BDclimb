@@ -1,23 +1,28 @@
 "use client";
 
-import { Message as MessageType, formatMessageTime } from "@/lib/firebase/messages";
-import { deleteMessage } from "@/lib/firebase/messages";
+import type { Timestamp } from "firebase/firestore";
+import { deleteConversationMessage } from "@/lib/firebase/conversations";
+import type { ConversationMessage } from "@/lib/firebase/conversations";
 
 interface MessageProps {
-  message: MessageType;
+  message: ConversationMessage;
+  conversationId: string;
   currentUserId: string;
+  formatTime: (createdAt: Timestamp) => string;
 }
 
-export const Message = ({ message, currentUserId }: MessageProps) => {
+export const Message = ({
+  message,
+  conversationId,
+  currentUserId,
+  formatTime,
+}: MessageProps) => {
   const isOwnMessage = message.userId === currentUserId;
 
   const handleDelete = async () => {
-    if (!confirm("Are you sure you want to delete this message?")) {
-      return;
-    }
-
+    if (!confirm("Are you sure you want to delete this message?")) return;
     try {
-      await deleteMessage(message.id);
+      await deleteConversationMessage(conversationId, message.id);
     } catch (error) {
       console.error("Error deleting message:", error);
       alert("Failed to delete message. Please try again.");
@@ -28,9 +33,7 @@ export const Message = ({ message, currentUserId }: MessageProps) => {
     <div className={`message ${isOwnMessage ? "own-message" : ""}`}>
       <div className="message-header">
         <span className="message-author">{message.displayName}</span>
-        <span className="message-time">
-          {formatMessageTime(message.createdAt)}
-        </span>
+        <span className="message-time">{formatTime(message.createdAt)}</span>
         {isOwnMessage && (
           <button
             onClick={handleDelete}

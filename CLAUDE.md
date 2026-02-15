@@ -50,17 +50,20 @@ All backend logic goes through Firebase. No traditional server-side API routes e
 |---|---|---|
 | `users` | User profiles (`displayName`, `email`) | `userId` |
 | `calendar` | Workout commitments per date+time | `userId` |
-| `messages` | Community chat messages | `userId` |
+| `messages` | Legacy flat chat (unused; app uses conversations) | `userId` |
+| `conversations` | Chat conversation threads (title, createdBy, updatedAt) | `createdBy` |
+| `conversations/{id}/messages` | Messages within a conversation | `userId` |
 
 Security rules enforce that authenticated users can read all records but can only write/delete their own. See `firestore.rules` for specifics.
 
 Data access functions live in `src/lib/firebase/`:
 - `calendar.ts` — CRUD for calendar entries
-- `messages.ts` — CRUD for chat messages
+- `conversations.ts` — conversations (create, list by `updatedAt` desc) and conversation messages (send reply, delete own)
+- `messages.ts` — legacy flat messages (unused by current chat UI)
 - `users.ts` — user profile operations
 - `client.ts` / `server.ts` — Firebase SDK initialization (client vs. server contexts)
 
-Real-time updates use Firestore `onSnapshot()` listeners set up inside `useEffect` hooks within page components. Calendar entries are queried per date; messages are ordered by `createdAt` descending and reversed client-side for display.
+Real-time updates use Firestore `onSnapshot()` listeners. Conversations are ordered by `updatedAt` descending (most recent first). Messages in a conversation are ordered by `createdAt` ascending for display.
 
 ### Environment Variables
 
@@ -73,6 +76,10 @@ Firebase config is sourced from environment variables. `src/lib/envs/client.ts` 
 ### Calendar UI
 
 The calendar operates on 30-minute time blocks from 6 AM to 10 PM. `Calendar.tsx` renders the month view; `CalendarDaySummary.tsx` shows a day's committed users; `TimeBlock.tsx` represents a single slot. Users can commit with status `"thinking"` or `"confirmed"`.
+
+### Chat UI
+
+Chat is organized as **conversations**. Users can start a new conversation (topic/title + optional first message) or open an existing one and reply. Conversations are listed by most recent activity first. `Chat.tsx` shows a conversation list sidebar and a thread panel with messages and reply form; `Message.tsx` renders a single message (with delete for own messages).
 
 ### Styling Notes
 
