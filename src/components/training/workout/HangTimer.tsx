@@ -35,7 +35,7 @@ export function HangTimer({
     onComplete,
   });
 
-  const displayValue =
+  const rawValue =
     phase === "countdown" && countdownValue !== null
       ? countdownValue
       : phase === "active"
@@ -43,6 +43,7 @@ export function HangTimer({
         : phase === "complete"
           ? 0
           : durationSeconds;
+  const displayValue = Number.isFinite(rawValue) ? rawValue : 0;
 
   const stateClass =
     phase === "countdown"

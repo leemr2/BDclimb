@@ -5,9 +5,10 @@ import type { SessionDefinition } from "@/lib/plans/bouldering/types";
 
 interface TodayWorkoutCardProps {
   session: SessionDefinition | null;
+  weekNumber?: number;
 }
 
-export function TodayWorkoutCard({ session }: TodayWorkoutCardProps) {
+export function TodayWorkoutCard({ session, weekNumber }: TodayWorkoutCardProps) {
   if (!session) {
     return (
       <div className="training-today-card">
@@ -31,7 +32,7 @@ export function TodayWorkoutCard({ session }: TodayWorkoutCardProps) {
       </p>
       <div className="training-today-actions">
         <Link
-          href={`/training-center/workout/session-${session.label}`}
+          href={`/training-center/workout/week-${weekNumber ?? 1}-session-${session.label}`}
           className="training-today-start training-center-cta"
         >
           Start workout

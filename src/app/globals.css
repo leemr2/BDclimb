@@ -2705,6 +2705,16 @@ a {
   color: rgba(255, 255, 255, 0.9);
 }
 
+.training-week-zero-try {
+  margin-top: 0.75rem !important;
+}
+
+.training-week-zero-try-link {
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
 .training-workout-placeholder {
   padding: 2rem;
   text-align: center;
@@ -2877,6 +2887,10 @@ a {
 
 .community-page.day-mode .training-week-zero-cta p {
   color: #333;
+}
+
+.community-page.day-mode .training-week-zero-try-link {
+  color: var(--training-cta-bg, #2563eb);
 }
 
 /* --- Training workout flow --- */
@@ -3128,3 +3142,520 @@ a {
 .training-workout-detail-data { margin: 0; padding: 0.75rem; font-size: 0.8rem; overflow-x: auto; background: rgba(0, 0, 0, 0.3); border-radius: 0.35rem; color: rgba(255, 255, 255, 0.85); }
 .training-workout-detail-notes { margin-top: 1rem; padding-top: 1rem; border-top: 1px solid rgba(255, 255, 255, 0.1); color: rgba(255, 255, 255, 0.8); }
 .training-workout-flow { padding: 1rem; }
+
+/* Assessment Flow */
+.training-assessment-screen {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 1.5rem;
+}
+.training-assessment-header {
+  margin-bottom: 2rem;
+  text-align: center;
+}
+.training-assessment-title {
+  margin: 0 0 0.5rem;
+  font-size: 1.75rem;
+  color: #fff;
+}
+.training-assessment-subtitle {
+  margin: 0;
+  font-size: 1rem;
+  color: rgba(255, 255, 255, 0.7);
+}
+.training-assessment-content {
+  margin-bottom: 2rem;
+}
+.training-assessment-instructions,
+.training-assessment-welcome {
+  padding: 1.5rem;
+  border-radius: 0.75rem;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(0, 0, 0, 0.25);
+}
+.training-assessment-instructions h3,
+.training-assessment-welcome-title {
+  margin: 0 0 0.75rem;
+  font-size: 1.1rem;
+  color: rgba(255, 255, 255, 0.95);
+}
+.training-assessment-instructions ol,
+.training-assessment-instructions ul,
+.training-assessment-welcome-list {
+  margin: 0.5rem 0 1rem 1.5rem;
+  padding: 0;
+  color: rgba(255, 255, 255, 0.85);
+}
+.training-assessment-instructions li,
+.training-assessment-welcome-list li {
+  margin-bottom: 0.5rem;
+}
+.training-assessment-welcome-text {
+  margin: 0 0 0.5rem;
+  color: rgba(255, 255, 255, 0.85);
+}
+.training-assessment-welcome-estimate {
+  margin: 1rem 0 0;
+  padding: 0.75rem;
+  border-radius: 0.5rem;
+  background: rgba(59, 130, 246, 0.1);
+  border: 1px solid rgba(59, 130, 246, 0.3);
+  color: rgba(255, 255, 255, 0.9);
+}
+.training-assessment-welcome-tip {
+  margin-top: 1rem;
+  padding: 0.75rem;
+  border-radius: 0.5rem;
+  background: rgba(251, 191, 36, 0.1);
+  border: 1px solid rgba(251, 191, 36, 0.3);
+  color: rgba(255, 255, 255, 0.9);
+}
+.training-assessment-actions {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+}
+
+/* Assessment Sections */
+.training-assessment-section {
+  margin-bottom: 1.5rem;
+}
+.training-assessment-section-title {
+  margin: 0 0 0.5rem;
+  font-size: 1rem;
+  color: rgba(255, 255, 255, 0.95);
+}
+.training-assessment-section-hint {
+  margin: 0 0 0.75rem;
+  font-size: 0.85rem;
+  color: rgba(255, 255, 255, 0.65);
+}
+.training-assessment-label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-size: 0.9rem;
+  color: rgba(255, 255, 255, 0.9);
+}
+.training-assessment-input,
+.training-assessment-textarea {
+  display: block;
+  width: 100%;
+  margin-top: 0.35rem;
+  padding: 0.6rem;
+  border-radius: 0.5rem;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.06);
+  color: #fff;
+  font-size: 0.95rem;
+}
+.training-assessment-textarea {
+  resize: vertical;
+  font-family: inherit;
+}
+.training-assessment-input:focus,
+.training-assessment-textarea:focus {
+  outline: none;
+  border-color: rgba(59, 130, 246, 0.5);
+  background: rgba(255, 255, 255, 0.08);
+}
+.training-assessment-info {
+  padding: 0.75rem;
+  border-radius: 0.5rem;
+  background: rgba(59, 130, 246, 0.1);
+  border: 1px solid rgba(59, 130, 246, 0.3);
+  color: rgba(255, 255, 255, 0.9);
+}
+.training-assessment-hint {
+  margin-top: 0.35rem;
+  font-size: 0.85rem;
+  color: rgba(255, 255, 255, 0.6);
+}
+.training-assessment-hint-action {
+  text-align: center;
+  color: rgba(255, 255, 255, 0.7);
+  font-style: italic;
+}
+
+/* Injury Assessment */
+.training-injury-finger-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 0.75rem;
+  margin-top: 0.75rem;
+}
+.training-injury-finger-card {
+  padding: 0.75rem;
+  border-radius: 0.5rem;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(0, 0, 0, 0.2);
+}
+.training-injury-finger-label {
+  margin: 0 0 0.5rem;
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.85);
+}
+.training-injury-finger-inputs {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+.training-injury-input-group {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+.training-injury-input-label {
+  font-size: 0.75rem;
+  color: rgba(255, 255, 255, 0.65);
+  flex-shrink: 0;
+  width: 60px;
+}
+.training-injury-input {
+  width: 50px;
+  padding: 0.25rem 0.35rem;
+  border-radius: 0.35rem;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.06);
+  color: #fff;
+  font-size: 0.85rem;
+  text-align: center;
+}
+.training-injury-simple-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 1rem;
+  margin-top: 0.75rem;
+}
+.training-injury-slider {
+  width: 100%;
+  margin-top: 0.5rem;
+}
+.training-injury-slider-value {
+  margin-top: 0.5rem;
+  text-align: center;
+  font-size: 1.1rem;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.9);
+}
+.training-injury-textarea {
+  width: 100%;
+  margin-top: 0.5rem;
+  padding: 0.6rem;
+  border-radius: 0.5rem;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.06);
+  color: #fff;
+  font-family: inherit;
+  font-size: 0.9rem;
+  resize: vertical;
+}
+
+/* Assessment Warning */
+.training-assessment-warning {
+  padding: 2rem;
+  border-radius: 0.75rem;
+  border: 2px solid rgba(239, 68, 68, 0.5);
+  background: rgba(239, 68, 68, 0.1);
+  text-align: center;
+}
+.training-assessment-warning-title {
+  margin: 0 0 1rem;
+  font-size: 1.5rem;
+  color: rgb(239, 68, 68);
+}
+.training-assessment-warning-message,
+.training-assessment-warning-recommendation {
+  margin: 0 0 1rem;
+  color: rgba(255, 255, 255, 0.9);
+  line-height: 1.5;
+}
+.training-assessment-warning-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-top: 1.5rem;
+}
+
+/* Grip & Style Options */
+.training-assessment-grip-options,
+.training-assessment-style-options,
+.training-assessment-result-options {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+}
+.training-assessment-grip-btn,
+.training-assessment-style-btn,
+.training-assessment-result-btn {
+  padding: 0.6rem 1rem;
+  border-radius: 0.5rem;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.05);
+  color: rgba(255, 255, 255, 0.85);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.training-assessment-grip-btn:hover,
+.training-assessment-style-btn:hover,
+.training-assessment-result-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.3);
+}
+.training-assessment-grip-btn.active,
+.training-assessment-style-btn.active,
+.training-assessment-result-btn.active {
+  background: rgba(59, 130, 246, 0.3);
+  border-color: rgba(59, 130, 246, 0.5);
+  color: #fff;
+}
+
+/* Assessment Attempts */
+.training-assessment-attempts {
+  margin-top: 1.5rem;
+  padding: 1rem;
+  border-radius: 0.5rem;
+  background: rgba(0, 0, 0, 0.3);
+}
+.training-assessment-attempts-title {
+  margin: 0 0 0.5rem;
+  font-size: 0.9rem;
+  color: rgba(255, 255, 255, 0.85);
+}
+.training-assessment-attempts-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.training-assessment-attempt {
+  padding: 0.5rem;
+  margin-bottom: 0.35rem;
+  border-radius: 0.35rem;
+  font-size: 0.85rem;
+  color: rgba(255, 255, 255, 0.75);
+}
+.training-assessment-attempt.success {
+  background: rgba(34, 197, 94, 0.15);
+  color: rgba(34, 197, 94, 1);
+}
+.training-assessment-attempt.failed {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+/* Assessment Result */
+.training-assessment-result {
+  padding: 2rem;
+  text-align: center;
+}
+.training-assessment-result-title {
+  margin: 0 0 1rem;
+  font-size: 1.25rem;
+  color: #fff;
+}
+.training-assessment-result-question {
+  margin: 0 0 1.5rem;
+  color: rgba(255, 255, 255, 0.85);
+}
+.training-assessment-result-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+/* Logged Problems */
+.training-assessment-logged {
+  margin-top: 1.5rem;
+  padding: 1rem;
+  border-radius: 0.5rem;
+  background: rgba(0, 0, 0, 0.3);
+}
+.training-assessment-logged-title {
+  margin: 0 0 0.75rem;
+  font-size: 0.95rem;
+  color: rgba(255, 255, 255, 0.9);
+}
+.training-assessment-logged-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.training-assessment-logged-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.75rem;
+  margin-bottom: 0.5rem;
+  border-radius: 0.5rem;
+  background: rgba(255, 255, 255, 0.05);
+}
+.training-assessment-logged-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  flex: 1;
+}
+.training-assessment-logged-grade {
+  font-weight: 600;
+  color: rgba(59, 130, 246, 0.9);
+}
+.training-assessment-logged-desc {
+  font-size: 0.9rem;
+  color: rgba(255, 255, 255, 0.85);
+}
+.training-assessment-logged-result {
+  font-size: 0.85rem;
+  color: rgba(255, 255, 255, 0.65);
+}
+.training-assessment-logged-result.sent {
+  color: rgba(34, 197, 94, 0.9);
+}
+.training-assessment-logged-delete {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.05);
+  color: rgba(255, 255, 255, 0.6);
+  cursor: pointer;
+  font-size: 1.25rem;
+  line-height: 1;
+  transition: all 0.2s;
+}
+.training-assessment-logged-delete:hover {
+  background: rgba(239, 68, 68, 0.2);
+  border-color: rgba(239, 68, 68, 0.5);
+  color: rgb(239, 68, 68);
+}
+
+/* Assessment Summary */
+.training-assessment-summary {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+.training-assessment-summary-card {
+  padding: 1.25rem;
+  border-radius: 0.75rem;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(0, 0, 0, 0.3);
+  text-align: center;
+}
+.training-assessment-summary-label {
+  margin: 0 0 0.5rem;
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.7);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+.training-assessment-summary-value {
+  margin: 0;
+  font-size: 1.75rem;
+  font-weight: 600;
+  color: #fff;
+}
+.training-assessment-summary-sub {
+  margin: 0.25rem 0 0;
+  font-size: 0.9rem;
+  color: rgba(255, 255, 255, 0.7);
+}
+.training-assessment-summary-detail {
+  margin: 0.35rem 0 0;
+  font-size: 0.8rem;
+  color: rgba(255, 255, 255, 0.6);
+}
+.training-assessment-next-steps {
+  padding: 1.5rem;
+  border-radius: 0.75rem;
+  border: 1px solid rgba(59, 130, 246, 0.3);
+  background: rgba(59, 130, 246, 0.1);
+}
+.training-assessment-next-title {
+  margin: 0 0 0.75rem;
+  font-size: 1.1rem;
+  color: #fff;
+}
+.training-assessment-next-text {
+  margin: 0 0 0.75rem;
+  color: rgba(255, 255, 255, 0.85);
+  line-height: 1.5;
+}
+.training-assessment-next-list {
+  margin: 0.5rem 0 0.75rem 1.5rem;
+  padding: 0;
+  color: rgba(255, 255, 255, 0.85);
+}
+.training-assessment-next-list li {
+  margin-bottom: 0.5rem;
+}
+
+/* Hang Timer in Assessment */
+.training-hang-timer-container {
+  margin: 2rem 0;
+  padding: 2rem;
+  border-radius: 0.75rem;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(0, 0, 0, 0.3);
+}
+
+/* Assessment Form */
+.training-assessment-form {
+  padding: 1.5rem;
+  border-radius: 0.75rem;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(0, 0, 0, 0.25);
+}
+
+/* Week Zero Dashboard Styles */
+.training-week-zero-cta {
+  margin-bottom: 2rem;
+  padding: 2rem;
+  border-radius: 0.75rem;
+  border: 2px solid rgba(59, 130, 246, 0.4);
+  background: rgba(59, 130, 246, 0.1);
+}
+.training-week-zero-title {
+  margin: 0 0 1rem;
+  font-size: 1.35rem;
+  color: #fff;
+}
+.training-week-zero-text {
+  margin: 0 0 0.75rem;
+  color: rgba(255, 255, 255, 0.85);
+  line-height: 1.5;
+}
+.training-week-zero-list {
+  margin: 0.5rem 0 1rem 1.5rem;
+  padding: 0;
+  color: rgba(255, 255, 255, 0.85);
+}
+.training-week-zero-list li {
+  margin-bottom: 0.5rem;
+}
+.training-week-zero-estimate {
+  margin: 1rem 0;
+  padding: 0.75rem;
+  border-radius: 0.5rem;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: rgba(255, 255, 255, 0.9);
+}
+.training-week-zero-start {
+  display: inline-block;
+  margin: 1rem 0;
+}
+.training-week-zero-try {
+  margin: 1.5rem 0 0;
+  padding-top: 1.5rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.15);
+  font-size: 0.9rem;
+  color: rgba(255, 255, 255, 0.7);
+}
+.training-week-zero-try-link {
+  color: rgba(59, 130, 246, 0.9);
+  text-decoration: underline;
+}
+.training-week-zero-try-link:hover {
+  color: rgba(59, 130, 246, 1);
+}

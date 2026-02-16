@@ -169,3 +169,88 @@ export interface WeekSchedule {
   days: WeekScheduleDay[];
   nextSession: SessionDefinition | null;
 }
+
+// --- Assessment types (Week 0, 4, 8, 12) ---
+
+export type GripType = "half_crimp" | "open_hand" | "other";
+
+export interface MaxHangAttempt {
+  load: number; // total load (BW + added)
+  addedWeight: number;
+  heldFull7s: boolean;
+  notes: string;
+}
+
+export interface MaxHangAssessment {
+  attempts: MaxHangAttempt[];
+  bestLoad: number; // auto-calculated
+  percentBodyweight: number; // auto-calculated
+  edgeSize: number; // mm (typically 20mm)
+  gripType: GripType;
+}
+
+export interface CampusReachAttempt {
+  rung: number;
+  controlled: boolean;
+}
+
+export interface CampusBoardAssessment {
+  maxReach: {
+    attempts: CampusReachAttempt[];
+    bestRung: number;
+  };
+  movesToFailure: {
+    totalMoves: number;
+    stoppingReason: "grip_fail" | "power" | "exhaustion";
+  };
+  rungSpacing: number; // mm
+}
+
+export interface LimitBoulderProblem {
+  problemDescription: string;
+  grade: string;
+  attemptsToSend: number;
+  sent: boolean;
+  highPoint: string | null;
+  style: "power" | "technical" | "compression";
+  notes: string;
+}
+
+export interface PullingStrengthAttempt {
+  addedWeight: number;
+  repsCompleted: number;
+  quality: "clean" | "ok" | "struggle";
+}
+
+export interface PullingStrengthAssessment {
+  attempts: PullingStrengthAttempt[];
+  bestWeightXReps: string; // e.g., "45 lbs × 4 reps"
+}
+
+export interface FingerStatus {
+  painAtRest: number; // 0-10
+  painWithPressure: number; // 0-10
+  stiffness: number; // 0-10
+}
+
+export interface InjuryBaseline {
+  fingers: {
+    [key: string]: FingerStatus; // e.g., "r_index", "l_middle", "r_ring", "l_ring"
+  };
+  elbowPain: { left: number; right: number }; // 0-10 each
+  shoulderPain: { left: number; right: number }; // 0-10 each
+  morningStiffness: number; // 0-10
+  concerns: string; // free text
+}
+
+export interface BoulderingAssessment {
+  id?: string; // Firestore doc ID
+  programId: string;
+  week: number; // 0, 4, 8, 12
+  date: Date | { toDate?: () => Date };
+  maxHang: MaxHangAssessment;
+  campusBoard: CampusBoardAssessment | null; // null if skipped
+  limitBoulders: LimitBoulderProblem[];
+  pullingStrength: PullingStrengthAssessment | null; // null if skipped
+  injuryBaseline: InjuryBaseline;
+}

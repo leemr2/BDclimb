@@ -44,22 +44,32 @@ export default function WorkoutPage({
     }
   }, [authLoading, programLoading, user, program, router]);
 
-  const sessionLabel = useMemo(() => {
-    if (!sessionId || !sessionId.startsWith("session-")) return null;
-    return sessionId.replace("session-", "");
-  }, [sessionId]);
+  const parsedSession = useMemo(() => {
+    if (!sessionId) return null;
+    // Parse format: week-{number}-session-{label} or legacy session-{label}
+    const weekMatch = sessionId.match(/^week-(\d+)-session-(.+)$/);
+    if (weekMatch) {
+      return { weekNumber: parseInt(weekMatch[1], 10), sessionLabel: weekMatch[2] };
+    }
+    // Legacy format: assume current week
+    const legacyMatch = sessionId.match(/^session-(.+)$/);
+    if (legacyMatch) {
+      return { weekNumber: program?.currentWeek ?? 1, sessionLabel: legacyMatch[1] };
+    }
+    return null;
+  }, [sessionId, program]);
 
   const sessionWithDrills = useMemo(() => {
-    if (!program || program.goalType !== "bouldering" || !sessionLabel) return null;
-    const weekDef = getWeekDefinition(program.frequency, program.currentWeek);
+    if (!program || program.goalType !== "bouldering" || !parsedSession) return null;
+    const weekDef = getWeekDefinition(program.frequency, parsedSession.weekNumber);
     if (!weekDef) return null;
-    const session = weekDef.sessions.find((s) => s.label === sessionLabel);
+    const session = weekDef.sessions.find((s) => s.label === parsedSession.sessionLabel);
     if (!session) return null;
     return getSessionWithDrills(session);
-  }, [program, sessionLabel]);
+  }, [program, parsedSession]);
 
   const handleStartWorkout = async () => {
-    if (!user || !program || !sessionWithDrills) return;
+    if (!user || !program || !sessionWithDrills || !parsedSession) return;
     setStarting(true);
     setError(null);
     try {
@@ -74,7 +84,7 @@ export default function WorkoutPage({
       }));
       const id = await createWorkout(user.uid, {
         programId,
-        week: program.currentWeek,
+        week: parsedSession.weekNumber,
         mesocycle: program.currentMesocycle,
         sessionLabel: sessionWithDrills.label,
         sessionType: sessionWithDrills.title,
