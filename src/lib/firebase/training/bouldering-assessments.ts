@@ -23,7 +23,7 @@ import type { BoulderingAssessment } from "@/lib/plans/bouldering/types";
  */
 export async function createAssessment(
   userId: string,
-  assessmentData: Omit<BoulderingAssessment, "id">
+  assessmentData: Omit<BoulderingAssessment, "id" | "date">
 ): Promise<string> {
   const assessmentsRef = collection(
     db,
