@@ -1,6 +1,6 @@
 # The BD Climbing Association
 
-A community calendar and chat application for climbing gym members to coordinate workout times and communicate with each other.
+A community calendar and chat application for climbing gym members to coordinate workout times and communicate with each other. The **Training Center** adds structured 12-week bouldering programs with goal selection, onboarding, and a program dashboard.
 
 ## Features
 
@@ -18,7 +18,14 @@ A community calendar and chat application for climbing gym members to coordinate
   - Set your display name on first login
   - Display names shown in calendar and chat
 
-- **Real-time Updates**: All calendar entries and messages update instantly using Firebase Firestore
+- **Training Center**: Goal-based 12-week training programs (in development)
+  - Choose a goal (Bouldering available; Route Endurance, Route Power, Power/Endurance coming soon)
+  - Onboarding: training profile (age, weight, experience, limit grade) and frequency (2, 3, or 4 days/week)
+  - Dashboard: current week, mesocycle progress, today’s workout, week schedule, key metrics placeholders
+  - Bouldering plans: 2-, 3-, and 4-day/week periodized programs (max strength → power/RFD → peak performance)
+  - Workout flow and assessments planned for later phases
+
+- **Real-time Updates**: All calendar entries, messages, and training program state update via Firebase Firestore
 
 ## Tech Stack
 
@@ -64,7 +71,7 @@ NEXT_PUBLIC_FIREBASE_APP_ID=your_app_id
 
 4. Configure Firestore Security Rules:
 
-   In the Firebase Console, go to Firestore Database > Rules and add:
+   Deploy the project’s `firestore.rules` from the repo root (they cover users, calendar, conversations, and training subcollections under `users/{userId}`). Or in the Firebase Console, go to Firestore Database > Rules and paste the equivalent:
 
 ```javascript
 rules_version = '2';
@@ -121,6 +128,7 @@ yarn dev
    - See who else is planning to work out at the same time
 4. **Chat**: Use the chat panel on the right to communicate with the community
 5. **Delete Messages**: Click the × button on your own messages to delete them
+6. **Training Center**: From the community page, click "Start Training Now" to open the Training Center, choose Bouldering, complete onboarding (profile + frequency), then use the dashboard to see your week and next workout (assessment flow and full workout logging coming in later phases)
 
 ## Project Structure
 
@@ -128,33 +136,49 @@ yarn dev
 src/
 ├── app/
 │   ├── community/
-│   │   └── page.tsx          # Main community page (calendar + chat)
+│   │   └── page.tsx              # Main community page (calendar + chat)
 │   ├── (auth)/
 │   │   ├── login/
 │   │   └── signup/
-│   └── page.tsx               # Homepage (redirects to /community)
+│   ├── training-center/
+│   │   ├── layout.tsx           # Shared header, nav, day/night toggle
+│   │   ├── page.tsx             # Goal selection hub (4 goals, bouldering active)
+│   │   ├── onboarding/
+│   │   │   └── page.tsx         # Profile + frequency → start program
+│   │   ├── dashboard/
+│   │   │   └── page.tsx         # Week progress, today's workout, schedule, metrics
+│   │   └── workout/
+│   │       └── [sessionId]/page.tsx  # Workout flow (placeholder for Phase 2)
+│   └── page.tsx                 # Homepage (redirects to /community)
 ├── components/
 │   ├── Calendar/
-│   │   ├── Calendar.tsx       # Main calendar component
-│   │   └── TimeBlock.tsx      # Individual time block
 │   ├── Chat/
-│   │   ├── Chat.tsx           # Main chat component
-│   │   └── Message.tsx        # Individual message
-│   └── DisplayNameSetup.tsx  # Display name setup modal
+│   ├── DisplayNameSetup.tsx
+│   └── training/
+│       ├── onboarding/         # TrainingProfileForm, FrequencySelector, OnboardingConfirmation
+│       └── dashboard/          # DashboardHeader, TodayWorkoutCard, WeekSchedule, KeyMetrics
 └── lib/
-    └── firebase/
-        ├── client.ts          # Firebase initialization
-        ├── auth.tsx           # Authentication context
-        ├── users.ts           # User profile functions
-        ├── calendar.ts        # Calendar data functions
-        └── messages.ts        # Chat message functions
+    ├── firebase/
+    │   ├── client.ts, auth.tsx, users.ts, calendar.ts, messages.ts, conversations.ts
+    │   └── training/
+    │       ├── profile.ts      # Training profile CRUD (users doc)
+    │       └── program.ts      # Active program + programHistory
+    ├── plans/
+    │   └── bouldering/          # types, drills catalog, 2day/3day/4day plans, planEngine
+    └── hooks/
+        └── training/           # useActiveProgram, usePlan
 ```
 
 ## Firebase Collections
 
-- **users**: User profiles with display names
+- **users**: User profiles (display names, email). Training data on the same doc:
+  - **trainingProfile** (field): age, weight, weightUnit, experienceLevel, currentLimitGrade
+  - **activeProgram** (field): goalType, frequency, startDate, currentWeek, currentMesocycle, status, programVersion (or null)
+  - **programHistory** (subcollection): completed programs with goalType, frequency, startDate, completedDate, finalMetrics
+  - Other training subcollections (for later phases): boulderingAssessments, boulderingWorkouts, dailyCheckins
 - **calendar**: Workout commitments by date and time
-- **messages**: Community chat messages
+- **conversations** / **conversations/{id}/messages**: Community chat (conversation threads)
+- **messages**: Legacy flat chat messages (unused by current UI)
 
 ## Development
 
@@ -166,5 +190,6 @@ src/
 ## Notes
 
 - The app requires Firebase Authentication and Firestore to be enabled
-- Make sure to configure Firestore security rules before deploying
-- The service worker must be built before running the app (`npm run build-service-worker`)
+- Use the project’s `firestore.rules` for full support (conversations, training subcollections); the snippet in step 4 above is a minimal example
+- The service worker must be built before running the app (`npm run build-service-worker`); the full build (`npm run build`) runs it automatically
+- Training Center design and plan details: see `docs/Bouldering_Trainer/Bouldering_trainer_design.md` and the plan docs in that folder

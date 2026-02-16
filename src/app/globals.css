@@ -2878,3 +2878,253 @@ a {
 .community-page.day-mode .training-week-zero-cta p {
   color: #333;
 }
+
+/* --- Training workout flow --- */
+.training-workout-page {
+  width: 100%;
+  max-width: 560px;
+  margin: 0 auto;
+  padding: 1rem 0;
+}
+
+.training-workout-page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.training-workout-page-session {
+  font-size: 0.9rem;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.training-workout-start {
+  padding: 2rem;
+  text-align: center;
+}
+
+.training-workout-start-title {
+  margin: 0 0 0.5rem;
+  font-size: 1.35rem;
+  color: #fff;
+}
+
+.training-workout-start-meta {
+  margin: 0 0 1.5rem;
+  color: rgba(255, 255, 255, 0.75);
+}
+
+.training-drill-summary {
+  padding: 1.5rem;
+  text-align: center;
+}
+
+.training-drill-summary-done {
+  margin: 0 0 1rem;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+/* Timers */
+.training-timer,
+.training-hang-timer,
+.training-rest-timer,
+.training-repeater-timer {
+  padding: 1.5rem;
+  border-radius: 0.75rem;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(0, 0, 0, 0.3);
+  text-align: center;
+}
+
+.training-timer--ready .training-timer-value,
+.training-hang-timer--ready .training-hang-timer-value { color: rgba(255, 255, 255, 0.8); }
+.training-timer--countdown,
+.training-hang-timer--countdown,
+.training-repeater-timer--countdown { border-color: rgba(251, 191, 36, 0.4); }
+.training-timer--active,
+.training-hang-timer--active,
+.training-repeater-timer--hang { border-color: rgba(34, 197, 94, 0.4); }
+.training-repeater-timer--rest { border-color: rgba(251, 191, 36, 0.35); }
+.training-timer--complete,
+.training-hang-timer--complete { border-color: rgba(34, 197, 94, 0.5); }
+
+.training-timer-label,
+.training-hang-timer-set,
+.training-hang-timer-target { font-size: 0.85rem; color: rgba(255, 255, 255, 0.7); }
+.training-timer-display,
+.training-hang-timer-display,
+.training-repeater-display { margin: 1rem 0; }
+.training-timer-value,
+.training-hang-timer-value,
+.training-repeater-value {
+  font-size: 3.5rem;
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+  color: #fff;
+}
+.training-timer-value--pulse { animation: training-pulse 1s ease-in-out infinite; }
+@keyframes training-pulse { 50% { opacity: 0.85; } }
+.training-hang-timer-hint,
+.training-repeater-hint { display: block; margin-top: 0.5rem; font-size: 0.9rem; color: rgba(255, 255, 255, 0.6); }
+.training-hang-timer-meta { display: flex; justify-content: space-between; margin-bottom: 0.5rem; }
+.training-hang-timer-start,
+.training-repeater-start { padding: 0.75rem 1.5rem; font-size: 1.1rem; cursor: pointer; border-radius: 0.5rem; border: 1px solid rgba(255, 255, 255, 0.25); background: rgba(255, 255, 255, 0.15); color: #fff; }
+.training-hang-timer-done { font-size: 1.5rem; color: rgba(34, 197, 94, 0.9); }
+.training-timer-actions,
+.training-timer-status { margin-top: 1rem; }
+.training-timer-btn {
+  padding: 0.5rem 1rem;
+  margin: 0 0.25rem;
+  border-radius: 0.5rem;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  background: rgba(255, 255, 255, 0.15);
+  color: #fff;
+  cursor: pointer;
+  font-size: 0.95rem;
+}
+.training-timer-btn:hover { background: rgba(255, 255, 255, 0.25); }
+
+.training-rest-timer-display { margin: 1rem 0; }
+.training-rest-timer-value { font-size: 2.5rem; font-variant-numeric: tabular-nums; color: #fff; }
+.training-rest-timer-label { display: block; font-size: 0.9rem; color: rgba(255, 255, 255, 0.7); }
+.training-rest-timer-next { margin: 0.5rem 0; font-size: 0.85rem; color: rgba(255, 255, 255, 0.6); }
+.training-rest-timer-skip { margin-top: 1rem; padding: 0.5rem 1rem; background: transparent; border: 1px solid rgba(255, 255, 255, 0.2); color: rgba(255, 255, 255, 0.8); border-radius: 0.5rem; cursor: pointer; }
+
+.training-repeater-reps { font-size: 1rem; color: rgba(255, 255, 255, 0.8); margin-bottom: 0.5rem; }
+.training-repeater-phase { display: block; font-size: 0.9rem; text-transform: uppercase; letter-spacing: 0.05em; color: rgba(255, 255, 255, 0.7); }
+.training-repeater-rest-label { display: block; margin-bottom: 0.75rem; }
+.training-repeater-rest-select { margin-left: 0.5rem; padding: 0.35rem; border-radius: 0.35rem; background: rgba(255, 255, 255, 0.1); color: #fff; border: 1px solid rgba(255, 255, 255, 0.2); }
+.training-repeater-stop { margin-top: 1rem; padding: 0.5rem 1rem; border: 1px solid rgba(239, 68, 68, 0.5); background: rgba(239, 68, 68, 0.2); color: #fff; border-radius: 0.5rem; cursor: pointer; }
+.training-repeater-summary { padding: 1.5rem; text-align: center; }
+.training-repeater-summary-title { margin: 0 0 0.5rem; color: #fff; }
+.training-repeater-summary-stats { margin: 0; color: rgba(255, 255, 255, 0.8); }
+
+/* Drill card */
+.training-drill-card {
+  padding: 1.5rem;
+  border-radius: 0.75rem;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(0, 0, 0, 0.3);
+}
+.training-drill-card-title { margin: 0 0 0.5rem; font-size: 1.25rem; color: #fff; }
+.training-drill-card-description { margin: 0 0 1rem; color: rgba(255, 255, 255, 0.8); }
+.training-drill-card-meta { margin: 0 0 1rem; font-size: 0.9rem; color: rgba(255, 255, 255, 0.65); }
+.training-drill-card-instructions { margin: 0 0 1rem; padding-left: 1.25rem; }
+.training-drill-card-step { margin-bottom: 0.35rem; color: rgba(255, 255, 255, 0.85); }
+.training-drill-card-warnings { margin: 0 0 1rem; padding: 0.75rem; border-radius: 0.5rem; background: rgba(239, 68, 68, 0.15); border: 1px solid rgba(239, 68, 68, 0.3); }
+.training-drill-card-warnings-title { color: rgba(254, 202, 202, 0.95); }
+.training-drill-card-warnings-list { margin: 0.35rem 0 0; padding-left: 1.25rem; }
+.training-drill-card-warning { color: rgba(254, 202, 202, 0.9); margin-bottom: 0.25rem; }
+.training-drill-card-progression { margin: 0 0 1rem; font-size: 0.9rem; color: rgba(255, 255, 255, 0.75); }
+.training-drill-card-progression-title { display: block; margin-bottom: 0.35rem; }
+.training-drill-card-progression-list { margin: 0; padding-left: 1.25rem; }
+.training-drill-card-begin { margin-top: 1rem; }
+
+/* Safety interrupt */
+.training-safety-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  background: rgba(0, 0, 0, 0.7);
+}
+.training-safety-modal {
+  max-width: 400px;
+  width: 100%;
+  padding: 1.5rem;
+  border-radius: 0.75rem;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  background: rgba(0, 0, 0, 0.9);
+}
+.training-safety-modal--yellow { border-color: rgba(251, 191, 36, 0.5); background: rgba(38, 38, 38, 0.95); }
+.training-safety-modal--red { border-color: rgba(239, 68, 68, 0.5); }
+.training-safety-title { margin: 0 0 0.5rem; color: #fff; }
+.training-safety-message,
+.training-safety-action { margin: 0 0 1rem; color: rgba(255, 255, 255, 0.85); }
+.training-safety-actions { display: flex; flex-direction: column; gap: 0.5rem; }
+.training-safety-btn { padding: 0.6rem 1rem; border-radius: 0.5rem; border: 1px solid rgba(255, 255, 255, 0.2); background: rgba(255, 255, 255, 0.1); color: #fff; cursor: pointer; text-align: left; }
+.training-safety-btn--continue { opacity: 0.85; }
+
+/* Loggers */
+.training-max-hang-log,
+.training-boulder-log,
+.training-campus-log,
+.training-pullup-log,
+.training-antagonist-log,
+.training-easy-climbing-log,
+.training-core-log,
+.training-mobility-log,
+.training-warmup-log {
+  padding: 1.25rem;
+  border-radius: 0.75rem;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(0, 0, 0, 0.25);
+}
+.training-max-hang-log h4,
+.training-boulder-log-title,
+.training-campus-log h4,
+.training-pullup-log h4,
+.training-antagonist-log h4,
+.training-easy-climbing-log h4,
+.training-core-log h4,
+.training-mobility-log h4,
+.training-warmup-log h4 { margin: 0 0 1rem; color: rgba(255, 255, 255, 0.95); }
+.training-form-group { margin-bottom: 1rem; }
+.training-form-group.input,
+.training-form-group.range { display: block; width: 100%; margin-top: 0.35rem; padding: 0.5rem; border-radius: 0.4rem; border: 1px solid rgba(255, 255, 255, 0.2); background: rgba(255, 255, 255, 0.06); color: #fff; }
+.training-max-hang-held { display: flex; align-items: center; gap: 0.5rem; margin-bottom: 1rem; }
+.training-boulder-log-list { list-style: none; margin: 0 0 1rem; padding: 0; }
+.training-boulder-log-item { margin-bottom: 0.75rem; padding: 0.75rem; border-radius: 0.5rem; background: rgba(255, 255, 255, 0.05); }
+.training-boulder-log-stats { margin: 0 0 1rem; font-size: 0.9rem; color: rgba(255, 255, 255, 0.75); }
+.training-antagonist-exercise,
+.training-core-exercise { display: grid; gap: 0.5rem; margin-bottom: 1rem; }
+.training-progress-comparison { font-size: 0.85rem; color: rgba(255, 255, 255, 0.65); margin-bottom: 0.75rem; }
+
+/* Workout summary */
+.training-workout-summary { padding: 1.5rem; }
+.training-workout-summary-title { margin: 0 0 1rem; color: #fff; }
+.training-workout-summary-duration { margin: 0 0 1.5rem; color: rgba(255, 255, 255, 0.8); }
+.training-workout-summary-form .training-form-group { margin-bottom: 1.25rem; }
+.training-workout-summary-value { margin-left: 0.5rem; font-variant-numeric: tabular-nums; }
+.training-workout-summary-quality { display: flex; gap: 0.5rem; margin-top: 0.35rem; }
+.training-workout-summary-quality-btn { width: 2.5rem; height: 2.5rem; border-radius: 0.5rem; border: 1px solid rgba(255, 255, 255, 0.25); background: rgba(255, 255, 255, 0.1); color: #fff; cursor: pointer; font-size: 1rem; }
+.training-workout-summary-quality-btn.active { background: rgba(255, 255, 255, 0.25); border-color: rgba(255, 255, 255, 0.4); }
+.training-workout-summary-save { margin-top: 1rem; width: 100%; }
+
+/* History */
+.training-history { max-width: 560px; margin: 0 auto; padding: 1rem 0; }
+.training-history-header { margin-bottom: 1.5rem; }
+.training-history-title { margin: 0 0 0.5rem; font-size: 1.35rem; color: #fff; }
+.training-history-loading,
+.training-history-empty { color: rgba(255, 255, 255, 0.7); }
+.training-history-list { list-style: none; margin: 0; padding: 0; }
+.training-history-item { margin-bottom: 0.5rem; }
+.training-history-link {
+  display: block;
+  padding: 1rem;
+  border-radius: 0.5rem;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(0, 0, 0, 0.3);
+  color: inherit;
+  text-decoration: none;
+}
+.training-history-link:hover { border-color: rgba(255, 255, 255, 0.2); background: rgba(0, 0, 0, 0.4); }
+.training-history-date { display: block; font-size: 0.85rem; color: rgba(255, 255, 255, 0.6); }
+.training-history-session { display: block; font-weight: 500; color: #fff; }
+.training-history-meta { display: block; font-size: 0.85rem; color: rgba(255, 255, 255, 0.65); margin-top: 0.25rem; }
+
+.training-workout-detail { max-width: 640px; margin: 0 auto; padding: 1rem 0; }
+.training-workout-detail-header { margin-bottom: 1.5rem; }
+.training-workout-detail-title { margin: 0 0 0.35rem; color: #fff; }
+.training-workout-detail-date,
+.training-workout-detail-meta { margin: 0 0 0.25rem; font-size: 0.9rem; color: rgba(255, 255, 255, 0.7); }
+.training-workout-detail-drills h3 { margin: 1rem 0 0.5rem; color: rgba(255, 255, 255, 0.9); }
+.training-workout-detail-drill { margin-bottom: 1rem; padding: 1rem; border-radius: 0.5rem; background: rgba(255, 255, 255, 0.05); }
+.training-workout-detail-drill h4 { margin: 0 0 0.5rem; font-size: 0.95rem; color: rgba(255, 255, 255, 0.8); }
+.training-workout-detail-data { margin: 0; padding: 0.75rem; font-size: 0.8rem; overflow-x: auto; background: rgba(0, 0, 0, 0.3); border-radius: 0.35rem; color: rgba(255, 255, 255, 0.85); }
+.training-workout-detail-notes { margin-top: 1rem; padding-top: 1rem; border-top: 1px solid rgba(255, 255, 255, 0.1); color: rgba(255, 255, 255, 0.8); }
+.training-workout-flow { padding: 1rem; }
