@@ -3,6 +3,8 @@
 import { useState } from "react";
 import type { LimitBoulderProblem } from "@/lib/plans/bouldering/types";
 
+const GRADES = ["VB", "V0", "V1", "V2", "V3", "V4", "V5", "V6", "V7", "V8", "V9", "V10", "V11", "V12", "V13", "V14", "V15", "V16"];
+
 interface BoulderBenchmarkProps {
   onComplete: (problems: LimitBoulderProblem[]) => void;
   onBack?: () => void;
@@ -146,13 +148,16 @@ export function BoulderBenchmark({ onComplete, onBack }: BoulderBenchmarkProps) 
           <div className="training-assessment-section">
             <label className="training-assessment-label">
               Grade *
-              <input
-                type="text"
+              <select
                 value={currentProblem.grade}
                 onChange={(e) => setCurrentProblem(prev => ({ ...prev, grade: e.target.value }))}
-                placeholder="e.g., V6, V7, V8..."
                 className="training-assessment-input"
-              />
+              >
+                <option value="">Select grade</option>
+                {GRADES.map((g) => (
+                  <option key={g} value={g}>{g}</option>
+                ))}
+              </select>
             </label>
           </div>
 
@@ -223,13 +228,15 @@ export function BoulderBenchmark({ onComplete, onBack }: BoulderBenchmarkProps) 
           <div className="training-assessment-section">
             <label className="training-assessment-label">
               Attempts {currentProblem.sent ? "to send" : ""}
-              <input
-                type="number"
+              <select
                 value={currentProblem.attemptsToSend}
-                onChange={(e) => setCurrentProblem(prev => ({ ...prev, attemptsToSend: parseInt(e.target.value) || 1 }))}
+                onChange={(e) => setCurrentProblem(prev => ({ ...prev, attemptsToSend: parseInt(e.target.value) }))}
                 className="training-assessment-input"
-                min="1"
-              />
+              >
+                {Array.from({ length: 10 }, (_, i) => i + 1).map((n) => (
+                  <option key={n} value={n}>{n}</option>
+                ))}
+              </select>
             </label>
           </div>
 

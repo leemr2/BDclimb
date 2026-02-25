@@ -6,6 +6,8 @@ import { useWorkout } from "@/lib/hooks/training/useWorkout";
 import type { DrillDefinition } from "@/lib/plans/bouldering/types";
 import type { LimitBoulderData } from "@/lib/plans/bouldering/types";
 
+const GRADES = ["VB", "V0", "V1", "V2", "V3", "V4", "V5", "V6", "V7", "V8", "V9", "V10", "V11", "V12", "V13", "V14", "V15", "V16"];
+
 const STYLES: Array<"power" | "technical" | "compression" | "mixed"> = [
   "power",
   "technical",
@@ -51,7 +53,7 @@ export function BoulderLogger({ drill, onComplete }: BoulderLoggerProps) {
         description: "",
         grade: "",
         style: "power",
-        attempts: 0,
+        attempts: 1,
         result: "working",
         quality: 3,
         restMinutes: 4,
@@ -125,13 +127,16 @@ export function BoulderLogger({ drill, onComplete }: BoulderLoggerProps) {
                   onChange={(e) => updateProblem(i, { description: e.target.value })}
                   className="training-form-group input"
                 />
-                <input
-                  type="text"
-                  placeholder="Grade (e.g. V5)"
+                <select
                   value={p.grade}
                   onChange={(e) => updateProblem(i, { grade: e.target.value })}
                   className="training-form-group input"
-                />
+                >
+                  <option value="">Grade</option>
+                  {GRADES.map((g) => (
+                    <option key={g} value={g}>{g}</option>
+                  ))}
+                </select>
                 <select
                   value={p.style}
                   onChange={(e) => updateProblem(i, { style: e.target.value as ProblemEntry["style"] })}
@@ -143,13 +148,15 @@ export function BoulderLogger({ drill, onComplete }: BoulderLoggerProps) {
                 </select>
                 <label>
                   Attempts
-                  <input
-                    type="number"
-                    min={0}
+                  <select
                     value={p.attempts}
-                    onChange={(e) => updateProblem(i, { attempts: parseInt(e.target.value, 10) || 0 })}
+                    onChange={(e) => updateProblem(i, { attempts: parseInt(e.target.value, 10) })}
                     className="training-form-group input"
-                  />
+                  >
+                    {Array.from({ length: 10 }, (_, i) => i + 1).map((n) => (
+                      <option key={n} value={n}>{n}</option>
+                    ))}
+                  </select>
                 </label>
                 <select
                   value={p.result}
