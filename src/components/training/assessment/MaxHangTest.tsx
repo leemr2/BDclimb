@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { HangTimer } from "@/components/training/workout/HangTimer";
+import { NumberSlider } from "@/components/training/ui/NumberSlider";
 import type { MaxHangAssessment, MaxHangAttempt, GripType } from "@/lib/plans/bouldering/types";
 
 interface MaxHangTestProps {
@@ -136,18 +137,16 @@ export function MaxHangTest({ bodyweight, weightUnit, onComplete, onBack }: MaxH
 
         <div className="training-assessment-content">
           <div className="training-assessment-section">
-            <label className="training-assessment-label">
-              Edge size (mm)
-              <input
-                type="number"
-                value={edgeSize}
-                onChange={(e) => setEdgeSize(parseInt(e.target.value) || 20)}
-                className="training-assessment-input"
-                min="10"
-                max="30"
-              />
-            </label>
-            <p className="training-assessment-hint">Standard is 20mm. Use the same edge for all attempts.</p>
+            <NumberSlider
+              label="Edge size"
+              value={edgeSize}
+              onChange={setEdgeSize}
+              min={10}
+              max={30}
+              step={1}
+              unit="mm"
+              hint="Standard is 20mm. Use the same edge for all attempts."
+            />
           </div>
 
           <div className="training-assessment-section">
@@ -220,19 +219,16 @@ export function MaxHangTest({ bodyweight, weightUnit, onComplete, onBack }: MaxH
           {timerState === "ready" && (
             <>
               <div className="training-assessment-section">
-                <label className="training-assessment-label">
-                  Added weight ({weightUnit})
-                  <input
-                    type="number"
-                    value={currentAddedWeight}
-                    onChange={(e) => setCurrentAddedWeight(parseFloat(e.target.value) || 0)}
-                    className="training-assessment-input"
-                    step="5"
-                  />
-                </label>
-                <p className="training-assessment-info">
-                  <strong>Total load:</strong> {bodyweight + currentAddedWeight} {weightUnit}
-                </p>
+                <NumberSlider
+                  label="Added weight"
+                  value={currentAddedWeight}
+                  onChange={setCurrentAddedWeight}
+                  min={-30}
+                  max={100}
+                  step={weightUnit === "lbs" ? 2.5 : 1}
+                  unit={weightUnit}
+                  hint={`Total load: ${bodyweight + currentAddedWeight} ${weightUnit} · use negative for assisted hangs`}
+                />
               </div>
 
               <div className="training-assessment-section">

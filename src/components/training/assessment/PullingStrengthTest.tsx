@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { NumberSlider } from "@/components/training/ui/NumberSlider";
 import type { PullingStrengthAssessment, PullingStrengthAttempt } from "@/lib/plans/bouldering/types";
 
 interface PullingStrengthTestProps {
@@ -19,18 +20,18 @@ const QUALITY_OPTIONS: Array<{ id: Quality; label: string }> = [
 ];
 
 interface AttemptDraft {
-  addedWeight: string;
-  repsCompleted: string;
+  addedWeight: number;
+  repsCompleted: number;
   quality: Quality;
 }
 
-const emptyAttempt = (): AttemptDraft => ({ addedWeight: "", repsCompleted: "", quality: "clean" });
+const emptyAttempt = (): AttemptDraft => ({ addedWeight: 0, repsCompleted: 0, quality: "clean" });
 
 export function PullingStrengthTest({ weightUnit, onComplete, onSkip, onBack }: PullingStrengthTestProps) {
   const [step, setStep] = useState<"intro" | "form">("intro");
   const [attempts, setAttempts] = useState<AttemptDraft[]>([emptyAttempt(), emptyAttempt(), emptyAttempt()]);
 
-  const updateAttempt = (index: number, field: keyof AttemptDraft, value: string | Quality) => {
+  const updateAttempt = (index: number, field: keyof AttemptDraft, value: number | Quality) => {
     setAttempts((prev) => {
       const updated = [...prev];
       updated[index] = { ...updated[index], [field]: value };
@@ -39,16 +40,12 @@ export function PullingStrengthTest({ weightUnit, onComplete, onSkip, onBack }: 
   };
 
   // Derive best set: highest weight among attempts with reps recorded, break ties by reps
-  const validAttempts = attempts.filter(
-    (a) => a.addedWeight !== "" && a.repsCompleted !== ""
-  );
+  const validAttempts = attempts.filter((a) => a.repsCompleted > 0);
 
   const bestAttempt = validAttempts.reduce<AttemptDraft | null>((best, curr) => {
     if (!best) return curr;
-    const currWeight = parseFloat(curr.addedWeight);
-    const bestWeight = parseFloat(best.addedWeight);
-    if (currWeight > bestWeight) return curr;
-    if (currWeight === bestWeight && parseInt(curr.repsCompleted) > parseInt(best.repsCompleted)) return curr;
+    if (curr.addedWeight > best.addedWeight) return curr;
+    if (curr.addedWeight === best.addedWeight && curr.repsCompleted > best.repsCompleted) return curr;
     return best;
   }, null);
 
@@ -63,8 +60,8 @@ export function PullingStrengthTest({ weightUnit, onComplete, onSkip, onBack }: 
     }
 
     const parsedAttempts: PullingStrengthAttempt[] = validAttempts.map((a) => ({
-      addedWeight: parseFloat(a.addedWeight) || 0,
-      repsCompleted: parseInt(a.repsCompleted) || 0,
+      addedWeight: a.addedWeight,
+      repsCompleted: a.repsCompleted,
       quality: a.quality,
     }));
 
@@ -153,54 +150,47 @@ export function PullingStrengthTest({ weightUnit, onComplete, onSkip, onBack }: 
           </p>
         </div>
 
-        {/* Set table */}
+        {/* Set cards */}
         <div className="training-assessment-section">
-          <div className="training-pullup-table">
-            <div className="training-pullup-table-header">
-              <span>Set</span>
-              <span>Added weight ({weightUnit})</span>
-              <span>Reps</span>
-              <span>Quality</span>
-            </div>
+          {attempts.map((attempt, i) => (
+            <div key={i} className="training-pullup-set-card">
+              <div className="training-pullup-set-card-header">Set {i + 1}</div>
 
-            {attempts.map((attempt, i) => (
-              <div key={i} className="training-pullup-table-row">
-                <span className="training-pullup-set-num">{i + 1}</span>
+              <NumberSlider
+                label={`Added weight (${weightUnit})`}
+                value={attempt.addedWeight}
+                onChange={(v) => updateAttempt(i, "addedWeight", v)}
+                min={0}
+                max={150}
+                step={weightUnit === "lbs" ? 2.5 : 1}
+                unit={weightUnit}
+              />
 
-                <input
-                  type="number"
-                  value={attempt.addedWeight}
-                  onChange={(e) => updateAttempt(i, "addedWeight", e.target.value)}
-                  className="training-assessment-input training-pullup-input"
-                  placeholder="0"
-                  min="0"
-                  step="5"
-                />
+              <NumberSlider
+                label="Reps completed"
+                value={attempt.repsCompleted}
+                onChange={(v) => updateAttempt(i, "repsCompleted", v)}
+                min={0}
+                max={20}
+                step={1}
+                unit="reps"
+              />
 
-                <input
-                  type="number"
-                  value={attempt.repsCompleted}
-                  onChange={(e) => updateAttempt(i, "repsCompleted", e.target.value)}
-                  className="training-assessment-input training-pullup-input"
-                  placeholder="—"
-                  min="1"
-                />
-
-                <div className="training-pullup-quality-group">
-                  {QUALITY_OPTIONS.map((q) => (
-                    <button
-                      key={q.id}
-                      type="button"
-                      onClick={() => updateAttempt(i, "quality", q.id)}
-                      className={`training-pullup-quality-btn${attempt.quality === q.id ? " active" : ""}`}
-                    >
-                      {q.label}
-                    </button>
-                  ))}
-                </div>
+              <div className="training-pullup-quality-group">
+                <span className="training-assessment-label" style={{ display: "block", marginBottom: "0.4rem" }}>Quality</span>
+                {QUALITY_OPTIONS.map((q) => (
+                  <button
+                    key={q.id}
+                    type="button"
+                    onClick={() => updateAttempt(i, "quality", q.id)}
+                    className={`training-pullup-quality-btn${attempt.quality === q.id ? " active" : ""}`}
+                  >
+                    {q.label}
+                  </button>
+                ))}
               </div>
-            ))}
-          </div>
+            </div>
+          ))}
         </div>
 
         {/* Best set display */}

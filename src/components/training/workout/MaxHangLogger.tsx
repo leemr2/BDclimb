@@ -5,6 +5,7 @@ import { Timestamp } from "firebase/firestore";
 import { useWorkout } from "@/lib/hooks/training/useWorkout";
 import type { DrillDefinition } from "@/lib/plans/bouldering/types";
 import type { MaxHangData } from "@/lib/plans/bouldering/types";
+import { NumberSlider } from "@/components/training/ui/NumberSlider";
 import { HangTimer } from "./HangTimer";
 import { RestTimer } from "./RestTimer";
 import { SafetyInterrupt, type SafetyInterruptChoice } from "./SafetyInterrupt";
@@ -52,6 +53,12 @@ export function MaxHangLogger({
   const [showSafety, setShowSafety] = useState(false);
   const [pendingPain, setPendingPain] = useState(0);
   const [allowSubmitDespitePain, setAllowSubmitDespitePain] = useState(false);
+
+  // Controlled log-form state (resets each set via handleRestComplete)
+  const [logLoad, setLogLoad] = useState(targetLoad);
+  const [logHeldClean, setLogHeldClean] = useState(true);
+  const [logPain, setLogPain] = useState(0);
+  const [logNotes, setLogNotes] = useState("");
 
   const targetPercent = 87;
 
@@ -153,8 +160,12 @@ export function MaxHangLogger({
 
   const handleRestComplete = useCallback(() => {
     setCurrentSet((s) => s + 1);
+    setLogLoad(targetLoad);
+    setLogHeldClean(true);
+    setLogPain(0);
+    setLogNotes("");
     setPhase("timer");
-  }, []);
+  }, [targetLoad]);
 
   if (phase === "rest") {
     return (
@@ -194,57 +205,61 @@ export function MaxHangLogger({
     );
   }
 
+  const sliderMin = Math.max(0, Math.round(targetLoad * 0.6));
+  const sliderMax = Math.round(Math.max(targetLoad * 1.4, targetLoad + 40));
+
   return (
     <div className="training-max-hang-log">
       <h4 className="training-max-hang-log-set">
         Set {currentSet + 1} of {totalSets} — log result
       </h4>
-      <form
-        className="training-max-hang-log-form"
-        onSubmit={(e) => {
-          e.preventDefault();
-          const form = e.currentTarget;
-          const actualLoad = Number((form.querySelector('[name="actualLoad"]') as HTMLInputElement)?.value) || targetLoad;
-          const heldClean = (form.querySelector('[name="heldClean"]') as HTMLInputElement)?.checked ?? true;
-          const pain = Number((form.querySelector('[name="pain"]') as HTMLInputElement)?.value) ?? 0;
-          const notes = (form.querySelector('[name="notes"]') as HTMLInputElement)?.value ?? "";
-          handleLogSet(actualLoad, heldClean, pain, notes);
-        }}
-      >
-        <label className="training-form-group">
-          Actual load (lbs)
-          <input
-            type="number"
-            name="actualLoad"
-            defaultValue={targetLoad}
-            min={0}
-            step={1}
-            className="training-form-group input"
-          />
-        </label>
+      <div className="training-max-hang-log-form">
+        <NumberSlider
+          label="Actual load (lbs)"
+          value={logLoad}
+          onChange={setLogLoad}
+          min={sliderMin}
+          max={sliderMax}
+          step={1}
+          unit="lbs"
+          hint={targetLoad > 0 ? `Target: ${targetLoad} lbs` : undefined}
+        />
         <label className="training-max-hang-held">
-          <input type="checkbox" name="heldClean" defaultChecked />
+          <input
+            type="checkbox"
+            checked={logHeldClean}
+            onChange={(e) => setLogHeldClean(e.target.checked)}
+          />
           Held full duration clean
         </label>
         <label className="training-form-group">
-          Pain (0–10)
+          Pain (0–10) — current: {logPain}
           <input
             type="range"
-            name="pain"
             min={0}
             max={10}
-            defaultValue={0}
+            value={logPain}
+            onChange={(e) => setLogPain(Number(e.target.value))}
             className="training-form-group range"
           />
         </label>
         <label className="training-form-group">
           Notes
-          <input type="text" name="notes" className="training-form-group input" />
+          <input
+            type="text"
+            value={logNotes}
+            onChange={(e) => setLogNotes(e.target.value)}
+            className="training-form-group input"
+          />
         </label>
-        <button type="submit" className="training-timer-btn">
+        <button
+          type="button"
+          onClick={() => handleLogSet(logLoad, logHeldClean, logPain, logNotes)}
+          className="training-timer-btn"
+        >
           {currentSet >= totalSets - 1 ? "Complete drill" : "Next set"}
         </button>
-      </form>
+      </div>
     </div>
   );
 }

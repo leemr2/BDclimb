@@ -5,6 +5,7 @@ import { Timestamp } from "firebase/firestore";
 import { useWorkout } from "@/lib/hooks/training/useWorkout";
 import type { DrillDefinition } from "@/lib/plans/bouldering/types";
 import type { PullUpData } from "@/lib/plans/bouldering/types";
+import { NumberSlider } from "@/components/training/ui/NumberSlider";
 import { RestTimer } from "./RestTimer";
 
 const QUALITIES = ["clean", "ok", "struggle"] as const;
@@ -24,6 +25,11 @@ export function PullUpLogger({ drill, onComplete }: PullUpLoggerProps) {
   const [sets, setSets] = useState<
     Array<{ addedWeight: number; reps: number; quality: typeof QUALITIES[number]; restMinutes: number }>
   >(Array.from({ length: setsCount }, () => ({ addedWeight: 0, reps: 0, quality: "clean", restMinutes: 3 })));
+
+  // Controlled form state for the current set
+  const [logWeight, setLogWeight] = useState(0);
+  const [logReps, setLogReps] = useState(0);
+  const [logQuality, setLogQuality] = useState<typeof QUALITIES[number]>("clean");
 
   const handleSetSubmit = useCallback(
     (addedWeight: number, reps: number, quality: typeof QUALITIES[number]) => {
@@ -61,6 +67,9 @@ export function PullUpLogger({ drill, onComplete }: PullUpLoggerProps) {
 
   const handleRestComplete = useCallback(() => {
     setCurrentSet((s) => s + 1);
+    setLogWeight(0);
+    setLogReps(0);
+    setLogQuality("clean");
     setPhase("log");
   }, []);
 
@@ -77,37 +86,49 @@ export function PullUpLogger({ drill, onComplete }: PullUpLoggerProps) {
   return (
     <div className="training-pullup-log">
       <h4>Set {currentSet + 1} of {setsCount}</h4>
-      <form
-        className="training-pullup-log-form"
-        onSubmit={(e) => {
-          e.preventDefault();
-          const form = e.currentTarget;
-          const addedWeight = Number((form.querySelector('[name="addedWeight"]') as HTMLInputElement)?.value) || 0;
-          const reps = Number((form.querySelector('[name="reps"]') as HTMLInputElement)?.value) || 0;
-          const quality = (form.querySelector('[name="quality"]') as HTMLSelectElement)?.value as typeof QUALITIES[number];
-          handleSetSubmit(addedWeight, reps, quality);
-        }}
-      >
-        <label>
-          Added weight (lbs)
-          <input type="number" name="addedWeight" min={0} className="training-form-group input" />
-        </label>
-        <label>
-          Reps
-          <input type="number" name="reps" min={0} className="training-form-group input" />
-        </label>
-        <label>
-          Quality
-          <select name="quality" className="training-form-group input">
+      <div className="training-pullup-log-form">
+        <NumberSlider
+          label="Added weight (lbs)"
+          value={logWeight}
+          onChange={setLogWeight}
+          min={0}
+          max={150}
+          step={2.5}
+          unit="lbs"
+        />
+        <NumberSlider
+          label="Reps completed"
+          value={logReps}
+          onChange={setLogReps}
+          min={0}
+          max={20}
+          step={1}
+          unit="reps"
+        />
+        <div style={{ marginBottom: "1rem" }}>
+          <span className="training-form-group" style={{ display: "block", marginBottom: "0.4rem", fontSize: "0.875rem", color: "rgba(255,255,255,0.7)" }}>Quality</span>
+          <div style={{ display: "flex", gap: "0.5rem" }}>
             {QUALITIES.map((q) => (
-              <option key={q} value={q}>{q}</option>
+              <button
+                key={q}
+                type="button"
+                onClick={() => setLogQuality(q)}
+                className={`training-pullup-quality-btn${logQuality === q ? " active" : ""}`}
+                style={{ flex: 1 }}
+              >
+                {q}
+              </button>
             ))}
-          </select>
-        </label>
-        <button type="submit" className="training-timer-btn">
+          </div>
+        </div>
+        <button
+          type="button"
+          onClick={() => handleSetSubmit(logWeight, logReps, logQuality)}
+          className="training-timer-btn"
+        >
           {currentSet >= setsCount - 1 ? "Complete drill" : "Next set"}
         </button>
-      </form>
+      </div>
     </div>
   );
 }
