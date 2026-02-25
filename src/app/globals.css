@@ -4487,3 +4487,188 @@ a {
 .community-page.day-mode .training-assessment-warning-recommendation {
   color: #374151;
 }
+
+/* ============================================================
+   Workout Page — Day-Mode Overrides
+   ============================================================ */
+.community-page.day-mode .training-workout-back-btn {
+  color: #555;
+  border-color: #d1d5db;
+}
+.community-page.day-mode .training-workout-back-btn:hover {
+  color: #1a1a1a;
+  border-color: #9ca3af;
+}
+.community-page.day-mode .training-workout-page-session { color: #555; }
+.community-page.day-mode .training-workout-start-title { color: #1a1a1a; }
+.community-page.day-mode .training-workout-start-meta { color: #555; }
+.community-page.day-mode .training-drill-summary-done { color: #333; }
+
+/* ============================================================
+   Timers — Day-Mode Overrides (additional)
+   ============================================================ */
+.community-page.day-mode .training-timer {
+  background: #fff;
+  border-color: #e5e7eb;
+}
+.community-page.day-mode .training-timer-label { color: #666; }
+.community-page.day-mode .training-timer-btn {
+  background: #e5e7eb;
+  border-color: #d1d5db;
+  color: #1a1a1a;
+}
+.community-page.day-mode .training-timer-btn:hover { background: #d1d5db; }
+.community-page.day-mode .training-rest-timer-value { color: #1a1a1a; }
+.community-page.day-mode .training-rest-timer-label { color: #666; }
+.community-page.day-mode .training-rest-timer-next { color: #888; }
+.community-page.day-mode .training-rest-timer-skip {
+  border-color: #d1d5db;
+  color: #555;
+}
+.community-page.day-mode .training-repeater-reps { color: #333; }
+.community-page.day-mode .training-repeater-phase { color: #666; }
+.community-page.day-mode .training-repeater-rest-select {
+  background: #f3f4f6;
+  border-color: #d1d5db;
+  color: #1a1a1a;
+}
+.community-page.day-mode .training-repeater-stop {
+  border-color: rgba(239, 68, 68, 0.4);
+  background: rgba(239, 68, 68, 0.08);
+  color: #b91c1c;
+}
+.community-page.day-mode .training-repeater-summary-title { color: #1a1a1a; }
+.community-page.day-mode .training-repeater-summary-stats { color: #333; }
+
+/* ============================================================
+   Drill Card — Day-Mode Overrides
+   ============================================================ */
+.community-page.day-mode .training-drill-card {
+  background: #fff;
+  border-color: #e5e7eb;
+}
+.community-page.day-mode .training-drill-card-title { color: #1a1a1a; }
+.community-page.day-mode .training-drill-card-description { color: #555; }
+.community-page.day-mode .training-drill-card-meta { color: #666; }
+.community-page.day-mode .training-drill-card-step { color: #333; }
+.community-page.day-mode .training-drill-card-progression { color: #555; }
+
+/* ============================================================
+   Safety Interrupt — Day-Mode Overrides
+   ============================================================ */
+.community-page.day-mode .training-safety-modal {
+  background: #fff;
+  border-color: #e5e7eb;
+}
+.community-page.day-mode .training-safety-modal--yellow {
+  background: #fffbeb;
+  border-color: rgba(251, 191, 36, 0.5);
+}
+.community-page.day-mode .training-safety-title { color: #1a1a1a; }
+.community-page.day-mode .training-safety-message,
+.community-page.day-mode .training-safety-action { color: #374151; }
+.community-page.day-mode .training-safety-btn {
+  background: #f3f4f6;
+  border-color: #d1d5db;
+  color: #1a1a1a;
+}
+.community-page.day-mode .training-safety-btn:hover { background: #e5e7eb; }
+
+/* ============================================================
+   Workout Loggers — Day-Mode Overrides
+   ============================================================ */
+.community-page.day-mode .training-max-hang-log,
+.community-page.day-mode .training-boulder-log,
+.community-page.day-mode .training-campus-log,
+.community-page.day-mode .training-pullup-log,
+.community-page.day-mode .training-antagonist-log,
+.community-page.day-mode .training-easy-climbing-log,
+.community-page.day-mode .training-core-log,
+.community-page.day-mode .training-mobility-log,
+.community-page.day-mode .training-warmup-log {
+  background: #fff;
+  border-color: #e5e7eb;
+}
+.community-page.day-mode .training-max-hang-log h4,
+.community-page.day-mode .training-boulder-log-title,
+.community-page.day-mode .training-campus-log h4,
+.community-page.day-mode .training-pullup-log h4,
+.community-page.day-mode .training-antagonist-log h4,
+.community-page.day-mode .training-easy-climbing-log h4,
+.community-page.day-mode .training-core-log h4,
+.community-page.day-mode .training-mobility-log h4,
+.community-page.day-mode .training-warmup-log h4 { color: #1a1a1a; }
+.community-page.day-mode .training-form-group.input,
+.community-page.day-mode .training-form-group.range {
+  background: #f9fafb;
+  border-color: #d1d5db;
+  color: #1a1a1a;
+}
+.community-page.day-mode .training-max-hang-held { color: #333; }
+.community-page.day-mode .training-boulder-log-stats { color: #555; }
+.community-page.day-mode .training-boulder-log-item { background: #f3f4f6; }
+.community-page.day-mode .training-progress-comparison { color: #666; }
+
+/* ============================================================
+   Workout Summary — Day-Mode Overrides
+   ============================================================ */
+.community-page.day-mode .training-workout-summary-title { color: #1a1a1a; }
+.community-page.day-mode .training-workout-summary-duration { color: #555; }
+.community-page.day-mode .training-workout-summary-quality-btn {
+  background: #f3f4f6;
+  border-color: #d1d5db;
+  color: #1a1a1a;
+}
+.community-page.day-mode .training-workout-summary-quality-btn.active {
+  background: #e5e7eb;
+  border-color: #9ca3af;
+}
+.community-page.day-mode .training-workout-summary-value { color: #1a1a1a; }
+
+/* ============================================================
+   History & Workout Detail — Day-Mode Overrides
+   ============================================================ */
+.community-page.day-mode .training-history-title { color: #1a1a1a; }
+.community-page.day-mode .training-history-loading,
+.community-page.day-mode .training-history-empty { color: #555; }
+.community-page.day-mode .training-history-link {
+  background: #fff;
+  border-color: #e5e7eb;
+}
+.community-page.day-mode .training-history-link:hover {
+  background: #f9fafb;
+  border-color: #d1d5db;
+}
+.community-page.day-mode .training-history-date { color: #888; }
+.community-page.day-mode .training-history-session { color: #1a1a1a; }
+.community-page.day-mode .training-history-meta { color: #666; }
+.community-page.day-mode .training-workout-detail-title { color: #1a1a1a; }
+.community-page.day-mode .training-workout-detail-date,
+.community-page.day-mode .training-workout-detail-meta { color: #555; }
+.community-page.day-mode .training-workout-detail-drills h3 { color: #333; }
+.community-page.day-mode .training-workout-detail-drill { background: #f3f4f6; }
+.community-page.day-mode .training-workout-detail-drill h4 { color: #333; }
+.community-page.day-mode .training-workout-detail-data {
+  background: #e5e7eb;
+  color: #333;
+}
+.community-page.day-mode .training-workout-detail-notes {
+  color: #555;
+  border-color: #d1d5db;
+}
+
+/* ============================================================
+   Week Zero CTA — Day-Mode Overrides
+   ============================================================ */
+.community-page.day-mode .training-week-zero-title { color: #1a1a1a; }
+.community-page.day-mode .training-week-zero-text,
+.community-page.day-mode .training-week-zero-list { color: #374151; }
+.community-page.day-mode .training-week-zero-estimate {
+  background: rgba(59, 130, 246, 0.07);
+  border-color: rgba(59, 130, 246, 0.2);
+  color: #1e3a5f;
+}
+.community-page.day-mode .training-week-zero-try {
+  color: #555;
+  border-color: #e5e7eb;
+}
