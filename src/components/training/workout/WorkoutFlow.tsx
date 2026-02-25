@@ -48,6 +48,8 @@ export function WorkoutFlow() {
     drills,
     startTime,
     dispatch,
+    bodyweight,
+    weightUnit,
   } = useWorkout();
 
   const durationMinutes = useMemo(() => {
@@ -208,7 +210,7 @@ export function WorkoutFlow() {
       case "warmup":
         return <WarmupLogger drill={currentDrill} onComplete={onComplete} />;
       case "max_hang":
-        return <MaxHangLogger drill={currentDrill} onComplete={onComplete} />;
+        return <MaxHangLogger drill={currentDrill} bodyweight={bodyweight} weightUnit={weightUnit} onComplete={onComplete} />;
       case "limit_boulder":
         return <BoulderLogger drill={currentDrill} onComplete={onComplete} />;
       case "campus":

@@ -16,6 +16,9 @@ export interface MaxHangLoggerProps {
   targetLoad?: number;
   /** Hang duration in seconds (parsed from drill.reps). */
   hangSeconds?: number;
+  /** User's bodyweight from training profile. */
+  bodyweight?: number;
+  weightUnit?: "lbs" | "kg";
   onComplete: (data: MaxHangData) => void;
 }
 
@@ -32,12 +35,17 @@ export function MaxHangLogger({
   drill,
   targetLoad = 0,
   hangSeconds: propHangSeconds,
+  bodyweight = 150,
+  weightUnit = "lbs",
   onComplete,
 }: MaxHangLoggerProps) {
   const { dispatch, currentDrillIndex, persistDrills, drills } = useWorkout();
   const totalSets = drill.sets ?? 6;
   const durationSeconds = propHangSeconds ?? parseDurationSeconds(drill.reps);
   const restSeconds = drill.restSeconds ?? 120;
+
+  // Added weight for the current set (can be negative for assisted hangs)
+  const defaultAddedWeight = Math.max(0, targetLoad - bodyweight);
 
   const [currentSet, setCurrentSet] = useState(0);
   const [phase, setPhase] = useState<"timer" | "log" | "rest">("timer");
@@ -55,7 +63,8 @@ export function MaxHangLogger({
   const [allowSubmitDespitePain, setAllowSubmitDespitePain] = useState(false);
 
   // Controlled log-form state (resets each set via handleRestComplete)
-  const [logLoad, setLogLoad] = useState(targetLoad);
+  // addedWeight is the belt/vest weight; actual load = bodyweight + addedWeight
+  const [logAddedWeight, setLogAddedWeight] = useState(defaultAddedWeight);
   const [logHeldClean, setLogHeldClean] = useState(true);
   const [logPain, setLogPain] = useState(0);
   const [logNotes, setLogNotes] = useState("");
@@ -144,12 +153,9 @@ export function MaxHangLogger({
         return;
       }
       if (choice === "reduce_load") {
-        const reduced = Math.round(targetLoad * 0.9);
-        setSetData((prev) => {
-          const n = [...prev];
-          n[currentSet] = { ...n[currentSet], actualLoad: reduced };
-          return n;
-        });
+        // Reduce total load by 10%; adjust the added weight accordingly
+        const reducedTotal = Math.round(targetLoad * 0.9);
+        setLogAddedWeight(reducedTotal - bodyweight);
       }
       if (choice === "continue") {
         setAllowSubmitDespitePain(true);
@@ -160,12 +166,12 @@ export function MaxHangLogger({
 
   const handleRestComplete = useCallback(() => {
     setCurrentSet((s) => s + 1);
-    setLogLoad(targetLoad);
+    setLogAddedWeight(defaultAddedWeight);
     setLogHeldClean(true);
     setLogPain(0);
     setLogNotes("");
     setPhase("timer");
-  }, [targetLoad]);
+  }, [defaultAddedWeight]);
 
   if (phase === "rest") {
     return (
@@ -205,8 +211,7 @@ export function MaxHangLogger({
     );
   }
 
-  const sliderMin = Math.max(0, Math.round(targetLoad * 0.6));
-  const sliderMax = Math.round(Math.max(targetLoad * 1.4, targetLoad + 40));
+  const logLoad = bodyweight + logAddedWeight;
 
   return (
     <div className="training-max-hang-log">
@@ -214,15 +219,18 @@ export function MaxHangLogger({
         Set {currentSet + 1} of {totalSets} — log result
       </h4>
       <div className="training-max-hang-log-form">
+        <p className="training-assessment-info">
+          <strong>Bodyweight:</strong> {bodyweight} {weightUnit}
+        </p>
         <NumberSlider
-          label="Actual load (lbs)"
-          value={logLoad}
-          onChange={setLogLoad}
-          min={sliderMin}
-          max={sliderMax}
-          step={1}
-          unit="lbs"
-          hint={targetLoad > 0 ? `Target: ${targetLoad} lbs` : undefined}
+          label="Added weight"
+          value={logAddedWeight}
+          onChange={setLogAddedWeight}
+          min={-30}
+          max={100}
+          step={weightUnit === "lbs" ? 2.5 : 1}
+          unit={weightUnit}
+          hint={`Total load: ${logLoad} ${weightUnit}${targetLoad > 0 ? ` · Target: ${targetLoad} ${weightUnit}` : ""}`}
         />
         <label className="training-max-hang-held">
           <input

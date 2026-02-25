@@ -40,6 +40,8 @@ export interface WorkoutState {
   phase: WorkoutPhase;
   startTime: Date | null;
   safetyFlags: SafetyFlag[];
+  bodyweight: number;
+  weightUnit: "lbs" | "kg";
 }
 
 type WorkoutAction =
@@ -192,6 +194,8 @@ export interface WorkoutProviderProps {
   session: SessionWithDrills;
   workoutId: string;
   userId: string;
+  bodyweight?: number;
+  weightUnit?: "lbs" | "kg";
 }
 
 export function WorkoutProvider({
@@ -199,6 +203,8 @@ export function WorkoutProvider({
   session,
   workoutId,
   userId,
+  bodyweight = 150,
+  weightUnit = "lbs",
 }: WorkoutProviderProps) {
   const [state, dispatch] = useReducer(workoutReducer, {
     workoutId,
@@ -210,6 +216,8 @@ export function WorkoutProvider({
     phase: "drill-list",
     startTime: new Date(),
     safetyFlags: [],
+    bodyweight,
+    weightUnit,
   });
 
   const currentDrill =

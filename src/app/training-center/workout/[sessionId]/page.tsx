@@ -9,6 +9,7 @@ import { useActiveProgram } from "@/lib/hooks/training/useActiveProgram";
 import { getWeekDefinition, getSessionWithDrills } from "@/lib/plans/bouldering/planEngine";
 import type { ActiveProgram } from "@/lib/firebase/training/program";
 import { createWorkout } from "@/lib/firebase/training/bouldering-workouts";
+import { getTrainingProfile, type TrainingProfile } from "@/lib/firebase/training/profile";
 import { WorkoutProvider } from "@/components/training/workout/WorkoutProvider";
 import { WorkoutFlow } from "@/components/training/workout/WorkoutFlow";
 
@@ -29,6 +30,7 @@ export default function WorkoutPage({
   const [workoutId, setWorkoutId] = useState<string | null>(null);
   const [starting, setStarting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [trainingProfile, setTrainingProfile] = useState<TrainingProfile | null>(null);
 
   useEffect(() => {
     params.then((p) => setSessionId(p.sessionId));
@@ -43,6 +45,12 @@ export default function WorkoutPage({
       router.replace("/training-center");
     }
   }, [authLoading, programLoading, user, program, router]);
+
+  useEffect(() => {
+    if (user) {
+      getTrainingProfile(user.uid).then(setTrainingProfile);
+    }
+  }, [user?.uid]);
 
   const parsedSession = useMemo(() => {
     if (!sessionId) return null;
@@ -193,6 +201,8 @@ export default function WorkoutPage({
         session={sessionWithDrills}
         workoutId={workoutId}
         userId={user.uid}
+        bodyweight={trainingProfile?.weight ?? 150}
+        weightUnit={trainingProfile?.weightUnit ?? "lbs"}
       >
         <WorkoutFlow />
       </WorkoutProvider>
