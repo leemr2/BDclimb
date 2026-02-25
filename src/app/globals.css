@@ -273,6 +273,17 @@ a {
   backdrop-filter: blur(8px);
 }
 
+.community-header-title {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.community-header-logo {
+  flex-shrink: 0;
+  border-radius: 50%;
+}
+
 .community-header h1 {
   margin: 0;
   font-size: 1.5rem;

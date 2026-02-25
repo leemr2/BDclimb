@@ -989,7 +989,7 @@ src/
 4. Plan engine foundation (generate correct workout from user state)
 5. Basic dashboard for active program (today's workout card + week schedule)
 
-### Phase 2: Core Bouldering Workout Flow (Week 3-4)
+### Phase 2: Core Bouldering Workout Flow (Week 3-4) -done
 6. Workout flow shell (step-by-step navigation)
 7. Drill components (MaxHangLogger, BoulderLogger, etc.)
 8. Timer components (hang timer, rest timer)
@@ -998,7 +998,7 @@ src/
 11. Firestore operations for bouldering workouts subcollection
 
 ### Phase 3: Assessment & Intelligence (Week 5-6)
-12. Assessment flow (Week 0 baseline)
+12. Assessment flow (Week 0 baseline)- done
 13. Auto-calculations (sRPE, target loads, send rates)
 14. Safety flag detection system
 15. Progression suggestions

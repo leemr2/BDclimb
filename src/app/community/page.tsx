@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import Image from "next/image";
 import { useAuth } from "@/lib/firebase/auth";
 import { getUserProfile } from "@/lib/firebase/users";
 import { CalendarDaySummary } from "@/components/Calendar/CalendarDaySummary";
@@ -96,7 +97,16 @@ export default function CommunityPage() {
         <DisplayNameSetup onComplete={handleDisplayNameComplete} />
       )}
       <div className="community-header">
-        <h1>The BD Climbing Community</h1>
+        <div className="community-header-title">
+          <Image
+            src="/images/The Burly Burro.png"
+            alt="The Burly Burro"
+            width={48}
+            height={48}
+            className="community-header-logo"
+          />
+          <h1>The Burly Burro</h1>
+        </div>
         <div className="user-info">
           <button
             type="button"
