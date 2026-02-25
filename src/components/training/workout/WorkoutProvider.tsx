@@ -13,6 +13,7 @@ import { updateWorkout } from "@/lib/firebase/training/bouldering-workouts";
 
 export type WorkoutPhase =
   | "pre-check"
+  | "drill-list"
   | "instructions"
   | "active"
   | "logging"
@@ -43,6 +44,8 @@ export interface WorkoutState {
 
 type WorkoutAction =
   | { type: "START_WORKOUT"; payload: { workoutId: string; userId: string } }
+  | { type: "JUMP_TO_DRILL"; payload: { drillIndex: number } }
+  | { type: "BACK_TO_DRILL_LIST" }
   | { type: "BEGIN_DRILL" }
   | { type: "NEXT_DRILL" }
   | { type: "START_SET"; payload?: { setIndex: number } }
@@ -83,10 +86,21 @@ function workoutReducer(
         ...state,
         workoutId: action.payload.workoutId,
         userId: action.payload.userId,
-        phase: "instructions",
+        phase: "drill-list",
         startTime: new Date(),
         drills: buildInitialDrills(state.session),
       };
+
+    case "JUMP_TO_DRILL":
+      return {
+        ...state,
+        currentDrillIndex: action.payload.drillIndex,
+        currentSetIndex: null,
+        phase: "instructions",
+      };
+
+    case "BACK_TO_DRILL_LIST":
+      return { ...state, phase: "drill-list" };
 
     case "SHOW_INSTRUCTIONS":
       return { ...state, phase: "instructions" };
@@ -95,15 +109,7 @@ function workoutReducer(
       return { ...state, phase: "logging" };
 
     case "NEXT_DRILL":
-      if (state.currentDrillIndex >= state.session.drills.length - 1) {
-        return { ...state, phase: "workout-summary" };
-      }
-      return {
-        ...state,
-        currentDrillIndex: state.currentDrillIndex + 1,
-        currentSetIndex: null,
-        phase: "instructions",
-      };
+      return { ...state, currentSetIndex: null, phase: "drill-list" };
 
     case "START_SET":
       return {
@@ -147,18 +153,17 @@ function workoutReducer(
         data: { ...(drill.data as Record<string, unknown>), ...data },
         completedAt: Timestamp.now(),
       };
-      const isLastDrill =
-        drillIndex >= state.session.drills.length - 1;
       return {
         ...state,
         drills: nextDrills,
         currentSetIndex: null,
-        phase: isLastDrill ? "workout-summary" : "drill-summary",
+        // Always return to the drill list so the user can pick the next drill
+        phase: "drill-list",
       };
     }
 
     case "SHOW_DRILL_SUMMARY":
-      return { ...state, phase: "drill-summary" };
+      return { ...state, phase: "drill-list" };
 
     case "FINISH_WORKOUT":
       return { ...state, phase: "workout-summary" };
@@ -202,7 +207,7 @@ export function WorkoutProvider({
     drills: buildInitialDrills(session),
     currentDrillIndex: 0,
     currentSetIndex: null,
-    phase: "instructions",
+    phase: "drill-list",
     startTime: new Date(),
     safetyFlags: [],
   });

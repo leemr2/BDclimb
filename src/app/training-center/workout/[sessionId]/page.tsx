@@ -132,39 +132,63 @@ export default function WorkoutPage({
 
   if (!workoutId) {
     return (
-      <div className="training-workout-start">
-        <h2 className="training-workout-start-title">
-          Session {sessionWithDrills.label}: {sessionWithDrills.title}
-        </h2>
-        <p className="training-workout-start-meta">
-          ~{sessionWithDrills.estimatedDuration} min · {sessionWithDrills.drills.length} drills
-        </p>
+      <div className="training-assessment-screen">
+        <div className="training-assessment-header">
+          <h2 className="training-assessment-title">
+            Session {sessionWithDrills.label}: {sessionWithDrills.title}
+          </h2>
+          <p className="training-assessment-subtitle">
+            ~{sessionWithDrills.estimatedDuration} min · {sessionWithDrills.intent}
+          </p>
+        </div>
+
+        {/* Drill preview list */}
+        <div className="training-assessment-content">
+          <div className="training-tasklist-section-label">Today&apos;s drills</div>
+          <div className="training-tasklist">
+            {sessionWithDrills.drills.map((drill, i) => (
+              <div key={drill.id} className="training-tasklist-item">
+                <div className="training-tasklist-status">
+                  <span className="training-tasklist-dot" aria-hidden="true" />
+                </div>
+                <div className="training-tasklist-info">
+                  <div className="training-tasklist-title">{drill.name}</div>
+                  <p className="training-tasklist-desc">{drill.description}</p>
+                  {drill.isOptional && (
+                    <span className="training-tasklist-optional-badge">Optional</span>
+                  )}
+                </div>
+                <div className="training-tasklist-action">
+                  <span className="training-tasklist-equipment" style={{ fontSize: "0.8rem", color: "rgba(255,255,255,0.35)" }}>
+                    #{i + 1}
+                  </span>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
         {error && <p className="error-message">{error}</p>}
-        <button
-          type="button"
-          className="training-timer-btn"
-          onClick={handleStartWorkout}
-          disabled={starting}
-        >
-          {starting ? "Starting…" : "Start workout"}
-        </button>
-        <Link href="/training-center/dashboard" className="training-center-cta">
-          Back to dashboard
-        </Link>
+
+        <div className="training-assessment-actions">
+          <Link href="/training-center/dashboard" className="training-center-cta training-btn-secondary">
+            Back
+          </Link>
+          <button
+            type="button"
+            className="training-center-cta"
+            onClick={handleStartWorkout}
+            disabled={starting}
+          >
+            {starting ? "Starting…" : "Begin session"}
+          </button>
+        </div>
       </div>
     );
   }
 
   return (
     <div className="training-workout-page">
-      <div className="training-workout-page-header">
-        <Link href="/training-center/dashboard" className="training-center-cta">
-          Back to dashboard
-        </Link>
-        <span className="training-workout-page-session">
-          Session {sessionWithDrills.label} · {sessionWithDrills.drills.length} drills
-        </span>
-      </div>
       <WorkoutProvider
         session={sessionWithDrills}
         workoutId={workoutId}

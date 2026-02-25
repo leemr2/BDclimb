@@ -251,7 +251,7 @@ export function BoulderBenchmark({ onComplete, onBack }: BoulderBenchmarkProps) 
             onClick={handleAddProblem}
             className="training-center-cta training-btn-secondary"
           >
-            Add problem
+            Next Problem
           </button>
         </div>
 
