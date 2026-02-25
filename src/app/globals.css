@@ -3607,6 +3607,198 @@ a {
   background: rgba(0, 0, 0, 0.25);
 }
 
+/* Assessment Day-Mode Overrides */
+.community-page.day-mode .training-assessment-title {
+  color: #1a1a1a;
+}
+.community-page.day-mode .training-assessment-subtitle {
+  color: #555;
+}
+.community-page.day-mode .training-assessment-instructions,
+.community-page.day-mode .training-assessment-welcome {
+  background: #fff;
+  border-color: #e5e7eb;
+}
+.community-page.day-mode .training-assessment-instructions h3,
+.community-page.day-mode .training-assessment-welcome-title {
+  color: #1a1a1a;
+}
+.community-page.day-mode .training-assessment-instructions ol,
+.community-page.day-mode .training-assessment-instructions ul,
+.community-page.day-mode .training-assessment-welcome-list {
+  color: #444;
+}
+.community-page.day-mode .training-assessment-welcome-text {
+  color: #444;
+}
+.community-page.day-mode .training-assessment-welcome-estimate {
+  color: #333;
+  background: rgba(59, 130, 246, 0.08);
+  border-color: rgba(59, 130, 246, 0.25);
+}
+.community-page.day-mode .training-assessment-welcome-tip {
+  color: #333;
+  background: rgba(251, 191, 36, 0.08);
+  border-color: rgba(251, 191, 36, 0.25);
+}
+.community-page.day-mode .training-assessment-section-title {
+  color: #1a1a1a;
+}
+.community-page.day-mode .training-assessment-section-hint {
+  color: #666;
+}
+.community-page.day-mode .training-assessment-label {
+  color: #333;
+}
+.community-page.day-mode .training-assessment-input,
+.community-page.day-mode .training-assessment-textarea {
+  background: #fff;
+  border-color: #d1d5db;
+  color: #1a1a1a;
+}
+.community-page.day-mode .training-assessment-input:focus,
+.community-page.day-mode .training-assessment-textarea:focus {
+  border-color: #6b7280;
+  background: #fff;
+}
+.community-page.day-mode .training-assessment-info {
+  color: #333;
+  background: rgba(59, 130, 246, 0.08);
+  border-color: rgba(59, 130, 246, 0.25);
+}
+.community-page.day-mode .training-assessment-hint {
+  color: #666;
+}
+.community-page.day-mode .training-assessment-hint-action {
+  color: #666;
+}
+.community-page.day-mode .training-assessment-warning-message,
+.community-page.day-mode .training-assessment-warning-recommendation {
+  color: #444;
+}
+.community-page.day-mode .training-assessment-grip-btn,
+.community-page.day-mode .training-assessment-style-btn,
+.community-page.day-mode .training-assessment-result-btn {
+  background: #f5f5f5;
+  border-color: #d1d5db;
+  color: #444;
+}
+.community-page.day-mode .training-assessment-grip-btn:hover,
+.community-page.day-mode .training-assessment-style-btn:hover,
+.community-page.day-mode .training-assessment-result-btn:hover {
+  background: #ebebeb;
+  border-color: #aaa;
+}
+.community-page.day-mode .training-assessment-grip-btn.active,
+.community-page.day-mode .training-assessment-style-btn.active,
+.community-page.day-mode .training-assessment-result-btn.active {
+  background: rgba(59, 130, 246, 0.12);
+  border-color: rgba(59, 130, 246, 0.4);
+  color: #1d4ed8;
+}
+.community-page.day-mode .training-assessment-attempts {
+  background: #f5f5f5;
+}
+.community-page.day-mode .training-assessment-attempts-title {
+  color: #444;
+}
+.community-page.day-mode .training-assessment-attempt {
+  color: #555;
+}
+.community-page.day-mode .training-assessment-attempt.failed {
+  background: rgba(0, 0, 0, 0.05);
+}
+.community-page.day-mode .training-assessment-result-title {
+  color: #1a1a1a;
+}
+.community-page.day-mode .training-assessment-result-question {
+  color: #444;
+}
+.community-page.day-mode .training-assessment-logged {
+  background: #f5f5f5;
+}
+.community-page.day-mode .training-assessment-logged-title {
+  color: #333;
+}
+.community-page.day-mode .training-assessment-logged-item {
+  background: #fff;
+}
+.community-page.day-mode .training-assessment-logged-desc {
+  color: #444;
+}
+.community-page.day-mode .training-assessment-logged-result {
+  color: #666;
+}
+.community-page.day-mode .training-assessment-logged-delete {
+  border-color: #d1d5db;
+  background: #f0f0f0;
+  color: #666;
+}
+.community-page.day-mode .training-assessment-summary-card {
+  background: #fff;
+  border-color: #e5e7eb;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+.community-page.day-mode .training-assessment-summary-label {
+  color: #666;
+}
+.community-page.day-mode .training-assessment-summary-value {
+  color: #1a1a1a;
+}
+.community-page.day-mode .training-assessment-summary-sub {
+  color: #555;
+}
+.community-page.day-mode .training-assessment-summary-detail {
+  color: #666;
+}
+.community-page.day-mode .training-assessment-next-steps {
+  background: rgba(59, 130, 246, 0.06);
+  border-color: rgba(59, 130, 246, 0.25);
+}
+.community-page.day-mode .training-assessment-next-title {
+  color: #1a1a1a;
+}
+.community-page.day-mode .training-assessment-next-text,
+.community-page.day-mode .training-assessment-next-list {
+  color: #444;
+}
+.community-page.day-mode .training-hang-timer-container {
+  background: #f5f5f5;
+  border-color: #e5e7eb;
+}
+.community-page.day-mode .training-hang-timer,
+.community-page.day-mode .training-rest-timer,
+.community-page.day-mode .training-repeater-timer {
+  background: #fff;
+  border-color: #e5e7eb;
+}
+.community-page.day-mode .training-hang-timer-set,
+.community-page.day-mode .training-hang-timer-target {
+  color: #666;
+}
+.community-page.day-mode .training-hang-timer-value,
+.community-page.day-mode .training-timer-value,
+.community-page.day-mode .training-repeater-value {
+  color: #1a1a1a;
+}
+.community-page.day-mode .training-hang-timer--ready .training-hang-timer-value {
+  color: #555;
+}
+.community-page.day-mode .training-hang-timer-hint,
+.community-page.day-mode .training-repeater-hint {
+  color: #666;
+}
+.community-page.day-mode .training-hang-timer-start,
+.community-page.day-mode .training-repeater-start {
+  background: #e5e7eb;
+  border-color: #d1d5db;
+  color: #1a1a1a;
+}
+.community-page.day-mode .training-assessment-form {
+  background: #fff;
+  border-color: #e5e7eb;
+}
+
 /* Week Zero Dashboard Styles */
 .training-week-zero-cta {
   margin-bottom: 2rem;
