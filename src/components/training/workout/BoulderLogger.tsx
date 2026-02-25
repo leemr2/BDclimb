@@ -40,7 +40,6 @@ export function BoulderLogger({ drill, onComplete }: BoulderLoggerProps) {
   const { dispatch, currentDrillIndex, persistDrills, drills } = useWorkout();
   const [problems, setProblems] = useState<ProblemEntry[]>([]);
   const [editingIndex, setEditingIndex] = useState<number | null>(null);
-  const [showAddForm, setShowAddForm] = useState(false);
 
   const totalAttempted = problems.reduce((sum, p) => sum + p.attempts, 0);
   const totalSent = problems.filter((p) => p.result === "send").length;
@@ -61,7 +60,6 @@ export function BoulderLogger({ drill, onComplete }: BoulderLoggerProps) {
       },
     ]);
     setEditingIndex(problems.length);
-    setShowAddForm(false);
   }, [problems.length]);
 
   const updateProblem = useCallback((index: number, updates: Partial<ProblemEntry>) => {
@@ -201,28 +199,13 @@ export function BoulderLogger({ drill, onComplete }: BoulderLoggerProps) {
         ))}
       </ul>
 
-      {showAddForm ? (
-        <div className="training-boulder-log-add-form">
-          <button type="button" className="training-timer-btn" onClick={addProblem}>
-            Add problem
-          </button>
-          <button
-            type="button"
-            className="training-boulder-log-cancel-btn"
-            onClick={() => setShowAddForm(false)}
-          >
-            Cancel
-          </button>
-        </div>
-      ) : (
-        <button
-          type="button"
-          className="training-timer-btn"
-          onClick={() => setShowAddForm(true)}
-        >
-          Add problem
-        </button>
-      )}
+      <button
+        type="button"
+        className="training-timer-btn"
+        onClick={addProblem}
+      >
+        Add problem
+      </button>
 
       {problems.length > 0 && (
         <>
