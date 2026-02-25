@@ -229,6 +229,10 @@ export interface NeuralNetworkHeroProps {
   description: string;
   badgeText?: string;
   badgeLabel?: string;
+  /** Optional logo image src (e.g. from /images/). Shown at top of content when set. */
+  logoSrc?: string;
+  /** Alt text for the logo image. */
+  logoAlt?: string;
   ctaButtons?: Array<{ text: string; href: string; primary?: boolean }>;
   microDetails?: Array<string>;
   children?: React.ReactNode;
@@ -241,6 +245,8 @@ export default function NeuralNetworkHero({
   description,
   badgeText = "Generative Surfaces",
   badgeLabel = "New",
+  logoSrc,
+  logoAlt = "Logo",
   ctaButtons = [
     { text: "Get started", href: "#get-started", primary: true },
     { text: "View showcase", href: "#showcase" }
@@ -258,12 +264,16 @@ export default function NeuralNetworkHero({
   const microItem1Ref = useRef<HTMLLIElement | null>(null);
   const microItem2Ref = useRef<HTMLLIElement | null>(null);
   const microItem3Ref = useRef<HTMLLIElement | null>(null);
+  const logoRef = useRef<HTMLDivElement | null>(null);
 
   useGSAP(
     () => {
       if (!contentVisible || !headerRef.current) return;
 
       const runAnimation = () => {
+        if (logoRef.current) {
+          gsap.set(logoRef.current, { autoAlpha: 0, y: -12 });
+        }
         if (badgeRef.current) {
           gsap.set(badgeRef.current, { autoAlpha: 0, y: -8 });
         }
@@ -282,8 +292,11 @@ export default function NeuralNetworkHero({
           defaults: { ease: 'power3.out' },
         });
 
+        if (logoRef.current) {
+          tl.to(logoRef.current, { autoAlpha: 1, y: 0, duration: 0.6 }, 0.0);
+        }
         if (badgeRef.current) {
-          tl.to(badgeRef.current, { autoAlpha: 1, y: 0, duration: 0.5 }, 0.0);
+          tl.to(badgeRef.current, { autoAlpha: 1, y: 0, duration: 0.5 }, logoRef.current ? 0.15 : 0.0);
         }
 
         gsap.set(headerRef.current, { autoAlpha: 0, y: 20 });
@@ -315,6 +328,17 @@ export default function NeuralNetworkHero({
 
       {contentVisible && (
         <div className="relative z-10 mx-auto flex max-w-7xl flex-col items-start gap-6 px-6 pb-24 pt-36 sm:gap-8 sm:pt-44 md:px-10 lg:px-16">
+          {logoSrc && (
+            <div ref={logoRef} className="flex justify-start">
+              <img
+                src={logoSrc}
+                alt={logoAlt}
+                className="h-20 w-auto object-contain sm:h-24 md:h-28"
+                width={160}
+                height={112}
+              />
+            </div>
+          )}
           <div ref={badgeRef} className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1.5 backdrop-blur-sm">
             <span className="text-[10px] font-light uppercase tracking-[0.08em] text-white/70">{badgeLabel}</span>
             <span className="h-1 w-1 rounded-full bg-white/40" />
