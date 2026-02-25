@@ -28,6 +28,10 @@ export interface CompletedDrill {
   drillType: string;
   order: number;
   completed: boolean;
+  /** True when user quit the drill mid-way; not yet fully completed. */
+  partial?: boolean;
+  /** How many sets were logged before quitting (for set-based drills). */
+  setsCompleted?: number;
   data: Record<string, unknown>;
   completedAt: Timestamp;
 }

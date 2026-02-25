@@ -61,6 +61,10 @@ type WorkoutAction =
       type: "COMPLETE_DRILL";
       payload: { drillIndex: number; data: Record<string, unknown> };
     }
+  | {
+      type: "QUIT_DRILL";
+      payload: { drillIndex: number; data: Record<string, unknown>; setsCompleted: number };
+    }
   | { type: "FINISH_WORKOUT" }
   | { type: "ADD_SAFETY_FLAG"; payload: SafetyFlag }
   | { type: "SHOW_DRILL_SUMMARY" }
@@ -162,6 +166,21 @@ function workoutReducer(
         // Always return to the drill list so the user can pick the next drill
         phase: "drill-list",
       };
+    }
+
+    case "QUIT_DRILL": {
+      const { drillIndex, data, setsCompleted } = action.payload;
+      const nextDrills = [...state.drills];
+      const drill = nextDrills[drillIndex];
+      if (!drill) return state;
+      nextDrills[drillIndex] = {
+        ...drill,
+        completed: false,
+        partial: true,
+        setsCompleted,
+        data: { ...(drill.data as Record<string, unknown>), ...data },
+      };
+      return { ...state, drills: nextDrills, currentSetIndex: null, phase: "drill-list" };
     }
 
     case "SHOW_DRILL_SUMMARY":

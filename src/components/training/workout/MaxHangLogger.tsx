@@ -10,6 +10,14 @@ import { HangTimer } from "./HangTimer";
 import { RestTimer } from "./RestTimer";
 import { SafetyInterrupt, type SafetyInterruptChoice } from "./SafetyInterrupt";
 
+export type PartialSetData = {
+  actualLoad: number;
+  duration: number;
+  heldClean: boolean;
+  pain: number;
+  notes: string;
+};
+
 export interface MaxHangLoggerProps {
   drill: DrillDefinition;
   /** Target load in lbs/kg (e.g. from assessment). */
@@ -19,6 +27,10 @@ export interface MaxHangLoggerProps {
   /** User's bodyweight from training profile. */
   bodyweight?: number;
   weightUnit?: "lbs" | "kg";
+  /** Set index to resume from (0-based) when resuming a partial drill. */
+  initialSet?: number;
+  /** Previously logged set data when resuming a partial drill. */
+  initialSetData?: PartialSetData[];
   onComplete: (data: MaxHangData) => void;
 }
 
@@ -37,6 +49,8 @@ export function MaxHangLogger({
   hangSeconds: propHangSeconds,
   bodyweight = 150,
   weightUnit = "lbs",
+  initialSet = 0,
+  initialSetData,
   onComplete,
 }: MaxHangLoggerProps) {
   const { dispatch, currentDrillIndex, persistDrills, drills } = useWorkout();
@@ -47,7 +61,7 @@ export function MaxHangLogger({
   // Added weight for the current set (can be negative for assisted hangs)
   const defaultAddedWeight = Math.max(0, targetLoad - bodyweight);
 
-  const [currentSet, setCurrentSet] = useState(0);
+  const [currentSet, setCurrentSet] = useState(initialSet);
   const [phase, setPhase] = useState<"timer" | "log" | "rest">("timer");
   const [setData, setSetData] = useState<
     Array<{
@@ -57,7 +71,15 @@ export function MaxHangLogger({
       pain: number;
       notes: string;
     }>
-  >(Array.from({ length: totalSets }, () => ({ actualLoad: targetLoad, duration: durationSeconds, heldClean: true, pain: 0, notes: "" })));
+  >(() =>
+    Array.from({ length: totalSets }, (_, i) => ({
+      actualLoad: initialSetData?.[i]?.actualLoad ?? targetLoad,
+      duration: initialSetData?.[i]?.duration ?? durationSeconds,
+      heldClean: initialSetData?.[i]?.heldClean ?? true,
+      pain: initialSetData?.[i]?.pain ?? 0,
+      notes: initialSetData?.[i]?.notes ?? "",
+    }))
+  );
   const [showSafety, setShowSafety] = useState(false);
   const [pendingPain, setPendingPain] = useState(0);
   const [allowSubmitDespitePain, setAllowSubmitDespitePain] = useState(false);
@@ -173,6 +195,36 @@ export function MaxHangLogger({
     setPhase("timer");
   }, [defaultAddedWeight]);
 
+  // Records the current set with current form values, then quits to drill list.
+  const handleQuit = useCallback(() => {
+    const quitLoad = bodyweight + logAddedWeight;
+    const next = [...setData];
+    next[currentSet] = {
+      actualLoad: quitLoad,
+      duration: durationSeconds,
+      heldClean: logHeldClean,
+      pain: logPain,
+      notes: logNotes,
+    };
+    const completedCount = currentSet + 1;
+    const partialData = {
+      partialSets: next.slice(0, completedCount),
+      setsCompleted: completedCount,
+    };
+    dispatch({
+      type: "QUIT_DRILL",
+      payload: { drillIndex: currentDrillIndex, data: partialData as unknown as Record<string, unknown>, setsCompleted: completedCount },
+    });
+    const nextDrills = [...drills];
+    nextDrills[currentDrillIndex] = {
+      ...nextDrills[currentDrillIndex],
+      partial: true,
+      setsCompleted: completedCount,
+      data: partialData as unknown as Record<string, unknown>,
+    };
+    persistDrills(nextDrills);
+  }, [bodyweight, logAddedWeight, logHeldClean, logPain, logNotes, currentSet, setData, durationSeconds, currentDrillIndex, dispatch, drills, persistDrills]);
+
   if (phase === "rest") {
     return (
       <RestTimer
@@ -260,13 +312,24 @@ export function MaxHangLogger({
             className="training-form-group input"
           />
         </label>
-        <button
-          type="button"
-          onClick={() => handleLogSet(logLoad, logHeldClean, logPain, logNotes)}
-          className="training-timer-btn"
-        >
-          {currentSet >= totalSets - 1 ? "Complete drill" : "Next set"}
-        </button>
+        <div className="training-drill-btn-row">
+          <button
+            type="button"
+            onClick={() => handleLogSet(logLoad, logHeldClean, logPain, logNotes)}
+            className="training-timer-btn"
+          >
+            {currentSet >= totalSets - 1 ? "Complete drill" : "Next set"}
+          </button>
+          {currentSet < totalSets - 1 && (
+            <button
+              type="button"
+              onClick={handleQuit}
+              className="training-timer-btn training-timer-btn--quit"
+            >
+              Quit drill
+            </button>
+          )}
+        </div>
       </div>
     </div>
   );

@@ -171,15 +171,23 @@ export function BoulderLogger({ drill, onComplete }: BoulderLoggerProps) {
                     className="training-form-group input"
                   />
                 </label>
-                <button type="button" onClick={() => setEditingIndex(null)}>Done</button>
-                <button type="button" onClick={() => removeProblem(i)} className="training-boulder-log-remove">Remove</button>
+                <div className="training-boulder-log-add-form">
+                  <button type="button" className="training-timer-btn" onClick={() => setEditingIndex(null)}>
+                    Save
+                  </button>
+                  <button type="button" className="training-boulder-log-cancel-btn" onClick={() => removeProblem(i)}>
+                    Remove
+                  </button>
+                </div>
               </div>
             ) : (
               <div className="training-boulder-log-summary" onClick={() => setEditingIndex(i)}>
-                <span>{p.description || "No description"}</span>
-                <span>{p.grade}</span>
-                <span>{p.attempts} attempts</span>
-                <span>{p.result}</span>
+                <span className="training-boulder-log-summary-desc">{p.description || "No description"}</span>
+                <span className="training-boulder-log-summary-meta">
+                  {p.grade && <span>{p.grade}</span>}
+                  <span>{p.attempts} attempts</span>
+                  <span>{p.result}</span>
+                </span>
               </div>
             )}
           </li>
@@ -188,8 +196,16 @@ export function BoulderLogger({ drill, onComplete }: BoulderLoggerProps) {
 
       {showAddForm ? (
         <div className="training-boulder-log-add-form">
-          <button type="button" onClick={addProblem}>Add problem</button>
-          <button type="button" onClick={() => setShowAddForm(false)}>Cancel</button>
+          <button type="button" className="training-timer-btn" onClick={addProblem}>
+            Add problem
+          </button>
+          <button
+            type="button"
+            className="training-boulder-log-cancel-btn"
+            onClick={() => setShowAddForm(false)}
+          >
+            Cancel
+          </button>
         </div>
       ) : (
         <button

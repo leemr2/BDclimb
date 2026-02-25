@@ -10,21 +10,39 @@ import { RestTimer } from "./RestTimer";
 
 const QUALITIES = ["clean", "ok", "struggle"] as const;
 
+export type PullUpPartialSetData = {
+  addedWeight: number;
+  reps: number;
+  quality: typeof QUALITIES[number];
+  restMinutes: number;
+};
+
 export interface PullUpLoggerProps {
   drill: DrillDefinition;
+  /** Set index to resume from (0-based) when resuming a partial drill. */
+  initialSet?: number;
+  /** Previously logged set data when resuming a partial drill. */
+  initialSetData?: PullUpPartialSetData[];
   onComplete: (data: PullUpData) => void;
 }
 
-export function PullUpLogger({ drill, onComplete }: PullUpLoggerProps) {
+export function PullUpLogger({ drill, initialSet = 0, initialSetData, onComplete }: PullUpLoggerProps) {
   const { dispatch, currentDrillIndex, persistDrills, drills } = useWorkout();
   const setsCount = drill.sets ?? 5;
   const restSeconds = 180;
 
-  const [currentSet, setCurrentSet] = useState(0);
+  const [currentSet, setCurrentSet] = useState(initialSet);
   const [phase, setPhase] = useState<"log" | "rest">("log");
   const [sets, setSets] = useState<
     Array<{ addedWeight: number; reps: number; quality: typeof QUALITIES[number]; restMinutes: number }>
-  >(Array.from({ length: setsCount }, () => ({ addedWeight: 0, reps: 0, quality: "clean", restMinutes: 3 })));
+  >(() =>
+    Array.from({ length: setsCount }, (_, i) => ({
+      addedWeight: initialSetData?.[i]?.addedWeight ?? 0,
+      reps: initialSetData?.[i]?.reps ?? 0,
+      quality: initialSetData?.[i]?.quality ?? "clean",
+      restMinutes: initialSetData?.[i]?.restMinutes ?? 3,
+    }))
+  );
 
   // Controlled form state for the current set
   const [logWeight, setLogWeight] = useState(0);
@@ -72,6 +90,29 @@ export function PullUpLogger({ drill, onComplete }: PullUpLoggerProps) {
     setLogQuality("clean");
     setPhase("log");
   }, []);
+
+  // Records the current set with current form values, then quits to drill list.
+  const handleQuit = useCallback(() => {
+    const finalSets = [...sets];
+    finalSets[currentSet] = { addedWeight: logWeight, reps: logReps, quality: logQuality, restMinutes: 3 };
+    const completedCount = currentSet + 1;
+    const partialData = {
+      partialSets: finalSets.slice(0, completedCount),
+      setsCompleted: completedCount,
+    };
+    dispatch({
+      type: "QUIT_DRILL",
+      payload: { drillIndex: currentDrillIndex, data: partialData as unknown as Record<string, unknown>, setsCompleted: completedCount },
+    });
+    const nextDrills = [...drills];
+    nextDrills[currentDrillIndex] = {
+      ...nextDrills[currentDrillIndex],
+      partial: true,
+      setsCompleted: completedCount,
+      data: partialData as unknown as Record<string, unknown>,
+    };
+    persistDrills(nextDrills);
+  }, [logWeight, logReps, logQuality, currentSet, sets, currentDrillIndex, dispatch, drills, persistDrills]);
 
   if (phase === "rest") {
     return (
@@ -121,13 +162,24 @@ export function PullUpLogger({ drill, onComplete }: PullUpLoggerProps) {
             ))}
           </div>
         </div>
-        <button
-          type="button"
-          onClick={() => handleSetSubmit(logWeight, logReps, logQuality)}
-          className="training-timer-btn"
-        >
-          {currentSet >= setsCount - 1 ? "Complete drill" : "Next set"}
-        </button>
+        <div className="training-drill-btn-row">
+          <button
+            type="button"
+            onClick={() => handleSetSubmit(logWeight, logReps, logQuality)}
+            className="training-timer-btn"
+          >
+            {currentSet >= setsCount - 1 ? "Complete drill" : "Next set"}
+          </button>
+          {currentSet < setsCount - 1 && (
+            <button
+              type="button"
+              onClick={handleQuit}
+              className="training-timer-btn training-timer-btn--quit"
+            >
+              Quit drill
+            </button>
+          )}
+        </div>
       </div>
     </div>
   );

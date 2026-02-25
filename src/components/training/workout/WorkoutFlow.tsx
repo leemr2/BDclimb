@@ -3,10 +3,10 @@
 import { useMemo } from "react";
 import { useWorkout } from "@/lib/hooks/training/useWorkout";
 import { DrillCard } from "./DrillCard";
-import { MaxHangLogger } from "./MaxHangLogger";
+import { MaxHangLogger, type PartialSetData } from "./MaxHangLogger";
 import { BoulderLogger } from "./BoulderLogger";
 import { CampusLogger } from "./CampusLogger";
-import { PullUpLogger } from "./PullUpLogger";
+import { PullUpLogger, type PullUpPartialSetData } from "./PullUpLogger";
 import { AntagonistLogger } from "./AntagonistLogger";
 import { EasyClimbingLogger } from "./EasyClimbingLogger";
 import { CoreLogger } from "./CoreLogger";
@@ -92,18 +92,22 @@ export function WorkoutFlow() {
           <div className="training-tasklist">
             {session.drills.map((drill, index) => {
               const done = drills[index]?.completed ?? false;
+              const partial = !done && (drills[index]?.partial ?? false);
+              const setsCompleted = drills[index]?.setsCompleted;
               const meta = drillMeta(drill);
               const typeLabel = DRILL_TYPE_LABEL[drill.type as DrillType] ?? drill.type;
 
               return (
                 <div
                   key={drill.id}
-                  className={`training-tasklist-item${done ? " training-tasklist-item--done" : ""}`}
+                  className={`training-tasklist-item${done ? " training-tasklist-item--done" : ""}${partial ? " training-tasklist-item--partial" : ""}`}
                 >
                   {/* Status icon */}
                   <div className="training-tasklist-status">
                     {done ? (
                       <span className="training-tasklist-check" aria-label="Complete">✓</span>
+                    ) : partial ? (
+                      <span className="training-tasklist-partial-icon" aria-label="In progress">⏸</span>
                     ) : (
                       <span className="training-tasklist-dot" aria-hidden="true" />
                     )}
@@ -118,6 +122,11 @@ export function WorkoutFlow() {
                       {meta && (
                         <span className="training-tasklist-equipment">{meta}</span>
                       )}
+                      {partial && setsCompleted != null && drill.sets != null && (
+                        <span className="training-tasklist-partial-badge">
+                          {setsCompleted}/{drill.sets} sets done
+                        </span>
+                      )}
                       {drill.isOptional && (
                         <span className="training-tasklist-optional-badge">Optional</span>
                       )}
@@ -129,9 +138,9 @@ export function WorkoutFlow() {
                     <button
                       type="button"
                       onClick={() => dispatch({ type: "JUMP_TO_DRILL", payload: { drillIndex: index } })}
-                      className={`training-tasklist-btn${done ? " training-tasklist-btn--redo" : ""}`}
+                      className={`training-tasklist-btn${done ? " training-tasklist-btn--redo" : ""}${partial ? " training-tasklist-btn--resume" : ""}`}
                     >
-                      {done ? "Redo" : "Start"}
+                      {done ? "Redo" : partial ? "Resume" : "Start"}
                     </button>
                   </div>
                 </div>
@@ -206,17 +215,40 @@ export function WorkoutFlow() {
       dispatch({ type: "SHOW_DRILL_SUMMARY" });
     };
 
+    const currentDrillState = drills[currentDrillIndex];
+    const resumeSet = currentDrillState?.setsCompleted ?? 0;
+
     switch (currentDrill.type as DrillType) {
       case "warmup":
         return <WarmupLogger drill={currentDrill} onComplete={onComplete} />;
-      case "max_hang":
-        return <MaxHangLogger drill={currentDrill} bodyweight={bodyweight} weightUnit={weightUnit} onComplete={onComplete} />;
+      case "max_hang": {
+        const partialSets = (currentDrillState?.data?.partialSets as PartialSetData[] | undefined);
+        return (
+          <MaxHangLogger
+            drill={currentDrill}
+            bodyweight={bodyweight}
+            weightUnit={weightUnit}
+            initialSet={resumeSet}
+            initialSetData={partialSets}
+            onComplete={onComplete}
+          />
+        );
+      }
       case "limit_boulder":
         return <BoulderLogger drill={currentDrill} onComplete={onComplete} />;
       case "campus":
         return <CampusLogger drill={currentDrill} onComplete={onComplete} />;
-      case "pull_up":
-        return <PullUpLogger drill={currentDrill} onComplete={onComplete} />;
+      case "pull_up": {
+        const partialSets = (currentDrillState?.data?.partialSets as PullUpPartialSetData[] | undefined);
+        return (
+          <PullUpLogger
+            drill={currentDrill}
+            initialSet={resumeSet}
+            initialSetData={partialSets}
+            onComplete={onComplete}
+          />
+        );
+      }
       case "antagonist":
         return <AntagonistLogger drill={currentDrill} onComplete={onComplete} />;
       case "easy_climbing":
