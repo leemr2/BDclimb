@@ -3140,8 +3140,8 @@ a {
 .training-workout-summary { padding: 1.5rem; }
 .training-workout-summary-title { margin: 0 0 1rem; color: #fff; }
 .training-workout-summary-duration { margin: 0 0 1.5rem; color: rgba(255, 255, 255, 0.8); }
-.training-workout-summary-form .training-form-group { margin-bottom: 1.25rem; }
-.training-workout-summary-value { margin-left: 0.5rem; font-variant-numeric: tabular-nums; }
+.training-workout-summary-form .training-form-group { display: block; margin-bottom: 1.25rem; }
+.training-workout-summary-value { margin-left: 0.5rem; font-variant-numeric: tabular-nums; font-weight: 600; }
 .training-workout-summary-quality { display: flex; gap: 0.5rem; margin-top: 0.35rem; }
 .training-workout-summary-quality-btn { width: 2.5rem; height: 2.5rem; border-radius: 0.5rem; border: 1px solid rgba(255, 255, 255, 0.25); background: rgba(255, 255, 255, 0.1); color: #fff; cursor: pointer; font-size: 1rem; }
 .training-workout-summary-quality-btn.active { background: rgba(255, 255, 255, 0.25); border-color: rgba(255, 255, 255, 0.4); }

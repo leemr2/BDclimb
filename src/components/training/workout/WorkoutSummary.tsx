@@ -54,7 +54,8 @@ export function WorkoutSummary({ durationMinutes, onSaved }: WorkoutSummaryProps
 
       <form onSubmit={(e) => { e.preventDefault(); handleSave(); }} className="training-workout-summary-form">
         <label className="training-form-group">
-          Session RPE (0–10)
+          Session RPE – Rate of Perceived Exertion (0–10)
+          <span className="training-workout-summary-value">{rpe}</span>
           <input
             type="range"
             min={0}
@@ -63,7 +64,6 @@ export function WorkoutSummary({ durationMinutes, onSaved }: WorkoutSummaryProps
             onChange={(e) => setRpe(Number(e.target.value))}
             className="training-form-group range"
           />
-          <span className="training-workout-summary-value">{rpe}</span>
         </label>
 
         <label className="training-form-group">
@@ -84,6 +84,7 @@ export function WorkoutSummary({ durationMinutes, onSaved }: WorkoutSummaryProps
 
         <label className="training-form-group">
           Finger pain during session (0–10)
+          <span className="training-workout-summary-value">{fingerPainDuring}</span>
           <input
             type="range"
             min={0}
@@ -92,7 +93,6 @@ export function WorkoutSummary({ durationMinutes, onSaved }: WorkoutSummaryProps
             onChange={(e) => setFingerPainDuring(Number(e.target.value))}
             className="training-form-group range"
           />
-          <span className="training-workout-summary-value">{fingerPainDuring}</span>
         </label>
 
         <label className="training-form-group">
