@@ -3659,3 +3659,346 @@ a {
 .training-week-zero-try-link:hover {
   color: rgba(59, 130, 246, 1);
 }
+
+/* Assessment Task List */
+.training-tasklist-progress {
+  margin-bottom: 1.25rem;
+}
+.training-tasklist-progress-label {
+  font-size: 0.85rem;
+  color: rgba(255, 255, 255, 0.6);
+  margin-bottom: 0.4rem;
+}
+.training-tasklist-progress-bar {
+  height: 4px;
+  border-radius: 2px;
+  background: rgba(255, 255, 255, 0.12);
+  overflow: hidden;
+}
+.training-tasklist-progress-fill {
+  height: 100%;
+  background: #3b82f6;
+  border-radius: 2px;
+  transition: width 0.4s ease;
+}
+
+.training-tasklist {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-bottom: 1.5rem;
+}
+.training-tasklist-item {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem 1.25rem;
+  border-radius: 0.75rem;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(0, 0, 0, 0.25);
+  transition: border-color 0.2s;
+}
+.training-tasklist-item--done {
+  border-color: rgba(34, 197, 94, 0.35);
+  background: rgba(34, 197, 94, 0.06);
+}
+
+/* Status indicator column */
+.training-tasklist-status {
+  flex-shrink: 0;
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.training-tasklist-check {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: #22c55e;
+  color: #000;
+  font-weight: 700;
+  font-size: 0.9rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+}
+.training-tasklist-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  display: block;
+  margin: 0 auto;
+}
+
+/* Info column */
+.training-tasklist-info {
+  flex: 1;
+  min-width: 0;
+}
+.training-tasklist-title {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #fff;
+  margin-bottom: 0.25rem;
+}
+.training-tasklist-item--done .training-tasklist-title {
+  color: rgba(255, 255, 255, 0.75);
+}
+.training-tasklist-desc {
+  font-size: 0.85rem;
+  color: rgba(255, 255, 255, 0.6);
+  margin: 0 0 0.5rem;
+  line-height: 1.4;
+}
+.training-tasklist-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+.training-tasklist-time,
+.training-tasklist-equipment {
+  font-size: 0.78rem;
+  color: rgba(255, 255, 255, 0.45);
+}
+
+/* Action column */
+.training-tasklist-action {
+  flex-shrink: 0;
+}
+.training-tasklist-btn {
+  padding: 0.45rem 1.1rem;
+  border-radius: 0.5rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  border: none;
+  background: #3b82f6;
+  color: #fff;
+  transition: background 0.2s, opacity 0.2s;
+  white-space: nowrap;
+}
+.training-tasklist-btn:hover {
+  background: #2563eb;
+}
+.training-tasklist-btn--redo {
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  color: rgba(255, 255, 255, 0.6);
+}
+.training-tasklist-btn--redo:hover {
+  border-color: rgba(255, 255, 255, 0.5);
+  color: rgba(255, 255, 255, 0.9);
+  background: transparent;
+}
+
+/* Skipped task state */
+.training-tasklist-item--skipped {
+  border-color: rgba(255, 255, 255, 0.08);
+  background: rgba(0, 0, 0, 0.15);
+  opacity: 0.7;
+}
+.training-tasklist-skip-icon {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.1);
+  color: rgba(255, 255, 255, 0.4);
+  font-weight: 700;
+  font-size: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+}
+
+/* Section labels between required / optional groups */
+.training-tasklist-section-label {
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.4);
+  margin-bottom: 0.5rem;
+}
+.training-tasklist-section-note {
+  font-size: 0.72rem;
+  font-weight: 400;
+  text-transform: none;
+  letter-spacing: 0;
+  color: rgba(255, 255, 255, 0.3);
+}
+
+/* Optional badge on task title */
+.training-tasklist-optional-badge {
+  margin-left: 0.5rem;
+  padding: 0.1rem 0.45rem;
+  border-radius: 0.3rem;
+  font-size: 0.68rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  background: rgba(251, 191, 36, 0.12);
+  border: 1px solid rgba(251, 191, 36, 0.3);
+  color: rgba(251, 191, 36, 0.85);
+  vertical-align: middle;
+}
+
+/* Campus Board Assessment specific styles */
+.training-campus-attempts {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  margin-top: 0.75rem;
+}
+.training-campus-attempt-row {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+.training-campus-attempt-label {
+  font-size: 0.85rem;
+  color: rgba(255, 255, 255, 0.6);
+  min-width: 72px;
+}
+.training-campus-attempt-field {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.875rem;
+  color: rgba(255, 255, 255, 0.75);
+}
+.training-campus-rung-input {
+  width: 70px !important;
+}
+.training-campus-attempt-controlled {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.875rem;
+  color: rgba(255, 255, 255, 0.75);
+  cursor: pointer;
+}
+.training-campus-checkbox {
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+  accent-color: #3b82f6;
+}
+.training-campus-best {
+  margin-top: 0.75rem;
+  padding: 0.6rem 0.875rem;
+  border-radius: 0.5rem;
+  background: rgba(59, 130, 246, 0.1);
+  border: 1px solid rgba(59, 130, 246, 0.25);
+  font-size: 0.9rem;
+  color: rgba(255, 255, 255, 0.85);
+}
+.training-campus-optional-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.25rem;
+}
+.training-campus-skip-label {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.85rem;
+  color: rgba(255, 255, 255, 0.55);
+  cursor: pointer;
+}
+.training-campus-reason-options {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+}
+
+/* Weighted Pull-up Assessment specific styles */
+.training-pullup-table {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  border-radius: 0.625rem;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  overflow: hidden;
+}
+.training-pullup-table-header {
+  display: grid;
+  grid-template-columns: 40px 1fr 1fr 1.6fr;
+  gap: 0.75rem;
+  align-items: center;
+  padding: 0.6rem 1rem;
+  background: rgba(255, 255, 255, 0.05);
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.45);
+}
+.training-pullup-table-row {
+  display: grid;
+  grid-template-columns: 40px 1fr 1fr 1.6fr;
+  gap: 0.75rem;
+  align-items: center;
+  padding: 0.7rem 1rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.07);
+}
+.training-pullup-set-num {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.5);
+  text-align: center;
+}
+.training-pullup-input {
+  width: 100% !important;
+}
+.training-pullup-quality-group {
+  display: flex;
+  gap: 0.35rem;
+}
+.training-pullup-quality-btn {
+  flex: 1;
+  padding: 0.3rem 0.4rem;
+  border-radius: 0.375rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: transparent;
+  color: rgba(255, 255, 255, 0.5);
+  transition: all 0.15s;
+  white-space: nowrap;
+}
+.training-pullup-quality-btn:hover {
+  border-color: rgba(255, 255, 255, 0.45);
+  color: rgba(255, 255, 255, 0.85);
+}
+.training-pullup-quality-btn.active {
+  background: rgba(59, 130, 246, 0.25);
+  border-color: rgba(59, 130, 246, 0.6);
+  color: #fff;
+}
+.training-pullup-best {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-top: 1rem;
+  padding: 0.75rem 1rem;
+  border-radius: 0.5rem;
+  background: rgba(59, 130, 246, 0.1);
+  border: 1px solid rgba(59, 130, 246, 0.25);
+}
+.training-pullup-best-label {
+  font-size: 0.85rem;
+  color: rgba(255, 255, 255, 0.6);
+}
+.training-pullup-best-value {
+  font-size: 1rem;
+  color: #fff;
+}

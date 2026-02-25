@@ -4,14 +4,74 @@ import { useState } from "react";
 import { InjuryScreen } from "./InjuryScreen";
 import { MaxHangTest } from "./MaxHangTest";
 import { BoulderBenchmark } from "./BoulderBenchmark";
+import { CampusBoardTest } from "./CampusBoardTest";
+import { PullingStrengthTest } from "./PullingStrengthTest";
 import type {
   BoulderingAssessment,
   InjuryBaseline,
   MaxHangAssessment,
   LimitBoulderProblem,
+  CampusBoardAssessment,
+  PullingStrengthAssessment,
 } from "@/lib/plans/bouldering/types";
 
-type AssessmentStep = "welcome" | "injury" | "max-hang" | "bouldering" | "summary";
+type TaskId = "injury" | "max-hang" | "bouldering" | "campus-board" | "pulling-strength";
+
+interface TaskMeta {
+  id: TaskId;
+  title: string;
+  description: string;
+  time: string;
+  equipment?: string;
+  optional: boolean;
+}
+
+const ASSESSMENT_TASKS: TaskMeta[] = [
+  {
+    id: "injury",
+    title: "Injury Baseline",
+    description:
+      "Rate your current pain and stiffness levels. This gives us a health baseline to track throughout the program.",
+    time: "5 min",
+    optional: false,
+  },
+  {
+    id: "max-hang",
+    title: "Max Hang Test",
+    description:
+      "Find your max finger strength on a 20mm edge. This sets your training loads for all 12 weeks.",
+    time: "15–20 min",
+    equipment: "Hangboard",
+    optional: false,
+  },
+  {
+    id: "bouldering",
+    title: "Limit Boulder Benchmark",
+    description:
+      "Log your limit boulder attempts to establish your send rate and efficiency baseline.",
+    time: "30–40 min",
+    equipment: "Boulder wall",
+    optional: false,
+  },
+  {
+    id: "campus-board",
+    title: "Campus Board Assessment",
+    description:
+      "Max reach test and moves-to-failure ladder. Establishes your power and RFD baseline. Skip if no board available or if you have any finger/shoulder pain.",
+    time: "15 min",
+    equipment: "Campus board",
+    optional: true,
+  },
+  {
+    id: "pulling-strength",
+    title: "Weighted Pull-up Test",
+    description:
+      "3-5 rep max weighted pull-ups. Tracks pulling strength and antagonist balance over the program.",
+    time: "10–15 min",
+    equipment: "Pull-up bar + weight",
+    optional: true,
+  },
+];
 
 interface AssessmentFlowProps {
   programId: string;
@@ -20,171 +80,226 @@ interface AssessmentFlowProps {
   onComplete: (assessment: Omit<BoulderingAssessment, "id" | "date">) => void;
 }
 
-export function AssessmentFlow({ programId, bodyweight, weightUnit, onComplete }: AssessmentFlowProps) {
-  const [currentStep, setCurrentStep] = useState<AssessmentStep>("welcome");
+export function AssessmentFlow({
+  programId,
+  bodyweight,
+  weightUnit,
+  onComplete,
+}: AssessmentFlowProps) {
+  // null = show task list; task id = show that task's form
+  const [activeTask, setActiveTask] = useState<TaskId | null>(null);
+
   const [injuryData, setInjuryData] = useState<InjuryBaseline | null>(null);
   const [maxHangData, setMaxHangData] = useState<MaxHangAssessment | null>(null);
-  const [boulderingData, setBoulderingData] = useState<LimitBoulderProblem[]>([]);
+  const [boulderingData, setBoulderingData] = useState<LimitBoulderProblem[] | null>(null);
+  // Optional — null = not done, explicit data or "skipped" sentinel
+  const [campusData, setCampusData] = useState<CampusBoardAssessment | null | "skipped">(null);
+  const [pullingData, setPullingData] = useState<PullingStrengthAssessment | null | "skipped">(null);
 
-  const handleWelcomeNext = () => {
-    setCurrentStep("injury");
+  // Required tasks must all be complete to enable Save
+  const requiredDone =
+    injuryData !== null && maxHangData !== null && boulderingData !== null;
+
+  // Progress counter includes optional tasks once they are acted on (done or skipped)
+  const completedMap: Record<TaskId, boolean> = {
+    injury: injuryData !== null,
+    "max-hang": maxHangData !== null,
+    bouldering: boulderingData !== null,
+    "campus-board": campusData !== null,
+    "pulling-strength": pullingData !== null,
   };
+
+  const completedCount = Object.values(completedMap).filter(Boolean).length;
 
   const handleInjuryComplete = (data: InjuryBaseline) => {
     setInjuryData(data);
-    setCurrentStep("max-hang");
+    setActiveTask(null);
   };
 
   const handleMaxHangComplete = (data: MaxHangAssessment) => {
     setMaxHangData(data);
-    setCurrentStep("bouldering");
+    setActiveTask(null);
   };
 
   const handleBoulderingComplete = (problems: LimitBoulderProblem[]) => {
     setBoulderingData(problems);
-    setCurrentStep("summary");
+    setActiveTask(null);
+  };
+
+  const handleCampusComplete = (data: CampusBoardAssessment) => {
+    setCampusData(data);
+    setActiveTask(null);
+  };
+
+  const handleCampusSkip = () => {
+    setCampusData("skipped");
+    setActiveTask(null);
+  };
+
+  const handlePullingComplete = (data: PullingStrengthAssessment) => {
+    setPullingData(data);
+    setActiveTask(null);
+  };
+
+  const handlePullingSkip = () => {
+    setPullingData("skipped");
+    setActiveTask(null);
   };
 
   const handleFinish = () => {
-    if (!injuryData || !maxHangData || boulderingData.length === 0) {
-      alert("Please complete all assessment steps.");
-      return;
-    }
+    if (!injuryData || !maxHangData || !boulderingData) return;
 
     const assessment: Omit<BoulderingAssessment, "id" | "date"> = {
       programId,
       week: 0,
       maxHang: maxHangData,
-      campusBoard: null, // optional, not implemented yet
+      campusBoard: campusData === "skipped" || campusData === null ? null : campusData,
       limitBoulders: boulderingData,
-      pullingStrength: null, // optional, not implemented yet
+      pullingStrength: pullingData === "skipped" || pullingData === null ? null : pullingData,
       injuryBaseline: injuryData,
     };
 
     onComplete(assessment);
   };
 
-  // Welcome screen
-  if (currentStep === "welcome") {
-    return (
-      <div className="training-assessment-screen">
-        <div className="training-assessment-header">
-          <h2 className="training-assessment-title">Week 0 Baseline Assessment</h2>
-          <p className="training-assessment-subtitle">
-            Let's establish your baseline metrics before starting Week 1.
-          </p>
-        </div>
-
-        <div className="training-assessment-content">
-          <div className="training-assessment-welcome">
-            <h3 className="training-assessment-welcome-title">Why We Test</h3>
-            <p className="training-assessment-welcome-text">
-              This assessment gives us three critical data points:
-            </p>
-            <ul className="training-assessment-welcome-list">
-              <li><strong>Injury baseline:</strong> Current pain and stiffness levels to monitor throughout the program</li>
-              <li><strong>Max finger strength:</strong> Determines your training loads for the next 12 weeks</li>
-              <li><strong>Climbing performance:</strong> Send rate and attempts-to-send efficiency</li>
-            </ul>
-
-            <h3 className="training-assessment-welcome-title">What You'll Do</h3>
-            <ol className="training-assessment-welcome-list">
-              <li>Injury baseline check (5 min)</li>
-              <li>Max hang test (15-20 min)</li>
-              <li>Limit boulder benchmark (30-40 min)</li>
-            </ol>
-
-            <p className="training-assessment-welcome-estimate">
-              <strong>Total time:</strong> ~60 minutes
-            </p>
-
-            <div className="training-assessment-welcome-tip">
-              <strong>Tip:</strong> Warm up thoroughly before the max hang test. Take your time between attempts. Quality data now means better training all 12 weeks.
-            </div>
-          </div>
-        </div>
-
-        <div className="training-assessment-actions">
-          <button
-            type="button"
-            onClick={handleWelcomeNext}
-            className="training-center-cta"
-          >
-            Begin assessment
-          </button>
-        </div>
-      </div>
-    );
-  }
-
-  // Injury baseline
-  if (currentStep === "injury") {
+  // — Active task views —
+  if (activeTask === "injury") {
     return (
       <InjuryScreen
         onComplete={handleInjuryComplete}
-        onBack={() => setCurrentStep("welcome")}
+        onBack={() => setActiveTask(null)}
       />
     );
   }
 
-  // Max hang test
-  if (currentStep === "max-hang") {
+  if (activeTask === "max-hang") {
     return (
       <MaxHangTest
         bodyweight={bodyweight}
         weightUnit={weightUnit}
         onComplete={handleMaxHangComplete}
-        onBack={() => setCurrentStep("injury")}
+        onBack={() => setActiveTask(null)}
       />
     );
   }
 
-  // Boulder benchmark
-  if (currentStep === "bouldering") {
+  if (activeTask === "bouldering") {
     return (
       <BoulderBenchmark
         onComplete={handleBoulderingComplete}
-        onBack={() => setCurrentStep("max-hang")}
+        onBack={() => setActiveTask(null)}
       />
     );
   }
 
-  // Summary
-  if (currentStep === "summary") {
-    const sentCount = boulderingData.filter(p => p.sent).length;
-    const sendRate = Math.round((sentCount / boulderingData.length) * 100);
-
+  if (activeTask === "campus-board") {
     return (
-      <div className="training-assessment-screen">
-        <div className="training-assessment-header">
-          <h2 className="training-assessment-title">Assessment Complete!</h2>
-          <p className="training-assessment-subtitle">
-            Here's your baseline data:
-          </p>
+      <CampusBoardTest
+        onComplete={handleCampusComplete}
+        onSkip={handleCampusSkip}
+        onBack={() => setActiveTask(null)}
+      />
+    );
+  }
+
+  if (activeTask === "pulling-strength") {
+    return (
+      <PullingStrengthTest
+        weightUnit={weightUnit}
+        onComplete={handlePullingComplete}
+        onSkip={handlePullingSkip}
+        onBack={() => setActiveTask(null)}
+      />
+    );
+  }
+
+  // — Task list view —
+  return (
+    <div className="training-assessment-screen">
+      <div className="training-assessment-header">
+        <h2 className="training-assessment-title">Week 0 Baseline Assessment</h2>
+        <p className="training-assessment-subtitle">
+          Complete the required assessments in any order. Optional assessments improve training precision.
+        </p>
+      </div>
+
+      <div className="training-assessment-content">
+        {/* Progress bar */}
+        <div className="training-tasklist-progress">
+          <div className="training-tasklist-progress-label">
+            {completedCount} of {ASSESSMENT_TASKS.length} complete
+          </div>
+          <div className="training-tasklist-progress-bar">
+            <div
+              className="training-tasklist-progress-fill"
+              style={{ width: `${(completedCount / ASSESSMENT_TASKS.length) * 100}%` }}
+            />
+          </div>
         </div>
 
-        <div className="training-assessment-content">
-          <div className="training-assessment-summary">
+        {/* Required tasks */}
+        <div className="training-tasklist-section-label">Required</div>
+        <div className="training-tasklist">
+          {ASSESSMENT_TASKS.filter((t) => !t.optional).map((task) => {
+            const done = completedMap[task.id];
+            return (
+              <TaskRow
+                key={task.id}
+                task={task}
+                done={done}
+                onStart={() => setActiveTask(task.id)}
+              />
+            );
+          })}
+        </div>
+
+        {/* Optional tasks */}
+        <div className="training-tasklist-section-label" style={{ marginTop: "1.25rem" }}>
+          Optional <span className="training-tasklist-section-note">— improves training precision</span>
+        </div>
+        <div className="training-tasklist">
+          {ASSESSMENT_TASKS.filter((t) => t.optional).map((task) => {
+            const done = completedMap[task.id];
+            const skipped =
+              (task.id === "campus-board" && campusData === "skipped") ||
+              (task.id === "pulling-strength" && pullingData === "skipped");
+            return (
+              <TaskRow
+                key={task.id}
+                task={task}
+                done={done}
+                skipped={skipped}
+                onStart={() => setActiveTask(task.id)}
+              />
+            );
+          })}
+        </div>
+
+        {/* Summary cards once required tasks are done */}
+        {requiredDone && injuryData && maxHangData && boulderingData && (
+          <div className="training-assessment-summary" style={{ marginTop: "1.5rem" }}>
             <div className="training-assessment-summary-card">
               <h3 className="training-assessment-summary-label">Max Hang</h3>
               <p className="training-assessment-summary-value">
-                {maxHangData?.bestLoad} {weightUnit}
+                {maxHangData.bestLoad} {weightUnit}
               </p>
               <p className="training-assessment-summary-sub">
-                {maxHangData?.percentBodyweight.toFixed(1)}% bodyweight
+                {maxHangData.percentBodyweight.toFixed(1)}% bodyweight
               </p>
               <p className="training-assessment-summary-detail">
-                {maxHangData?.edgeSize}mm {maxHangData?.gripType}
+                {maxHangData.edgeSize}mm {maxHangData.gripType}
               </p>
             </div>
 
             <div className="training-assessment-summary-card">
               <h3 className="training-assessment-summary-label">Boulder Performance</h3>
               <p className="training-assessment-summary-value">
-                {sendRate}% send rate
+                {Math.round(
+                  (boulderingData.filter((p) => p.sent).length / boulderingData.length) * 100
+                )}% send rate
               </p>
               <p className="training-assessment-summary-sub">
-                {sentCount} / {boulderingData.length} problems sent
+                {boulderingData.filter((p) => p.sent).length} / {boulderingData.length} sent
               </p>
             </div>
 
@@ -193,53 +308,137 @@ export function AssessmentFlow({ programId, bodyweight, weightUnit, onComplete }
               <p className="training-assessment-summary-value">
                 {(() => {
                   const maxFingerPain = Math.max(
-                    ...Object.values(injuryData?.fingers || {}).flatMap(f => [f.painAtRest, f.painWithPressure])
+                    ...Object.values(injuryData.fingers).flatMap((f) => [
+                      f.painAtRest,
+                      f.painWithPressure,
+                    ])
                   );
-                  const maxElbowPain = Math.max(injuryData?.elbowPain.left || 0, injuryData?.elbowPain.right || 0);
-                  const maxShoulderPain = Math.max(injuryData?.shoulderPain.left || 0, injuryData?.shoulderPain.right || 0);
-                  const maxPain = Math.max(maxFingerPain, maxElbowPain, maxShoulderPain);
-
+                  const maxPain = Math.max(
+                    maxFingerPain,
+                    injuryData.elbowPain.left,
+                    injuryData.elbowPain.right,
+                    injuryData.shoulderPain.left,
+                    injuryData.shoulderPain.right
+                  );
                   if (maxPain === 0) return "No pain reported";
                   if (maxPain < 3) return "Minimal pain";
                   if (maxPain < 5) return "Moderate pain";
-                  return "High pain (⚠️ monitor closely)";
+                  return "High pain — monitor closely";
                 })()}
               </p>
               <p className="training-assessment-summary-sub">
-                Morning stiffness: {injuryData?.morningStiffness}/10
+                Morning stiffness: {injuryData.morningStiffness}/10
               </p>
             </div>
-          </div>
 
-          <div className="training-assessment-next-steps">
-            <h3 className="training-assessment-next-title">Next Steps</h3>
-            <p className="training-assessment-next-text">
-              Your Week 1 training loads will be calculated from your {maxHangData?.bestLoad} {weightUnit} max hang. 
-              We'll track your progress through 3 mesocycles:
-            </p>
-            <ol className="training-assessment-next-list">
-              <li><strong>Weeks 1-4:</strong> Max Strength Foundation</li>
-              <li><strong>Weeks 5-8:</strong> Power & RFD Development</li>
-              <li><strong>Weeks 9-12:</strong> Peak Performance</li>
-            </ol>
-            <p className="training-assessment-next-text">
-              You'll retest at Week 4, 8, and 12 to track your progress.
-            </p>
+            {campusData && campusData !== "skipped" && (
+              <div className="training-assessment-summary-card">
+                <h3 className="training-assessment-summary-label">Campus Board</h3>
+                <p className="training-assessment-summary-value">
+                  Max rung #{campusData.maxReach.bestRung}
+                </p>
+                {campusData.movesToFailure.totalMoves > 0 && (
+                  <p className="training-assessment-summary-sub">
+                    {campusData.movesToFailure.totalMoves} moves to failure
+                  </p>
+                )}
+              </div>
+            )}
+
+            {pullingData && pullingData !== "skipped" && (
+              <div className="training-assessment-summary-card">
+                <h3 className="training-assessment-summary-label">Pull-up Strength</h3>
+                <p className="training-assessment-summary-value">{pullingData.bestWeightXReps}</p>
+              </div>
+            )}
           </div>
+        )}
+      </div>
+
+      <div className="training-assessment-actions">
+        <button
+          type="button"
+          onClick={handleFinish}
+          disabled={!requiredDone}
+          className="training-center-cta"
+          style={{
+            opacity: requiredDone ? 1 : 0.45,
+            cursor: requiredDone ? "pointer" : "not-allowed",
+          }}
+        >
+          {requiredDone
+            ? "Save & Start Week 1"
+            : `Complete required assessments (${Math.min(completedCount, 3)}/3)`}
+        </button>
+      </div>
+    </div>
+  );
+}
+
+// — Extracted row component for cleanliness —
+function TaskRow({
+  task,
+  done,
+  skipped = false,
+  onStart,
+}: {
+  task: TaskMeta;
+  done: boolean;
+  skipped?: boolean;
+  onStart: () => void;
+}) {
+  const isActedOn = done; // done covers both data-saved and skipped since completedMap tracks campusData !== null
+
+  return (
+    <div
+      className={`training-tasklist-item${
+        isActedOn && !skipped ? " training-tasklist-item--done" : ""
+      }${skipped ? " training-tasklist-item--skipped" : ""}`}
+    >
+      {/* Status icon */}
+      <div className="training-tasklist-status">
+        {isActedOn && !skipped ? (
+          <span className="training-tasklist-check" aria-label="Complete">
+            ✓
+          </span>
+        ) : skipped ? (
+          <span className="training-tasklist-skip-icon" aria-label="Skipped">
+            —
+          </span>
+        ) : (
+          <span className="training-tasklist-dot" aria-hidden="true" />
+        )}
+      </div>
+
+      {/* Info */}
+      <div className="training-tasklist-info">
+        <div className="training-tasklist-title">
+          {task.title}
+          {task.optional && (
+            <span className="training-tasklist-optional-badge">Optional</span>
+          )}
         </div>
-
-        <div className="training-assessment-actions">
-          <button
-            type="button"
-            onClick={handleFinish}
-            className="training-center-cta"
-          >
-            Save & Start Week 1
-          </button>
+        <p className="training-tasklist-desc">{task.description}</p>
+        <div className="training-tasklist-meta">
+          <span className="training-tasklist-time">⏱ {task.time}</span>
+          {task.equipment && (
+            <span className="training-tasklist-equipment">📌 {task.equipment}</span>
+          )}
         </div>
       </div>
-    );
-  }
 
-  return null;
+      {/* Action */}
+      <div className="training-tasklist-action">
+        <button
+          type="button"
+          onClick={onStart}
+          className={`training-tasklist-btn${
+            isActedOn ? " training-tasklist-btn--redo" : ""
+          }`}
+        >
+          {skipped ? "Do it" : isActedOn ? "Edit" : "Start"}
+        </button>
+      </div>
+    </div>
+  );
 }
