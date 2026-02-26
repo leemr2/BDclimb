@@ -2618,43 +2618,68 @@ a {
   letter-spacing: 0.04em;
 }
 
-.training-week-days {
+.training-week-sessions {
   list-style: none;
   margin: 0;
   padding: 0;
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
 }
 
-.training-week-day {
+.training-week-session-item {
+  display: flex;
+  flex-direction: column;
+}
+
+.training-week-session-card {
+  padding: 0.75rem;
+  border-radius: 0.5rem;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.training-week-session-card.completed {
+  border-color: rgba(255, 255, 255, 0.18);
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.training-week-session-header {
   display: flex;
   justify-content: space-between;
-  align-items: flex-start;
-  gap: 1rem;
-  padding: 0.5rem 0;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
-  font-size: 0.9rem;
+  align-items: baseline;
+  margin-bottom: 0.2rem;
 }
 
-.training-week-day:last-child {
-  border-bottom: none;
+.training-week-session-label {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.55);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
 }
 
-.training-week-day-name {
-  flex-shrink: 0;
-  width: 5rem;
-  color: rgba(255, 255, 255, 0.7);
-}
-
-.training-week-day-session {
-  color: rgba(255, 255, 255, 0.9);
-  text-align: right;
-}
-
-.training-week-day-rest {
+.training-week-session-duration {
+  font-size: 0.8rem;
   color: rgba(255, 255, 255, 0.4);
-  font-size: 0.85rem;
+}
+
+.training-week-session-title {
+  margin: 0;
+  font-size: 0.95rem;
+  color: rgba(255, 255, 255, 0.9);
+  line-height: 1.4;
+}
+
+.training-week-session-check {
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.training-week-rest-hint {
+  align-self: center;
+  margin: 0.45rem 0;
+  font-size: 0.78rem;
+  color: rgba(255, 255, 255, 0.3);
+  letter-spacing: 0.02em;
 }
 
 .training-key-metrics {
@@ -2751,8 +2776,7 @@ a {
 
 .community-page.day-mode .training-center-hub-subtitle,
 .community-page.day-mode .training-center-goal-description,
-.community-page.day-mode .training-today-meta,
-.community-page.day-mode .training-week-day-session {
+.community-page.day-mode .training-today-meta {
   color: #666;
 }
 
@@ -2858,12 +2882,30 @@ a {
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
 }
 
-.community-page.day-mode .training-week-day-name {
-  color: #666;
+.community-page.day-mode .training-week-session-card {
+  background: rgba(0, 0, 0, 0.03);
+  border-color: #e5e7eb;
 }
 
-.community-page.day-mode .training-week-day-rest {
+.community-page.day-mode .training-week-session-card.completed {
+  background: rgba(0, 0, 0, 0.05);
+  border-color: #d1d5db;
+}
+
+.community-page.day-mode .training-week-session-label {
+  color: #888;
+}
+
+.community-page.day-mode .training-week-session-title {
+  color: #1a1a1a;
+}
+
+.community-page.day-mode .training-week-session-duration {
   color: #999;
+}
+
+.community-page.day-mode .training-week-rest-hint {
+  color: #bbb;
 }
 
 .community-page.day-mode .training-metric-value {
