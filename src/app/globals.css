@@ -2904,6 +2904,18 @@ a {
   color: var(--training-cta-bg, #2563eb);
 }
 
+.community-page.day-mode .training-advance-week-btn {
+  color: #333;
+  background: #f0f0f0;
+  border-color: #ddd;
+}
+
+.community-page.day-mode .training-advance-week-btn:hover:not(:disabled) {
+  background: #e5e5e5;
+  border-color: #ccc;
+  color: #111;
+}
+
 /* --- Training workout flow --- */
 .training-workout-page {
   width: 100%;
@@ -3985,6 +3997,35 @@ a {
 }
 .training-week-zero-try-link:hover {
   color: rgba(59, 130, 246, 1);
+}
+
+/* Advance-week row */
+.training-advance-week {
+  display: flex;
+  justify-content: space-between;
+}
+
+.training-advance-week-btn {
+  padding: 0.5rem 1.25rem;
+  font-size: 0.875rem;
+  font-weight: 400;
+  letter-spacing: 0.01em;
+  color: rgba(255, 255, 255, 0.9);
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 1rem;
+  cursor: pointer;
+  transition: background 0.2s, border-color 0.2s;
+}
+
+.training-advance-week-btn:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.2);
+  border-color: rgba(255, 255, 255, 0.35);
+}
+
+.training-advance-week-btn:disabled {
+  opacity: 0.45;
+  cursor: default;
 }
 
 /* Assessment Task List */

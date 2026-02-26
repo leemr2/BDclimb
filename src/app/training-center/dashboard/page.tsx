@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/lib/firebase/auth";
@@ -8,6 +8,7 @@ import { useActiveProgram } from "@/lib/hooks/training/useActiveProgram";
 import { usePlan } from "@/lib/hooks/training/usePlan";
 import { getWeekDefinition } from "@/lib/plans/bouldering/planEngine";
 import type { BoulderingFrequency } from "@/lib/plans/bouldering/planEngine";
+import { updateActiveProgram } from "@/lib/firebase/training/program";
 import { DashboardHeader } from "@/components/training/dashboard/DashboardHeader";
 import { TodayWorkoutCard } from "@/components/training/dashboard/TodayWorkoutCard";
 import { WeekSchedule } from "@/components/training/dashboard/WeekSchedule";
@@ -18,6 +19,47 @@ export default function DashboardPage() {
   const router = useRouter();
   const { program, loading: programLoading } = useActiveProgram();
   const { schedule } = usePlan(program);
+  const [isAdvancing, setIsAdvancing] = useState(false);
+
+  async function handleAdvanceWeek() {
+    if (!user || !program || program.currentWeek >= 12 || isAdvancing) return;
+    setIsAdvancing(true);
+    try {
+      const nextWeek = program.currentWeek + 1;
+      const nextWeekDef = getWeekDefinition(
+        program.frequency as BoulderingFrequency,
+        nextWeek
+      );
+      const nextMesocycle = nextWeekDef?.mesocycle ?? program.currentMesocycle;
+      await updateActiveProgram(user.uid, {
+        currentWeek: nextWeek,
+        currentMesocycle: nextMesocycle,
+        status: "active",
+      });
+    } finally {
+      setIsAdvancing(false);
+    }
+  }
+
+  async function handlePreviousWeek() {
+    if (!user || !program || program.currentWeek <= 1 || isAdvancing) return;
+    setIsAdvancing(true);
+    try {
+      const prevWeek = program.currentWeek - 1;
+      const prevWeekDef = getWeekDefinition(
+        program.frequency as BoulderingFrequency,
+        prevWeek
+      );
+      const prevMesocycle = prevWeekDef?.mesocycle ?? program.currentMesocycle;
+      await updateActiveProgram(user.uid, {
+        currentWeek: prevWeek,
+        currentMesocycle: prevMesocycle,
+        status: "active",
+      });
+    } finally {
+      setIsAdvancing(false);
+    }
+  }
 
   useEffect(() => {
     if (!authLoading && !user) {
@@ -101,6 +143,28 @@ export default function DashboardPage() {
         weekNumber={program.currentWeek}
       />
       <WeekSchedule schedule={schedule} />
+      {!isWeekZero && (program.currentWeek > 1 || program.currentWeek < 12) && (
+        <div className="training-advance-week">
+          {program.currentWeek > 1 && (
+            <button
+              onClick={handlePreviousWeek}
+              disabled={isAdvancing}
+              className="training-advance-week-btn"
+            >
+              ← Previous Week
+            </button>
+          )}
+          {program.currentWeek < 12 && (
+            <button
+              onClick={handleAdvanceWeek}
+              disabled={isAdvancing}
+              className="training-advance-week-btn"
+            >
+              {isAdvancing ? "Advancing…" : "Next Week →"}
+            </button>
+          )}
+        </div>
+      )}
       <KeyMetrics />
     </div>
   );
