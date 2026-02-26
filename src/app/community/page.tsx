@@ -9,6 +9,7 @@ import { getUserProfile } from "@/lib/firebase/users";
 import { CalendarDaySummary } from "@/components/Calendar/CalendarDaySummary";
 import { Chat } from "@/components/Chat/Chat";
 import { DisplayNameSetup } from "@/components/DisplayNameSetup";
+import { EventsSection } from "@/components/Events/EventsSection";
 
 const DAY_MODE_KEY = "bdclimb-day-mode";
 
@@ -128,6 +129,9 @@ export default function CommunityPage() {
           <div className="calendar-section">
             <CalendarDaySummary />
           </div>
+          {user && displayName && (
+            <EventsSection userId={user.uid} displayName={displayName} />
+          )}
           <div className="training-center-section">
             <div className="training-center-card">
               <h2>Training Center</h2>

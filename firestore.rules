@@ -3,6 +3,16 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
+    // Events: all authenticated users can read; only creator can create/delete
+    match /events/{eventId} {
+      allow read: if request.auth != null;
+      allow create: if request.auth != null
+        && request.resource.data.createdBy == request.auth.uid;
+      allow delete: if request.auth != null
+        && resource.data.createdBy == request.auth.uid;
+      allow update: if false;
+    }
+
     // Users can read all calendar entries
     // Users can create/update/delete only their own calendar entries
     match /calendar/{entryId} {
