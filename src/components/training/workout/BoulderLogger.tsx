@@ -167,14 +167,17 @@ export function BoulderLogger({ drill, onComplete }: BoulderLoggerProps) {
                 </select>
                 <label>
                   Quality (1–5)
-                  <input
-                    type="number"
-                    min={1}
-                    max={5}
+                  <select
                     value={p.quality}
-                    onChange={(e) => updateProblem(i, { quality: parseInt(e.target.value, 10) || 3 })}
+                    onChange={(e) => updateProblem(i, { quality: parseInt(e.target.value, 10) })}
                     className="training-form-group input"
-                  />
+                  >
+                    <option value={1}>1 — Poor</option>
+                    <option value={2}>2 — Below average</option>
+                    <option value={3}>3 — Average</option>
+                    <option value={4}>4 — Good</option>
+                    <option value={5}>5 — Excellent</option>
+                  </select>
                 </label>
                 <div className="training-boulder-log-add-form">
                   <button type="button" className="training-timer-btn" onClick={() => setEditingIndex(null)}>

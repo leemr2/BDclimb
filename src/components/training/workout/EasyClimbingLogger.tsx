@@ -61,13 +61,15 @@ export function EasyClimbingLogger({ drill, onComplete }: EasyClimbingLoggerProp
       <form onSubmit={handleSubmit} className="training-form">
         <label>
           Duration (minutes)
-          <input
-            type="number"
-            min={1}
+          <select
             value={duration}
-            onChange={(e) => setDuration(parseInt(e.target.value, 10) || 0)}
+            onChange={(e) => setDuration(parseInt(e.target.value, 10))}
             className="training-form-group input"
-          />
+          >
+            {[15, 20, 30, 45, 60, 75, 90].map((m) => (
+              <option key={m} value={m}>{m} min</option>
+            ))}
+          </select>
         </label>
         <label>
           Intensity

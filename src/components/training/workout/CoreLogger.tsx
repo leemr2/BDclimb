@@ -65,13 +65,15 @@ export function CoreLogger({ drill, onComplete }: CoreLoggerProps) {
             />
             <label>
               Sets
-              <input
-                type="number"
-                min={0}
+              <select
                 value={ex.sets}
-                onChange={(e) => updateExercise(i, { sets: parseInt(e.target.value, 10) || 0 })}
+                onChange={(e) => updateExercise(i, { sets: parseInt(e.target.value, 10) })}
                 className="training-form-group input"
-              />
+              >
+                {Array.from({ length: 11 }, (_, n) => (
+                  <option key={n} value={n}>{n}</option>
+                ))}
+              </select>
             </label>
             <label>
               Reps

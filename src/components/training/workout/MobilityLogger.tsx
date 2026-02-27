@@ -50,13 +50,15 @@ export function MobilityLogger({ drill, onComplete }: MobilityLoggerProps) {
       <form onSubmit={handleSubmit} className="training-form">
         <label>
           Duration (minutes)
-          <input
-            type="number"
-            min={1}
+          <select
             value={duration}
-            onChange={(e) => setDuration(parseInt(e.target.value, 10) || 0)}
+            onChange={(e) => setDuration(parseInt(e.target.value, 10))}
             className="training-form-group input"
-          />
+          >
+            {[5, 10, 15, 20, 25, 30, 40, 45, 60].map((m) => (
+              <option key={m} value={m}>{m} min</option>
+            ))}
+          </select>
         </label>
         <div className="training-form-group">
           <span>Areas addressed</span>

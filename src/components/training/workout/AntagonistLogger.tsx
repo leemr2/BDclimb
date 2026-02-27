@@ -62,23 +62,27 @@ export function AntagonistLogger({ drill, onComplete }: AntagonistLoggerProps) {
             <span className="training-antagonist-name">{ex.name}</span>
             <label>
               Sets
-              <input
-                type="number"
-                min={0}
+              <select
                 value={ex.setsCompleted}
-                onChange={(e) => updateExercise(i, { setsCompleted: parseInt(e.target.value, 10) || 0 })}
+                onChange={(e) => updateExercise(i, { setsCompleted: parseInt(e.target.value, 10) })}
                 className="training-form-group input"
-              />
+              >
+                {Array.from({ length: 11 }, (_, n) => (
+                  <option key={n} value={n}>{n}</option>
+                ))}
+              </select>
             </label>
             <label>
               Reps
-              <input
-                type="number"
-                min={0}
-                value={ex.reps || ""}
-                onChange={(e) => updateExercise(i, { reps: parseInt(e.target.value, 10) || 0 })}
+              <select
+                value={ex.reps}
+                onChange={(e) => updateExercise(i, { reps: parseInt(e.target.value, 10) })}
                 className="training-form-group input"
-              />
+              >
+                {Array.from({ length: 51 }, (_, n) => (
+                  <option key={n} value={n}>{n}</option>
+                ))}
+              </select>
             </label>
             <input
               type="text"

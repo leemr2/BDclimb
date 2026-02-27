@@ -150,14 +150,15 @@ export function CampusBoardTest({ onComplete, onSkip, onBack }: CampusBoardTestP
         <div className="training-assessment-section">
           <label className="training-assessment-label">
             Rung spacing / depth (mm)
-            <input
-              type="number"
+            <select
               value={rungSpacing}
-              onChange={(e) => setRungSpacing(parseInt(e.target.value) || 220)}
+              onChange={(e) => setRungSpacing(parseInt(e.target.value))}
               className="training-assessment-input"
-              min="100"
-              max="400"
-            />
+            >
+              {[100, 110, 120, 130, 140, 150, 160, 170, 180, 190, 200, 210, 220, 230, 240, 250, 260, 270, 280, 290, 300, 320, 340, 360, 380, 400].map((mm) => (
+                <option key={mm} value={mm}>{mm} mm</option>
+              ))}
+            </select>
           </label>
           <p className="training-assessment-hint">Typical campus boards are 200-220mm. Note what your board uses.</p>
         </div>
@@ -176,14 +177,16 @@ export function CampusBoardTest({ onComplete, onSkip, onBack }: CampusBoardTestP
 
                 <label className="training-campus-attempt-field">
                   <span>Rung #</span>
-                  <input
-                    type="number"
-                    value={attempt.rung || ""}
-                    onChange={(e) => updateReachAttempt(i, "rung", parseInt(e.target.value) || 0)}
+                  <select
+                    value={attempt.rung}
+                    onChange={(e) => updateReachAttempt(i, "rung", parseInt(e.target.value))}
                     className="training-assessment-input training-campus-rung-input"
-                    min="1"
-                    placeholder="—"
-                  />
+                  >
+                    <option value={0}>—</option>
+                    {Array.from({ length: 20 }, (_, n) => n + 1).map((n) => (
+                      <option key={n} value={n}>{n}</option>
+                    ))}
+                  </select>
                 </label>
 
                 <label className="training-campus-attempt-controlled">
@@ -228,14 +231,15 @@ export function CampusBoardTest({ onComplete, onSkip, onBack }: CampusBoardTestP
             <>
               <label className="training-assessment-label">
                 Total moves completed
-                <input
-                  type="number"
-                  value={totalMoves || ""}
-                  onChange={(e) => setTotalMoves(parseInt(e.target.value) || 0)}
+                <select
+                  value={totalMoves}
+                  onChange={(e) => setTotalMoves(parseInt(e.target.value))}
                   className="training-assessment-input"
-                  min="0"
-                  placeholder="0"
-                />
+                >
+                  {Array.from({ length: 51 }, (_, n) => (
+                    <option key={n} value={n}>{n}</option>
+                  ))}
+                </select>
               </label>
 
               <div className="training-assessment-section" style={{ marginTop: "0.75rem" }}>
