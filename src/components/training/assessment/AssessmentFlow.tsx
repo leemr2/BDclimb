@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { InjuryScreen } from "./InjuryScreen";
 import { MaxHangTest } from "./MaxHangTest";
 import { BoulderBenchmark } from "./BoulderBenchmark";
@@ -216,6 +217,10 @@ export function AssessmentFlow({
   // — Task list view —
   return (
     <div className="training-assessment-screen">
+      <Link href="/training-center" className="training-assessment-back-link">
+        ← Training Home
+      </Link>
+
       <div className="training-assessment-header">
         <h2 className="training-assessment-title">Week 0 Baseline Assessment</h2>
         <p className="training-assessment-subtitle">

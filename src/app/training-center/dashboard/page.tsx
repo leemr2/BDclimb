@@ -119,6 +119,12 @@ export default function DashboardPage() {
 
   return (
     <div className="training-dashboard">
+      <Link
+        href="/training-center"
+        className="training-dashboard-back-link"
+      >
+        ← Training Home
+      </Link>
       <DashboardHeader program={program} />
       {isWeekZero && (
         <div className="training-week-zero-cta">

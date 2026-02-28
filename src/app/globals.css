@@ -2663,6 +2663,626 @@ a {
   cursor: default;
 }
 
+/* ── Training Center Home Hub ─────────────────────────────────────── */
+
+.tc-home {
+  width: 100%;
+  max-width: 900px;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  padding: 1rem 0;
+}
+
+/* Program status card */
+.tc-program-card {
+  background: rgba(0, 0, 0, 0.45);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 1rem;
+  padding: 1.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.tc-program-meta {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.tc-program-badge {
+  font-size: 0.72rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: rgba(255, 255, 255, 0.9);
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  padding: 0.2rem 0.6rem;
+  border-radius: 4px;
+}
+
+.tc-program-phase {
+  font-size: 0.72rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: rgba(255, 255, 255, 0.65);
+  padding: 0.2rem 0.6rem;
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.tc-program-heading {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.tc-program-title {
+  margin: 0;
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: #fff;
+  letter-spacing: -0.02em;
+}
+
+.tc-program-status-text {
+  margin: 0;
+  font-size: 0.9rem;
+  color: rgba(255, 255, 255, 0.65);
+}
+
+.tc-program-progress-wrap {
+  height: 6px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 3px;
+  overflow: hidden;
+  margin: 0.25rem 0;
+}
+
+.tc-program-progress-bar {
+  height: 100%;
+  background: rgba(255, 255, 255, 0.45);
+  border-radius: 3px;
+  transition: width 0.4s ease;
+}
+
+.tc-program-cta {
+  align-self: flex-start;
+  margin-top: 0.25rem;
+}
+
+/* Quick Stats row */
+.tc-stats-row {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0.75rem;
+}
+
+@media (max-width: 600px) {
+  .tc-stats-row {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+.tc-stat-card {
+  background: rgba(0, 0, 0, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 0.75rem;
+  padding: 1rem 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.tc-stat-placeholder {
+  opacity: 0.5;
+}
+
+.tc-stat-value {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: #fff;
+  letter-spacing: -0.03em;
+  line-height: 1;
+}
+
+.tc-stat-label {
+  font-size: 0.78rem;
+  color: rgba(255, 255, 255, 0.55);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* Content grid */
+.tc-home-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+@media (max-width: 700px) {
+  .tc-home-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Section cards */
+.tc-section {
+  background: rgba(0, 0, 0, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 0.875rem;
+  padding: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.875rem;
+}
+
+/* Recent workouts spans full width */
+.tc-section--recent {
+  grid-column: 1 / -1;
+}
+
+.tc-section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.tc-section-title {
+  margin: 0;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #fff;
+}
+
+.tc-section-link {
+  font-size: 0.8rem;
+  color: rgba(255, 255, 255, 0.55);
+  text-decoration: none;
+  transition: color 0.15s;
+}
+
+.tc-section-link:hover {
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.tc-section-empty {
+  margin: 0;
+  font-size: 0.875rem;
+}
+
+.community-page .tc-section-empty {
+  color: rgba(255, 255, 255, 0.5);
+}
+
+/* Phase badge */
+.tc-phase-badge {
+  font-size: 0.68rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: rgba(255, 255, 255, 0.45);
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 0.15rem 0.45rem;
+  border-radius: 4px;
+  white-space: nowrap;
+}
+
+/* Workout list */
+.tc-workout-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.625rem;
+}
+
+.tc-workout-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  padding: 0.75rem 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+}
+
+.tc-workout-item:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.tc-workout-item:first-child {
+  padding-top: 0;
+}
+
+.tc-workout-item-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 0.5rem;
+}
+
+.tc-workout-item-label {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #fff;
+}
+
+.tc-workout-item-date {
+  font-size: 0.8rem;
+  color: rgba(255, 255, 255, 0.5);
+  white-space: nowrap;
+}
+
+.tc-workout-item-meta {
+  display: flex;
+  gap: 0.75rem;
+  font-size: 0.8rem;
+  color: rgba(255, 255, 255, 0.55);
+  flex-wrap: wrap;
+}
+
+/* Placeholder content */
+.tc-placeholder {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.tc-placeholder-icon {
+  font-size: 1.5rem;
+  line-height: 1;
+}
+
+.tc-placeholder-text {
+  margin: 0;
+  font-size: 0.825rem;
+  color: rgba(255, 255, 255, 0.45);
+  line-height: 1.55;
+}
+
+.tc-placeholder-link {
+  font-size: 0.825rem;
+  color: rgba(255, 255, 255, 0.55);
+  text-decoration: none;
+  transition: color 0.15s;
+}
+
+.tc-placeholder-link:hover {
+  color: rgba(255, 255, 255, 0.9);
+}
+
+/* Bar chart placeholder */
+.tc-placeholder-bars {
+  display: flex;
+  align-items: flex-end;
+  gap: 6px;
+  height: 52px;
+}
+
+.tc-placeholder-bar {
+  flex: 1;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 3px 3px 0 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+/* Profile card */
+.tc-profile-list {
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.tc-profile-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 0.5rem;
+  padding: 0.55rem 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+}
+
+.tc-profile-row:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.tc-profile-row:first-child {
+  padding-top: 0;
+}
+
+.tc-profile-key {
+  font-size: 0.8rem;
+  font-weight: 400;
+  white-space: nowrap;
+}
+
+.community-page .tc-profile-key {
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.tc-profile-val {
+  font-size: 0.9rem;
+  font-weight: 600;
+  text-align: right;
+}
+
+.community-page .tc-profile-val {
+  color: rgba(255, 255, 255, 0.95);
+}
+
+.tc-profile-edit-btn {
+  background: none;
+  border-radius: 0.4rem;
+  padding: 0.2rem 0.65rem;
+  font-size: 0.78rem;
+  cursor: pointer;
+  transition: color 0.15s, border-color 0.15s;
+}
+
+.community-page .tc-profile-edit-btn {
+  color: rgba(255, 255, 255, 0.65);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.community-page .tc-profile-edit-btn:hover {
+  color: #fff;
+  border-color: rgba(255, 255, 255, 0.45);
+}
+
+/* Profile edit form */
+.tc-profile-form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.tc-profile-form-row {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.tc-profile-form-label {
+  font-size: 0.78rem;
+  font-weight: 500;
+}
+
+.community-page .tc-profile-form-label {
+  color: rgba(255, 255, 255, 0.55);
+}
+
+.tc-profile-form-input {
+  border-radius: 0.5rem;
+  padding: 0.45rem 0.65rem;
+  font-size: 0.9rem;
+  width: 100%;
+  outline: none;
+  transition: border-color 0.15s;
+}
+
+.community-page .tc-profile-form-input {
+  background: rgba(0, 0, 0, 0.35);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  color: #fff;
+}
+
+.community-page .tc-profile-form-input:focus {
+  border-color: rgba(255, 255, 255, 0.4);
+}
+
+.tc-profile-weight-row {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.tc-profile-weight-input {
+  flex: 1;
+  width: auto;
+}
+
+.tc-profile-unit-toggle {
+  display: flex;
+  border-radius: 0.5rem;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.community-page .tc-profile-unit-toggle {
+  border: 1px solid rgba(255, 255, 255, 0.18);
+}
+
+.tc-profile-unit-toggle button {
+  background: none;
+  border: none;
+  padding: 0.4rem 0.65rem;
+  font-size: 0.8rem;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+
+.community-page .tc-profile-unit-toggle button {
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.community-page .tc-profile-unit-toggle button.active {
+  background: rgba(255, 255, 255, 0.15);
+  color: #fff;
+}
+
+.tc-profile-form-actions {
+  display: flex;
+  gap: 0.5rem;
+  justify-content: flex-end;
+  margin-top: 0.25rem;
+}
+
+.tc-profile-cancel-btn {
+  background: none;
+  border-radius: 0.5rem;
+  padding: 0.4rem 0.9rem;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: color 0.15s, border-color 0.15s;
+}
+
+.community-page .tc-profile-cancel-btn {
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.community-page .tc-profile-cancel-btn:hover:not(:disabled) {
+  color: #fff;
+  border-color: rgba(255, 255, 255, 0.35);
+}
+
+.tc-profile-cancel-btn:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+
+.tc-profile-save-btn {
+  font-size: 0.85rem;
+  padding: 0.4rem 1rem;
+}
+
+.tc-profile-error {
+  margin: 0;
+  font-size: 0.8rem;
+  color: #f87171;
+}
+
+/* Day-mode overrides for hub */
+.community-page.day-mode .tc-program-card,
+.community-page.day-mode .tc-stat-card,
+.community-page.day-mode .tc-section {
+  background: rgba(255, 255, 255, 0.7);
+  border-color: rgba(0, 0, 0, 0.08);
+}
+
+.community-page.day-mode .tc-program-title,
+.community-page.day-mode .tc-stat-value,
+.community-page.day-mode .tc-section-title,
+.community-page.day-mode .tc-workout-item-label {
+  color: #1a1a1a;
+}
+
+.community-page.day-mode .tc-program-status-text,
+.community-page.day-mode .tc-stat-label,
+.community-page.day-mode .tc-workout-item-date,
+.community-page.day-mode .tc-workout-item-meta,
+.community-page.day-mode .tc-placeholder-text,
+.community-page.day-mode .tc-section-empty {
+  color: rgba(0, 0, 0, 0.5);
+}
+
+.community-page.day-mode .tc-program-badge {
+  color: rgba(0, 0, 0, 0.8);
+  background: rgba(0, 0, 0, 0.08);
+  border-color: rgba(0, 0, 0, 0.12);
+}
+
+.community-page.day-mode .tc-program-phase,
+.community-page.day-mode .tc-phase-badge {
+  color: rgba(0, 0, 0, 0.45);
+  background: rgba(0, 0, 0, 0.05);
+  border-color: rgba(0, 0, 0, 0.08);
+}
+
+.community-page.day-mode .tc-section-link,
+.community-page.day-mode .tc-placeholder-link {
+  color: rgba(0, 0, 0, 0.45);
+}
+
+.community-page.day-mode .tc-section-link:hover,
+.community-page.day-mode .tc-placeholder-link:hover {
+  color: rgba(0, 0, 0, 0.85);
+}
+
+.community-page.day-mode .tc-program-progress-wrap {
+  background: rgba(0, 0, 0, 0.1);
+}
+
+.community-page.day-mode .tc-program-progress-bar {
+  background: rgba(0, 0, 0, 0.35);
+}
+
+.community-page.day-mode .tc-placeholder-bar {
+  background: rgba(0, 0, 0, 0.07);
+  border-color: rgba(0, 0, 0, 0.1);
+}
+
+.community-page.day-mode .tc-workout-item {
+  border-color: rgba(0, 0, 0, 0.06);
+}
+
+.community-page.day-mode .tc-profile-key {
+  color: rgba(0, 0, 0, 0.45);
+}
+
+.community-page.day-mode .tc-profile-val {
+  color: #1a1a1a;
+}
+
+.community-page.day-mode .tc-profile-row {
+  border-color: rgba(0, 0, 0, 0.06);
+}
+
+.community-page.day-mode .tc-profile-edit-btn {
+  color: rgba(0, 0, 0, 0.5);
+  border-color: rgba(0, 0, 0, 0.15);
+}
+
+.community-page.day-mode .tc-profile-edit-btn:hover {
+  color: rgba(0, 0, 0, 0.85);
+  border-color: rgba(0, 0, 0, 0.3);
+}
+
+.community-page.day-mode .tc-profile-form-label {
+  color: rgba(0, 0, 0, 0.5);
+}
+
+.community-page.day-mode .tc-profile-form-input {
+  background: rgba(255, 255, 255, 0.8);
+  border-color: rgba(0, 0, 0, 0.15);
+  color: #1a1a1a;
+}
+
+.community-page.day-mode .tc-profile-form-input:focus {
+  border-color: rgba(0, 0, 0, 0.35);
+}
+
+.community-page.day-mode .tc-profile-unit-toggle {
+  border-color: rgba(0, 0, 0, 0.15);
+}
+
+.community-page.day-mode .tc-profile-unit-toggle button {
+  color: rgba(0, 0, 0, 0.45);
+}
+
+.community-page.day-mode .tc-profile-unit-toggle button.active {
+  background: rgba(0, 0, 0, 0.1);
+  color: rgba(0, 0, 0, 0.85);
+}
+
+.community-page.day-mode .tc-profile-cancel-btn {
+  color: rgba(0, 0, 0, 0.5);
+  border-color: rgba(0, 0, 0, 0.15);
+}
+
+.community-page.day-mode .tc-profile-cancel-btn:hover:not(:disabled) {
+  color: rgba(0, 0, 0, 0.85);
+  border-color: rgba(0, 0, 0, 0.3);
+}
+
 /* Onboarding */
 .training-onboarding {
   width: 100%;
@@ -2863,6 +3483,29 @@ a {
   flex-direction: column;
   gap: 1.5rem;
   padding: 1rem 0;
+}
+
+.training-dashboard-back-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: 0.825rem;
+  color: rgba(255, 255, 255, 0.5);
+  text-decoration: none;
+  transition: color 0.15s;
+  margin-bottom: -0.5rem;
+}
+
+.training-dashboard-back-link:hover {
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.community-page.day-mode .training-dashboard-back-link {
+  color: rgba(0, 0, 0, 0.4);
+}
+
+.community-page.day-mode .training-dashboard-back-link:hover {
+  color: rgba(0, 0, 0, 0.8);
 }
 
 .training-dashboard-header {
@@ -3601,6 +4244,30 @@ a {
   margin: 0 auto;
   padding: 1.5rem;
 }
+
+.training-assessment-back-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: 0.825rem;
+  color: rgba(255, 255, 255, 0.5);
+  text-decoration: none;
+  transition: color 0.15s;
+  margin-bottom: 1.5rem;
+}
+
+.training-assessment-back-link:hover {
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.community-page.day-mode .training-assessment-back-link {
+  color: rgba(0, 0, 0, 0.4);
+}
+
+.community-page.day-mode .training-assessment-back-link:hover {
+  color: rgba(0, 0, 0, 0.8);
+}
+
 .training-assessment-header {
   margin-bottom: 2rem;
   text-align: center;
