@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useAuth } from "@/lib/firebase/auth";
 import { useActiveProgram } from "@/lib/hooks/training/useActiveProgram";
+import { useTrainingProfile } from "@/lib/hooks/training/useTrainingProfile";
 import { AssessmentFlow } from "@/components/training/assessment/AssessmentFlow";
 import { createAssessment } from "@/lib/firebase/training/bouldering-assessments";
 import { updateActiveProgram } from "@/lib/firebase/training/program";
@@ -14,6 +15,7 @@ export default function AssessmentPage() {
   const { user, loading: authLoading } = useAuth();
   const router = useRouter();
   const { program, loading: programLoading } = useActiveProgram();
+  const { profile: trainingProfile, loading: profileLoading } = useTrainingProfile();
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -60,7 +62,7 @@ export default function AssessmentPage() {
     }
   };
 
-  if (authLoading || programLoading) {
+  if (authLoading || programLoading || profileLoading) {
     return (
       <div className="loading-container">
         <div>Loading...</div>
@@ -99,9 +101,7 @@ export default function AssessmentPage() {
     );
   }
 
-  // Get training profile data
-  const trainingProfile = (program as unknown as { trainingProfile?: { weight: number; weightUnit: "lbs" | "kg" } }).trainingProfile;
-  const bodyweight = trainingProfile?.weight || 150; // fallback
+  const bodyweight = trainingProfile?.weight || 150;
   const weightUnit = trainingProfile?.weightUnit || "lbs";
 
   const programId = (program.startDate as { toMillis?: () => number })?.toMillis?.() 
