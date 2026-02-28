@@ -108,6 +108,29 @@ export function subscribeToActiveProgram(
 }
 
 /**
+ * Cancel the current program: write to programHistory with a cancelled status
+ * and clear activeProgram. The program history entry records how far the user got.
+ */
+export async function cancelProgram(userId: string): Promise<void> {
+  const userRef = doc(db, "users", userId);
+  const snap = await getDoc(userRef);
+  const program = snap.data()?.activeProgram as ActiveProgram | undefined;
+  if (!program) return;
+
+  const historyRef = collection(db, "users", userId, "programHistory");
+  await addDoc(historyRef, {
+    goalType: program.goalType,
+    frequency: program.frequency,
+    startDate: program.startDate,
+    cancelledDate: Timestamp.now(),
+    weeksCompleted: program.currentWeek,
+    outcome: "cancelled",
+  });
+
+  await updateDoc(userRef, { activeProgram: null });
+}
+
+/**
  * Complete the current program: write to programHistory and clear activeProgram.
  */
 export async function completeProgram(

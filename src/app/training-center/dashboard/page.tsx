@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/lib/firebase/auth";
@@ -8,7 +9,7 @@ import { useActiveProgram } from "@/lib/hooks/training/useActiveProgram";
 import { usePlan } from "@/lib/hooks/training/usePlan";
 import { getWeekDefinition } from "@/lib/plans/bouldering/planEngine";
 import type { BoulderingFrequency } from "@/lib/plans/bouldering/planEngine";
-import { updateActiveProgram } from "@/lib/firebase/training/program";
+import { updateActiveProgram, cancelProgram } from "@/lib/firebase/training/program";
 import { DashboardHeader } from "@/components/training/dashboard/DashboardHeader";
 import { TodayWorkoutCard } from "@/components/training/dashboard/TodayWorkoutCard";
 import { WeekSchedule } from "@/components/training/dashboard/WeekSchedule";
@@ -20,6 +21,8 @@ export default function DashboardPage() {
   const { program, loading: programLoading } = useActiveProgram();
   const { schedule } = usePlan(program);
   const [isAdvancing, setIsAdvancing] = useState(false);
+  const [showCancelConfirm, setShowCancelConfirm] = useState(false);
+  const [isCancelling, setIsCancelling] = useState(false);
 
   async function handleAdvanceWeek() {
     if (!user || !program || program.currentWeek >= 12 || isAdvancing) return;
@@ -38,6 +41,18 @@ export default function DashboardPage() {
       });
     } finally {
       setIsAdvancing(false);
+    }
+  }
+
+  async function handleCancelProgram() {
+    if (!user || isCancelling) return;
+    setIsCancelling(true);
+    try {
+      await cancelProgram(user.uid);
+      router.replace("/training-center");
+    } finally {
+      setIsCancelling(false);
+      setShowCancelConfirm(false);
     }
   }
 
@@ -166,6 +181,51 @@ export default function DashboardPage() {
         </div>
       )}
       <KeyMetrics />
+
+      <div className="training-stop-cycle-wrap">
+        <button
+          onClick={() => setShowCancelConfirm(true)}
+          className="training-stop-cycle-btn"
+        >
+          Stop Training Cycle
+        </button>
+      </div>
+
+      {showCancelConfirm && typeof window !== "undefined" && createPortal(
+        <div
+          className="training-cancel-overlay"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="cancel-dialog-title"
+          onClick={(e) => { if (e.target === e.currentTarget && !isCancelling) setShowCancelConfirm(false); }}
+        >
+          <div className="training-cancel-dialog">
+            <h3 id="cancel-dialog-title" className="training-cancel-dialog-title">
+              Stop Training Cycle?
+            </h3>
+            <p className="training-cancel-dialog-body">
+              Your progress through Week {program.currentWeek} will be saved to your history, but your active program will end. You can start a new cycle anytime.
+            </p>
+            <div className="training-cancel-dialog-actions">
+              <button
+                onClick={() => setShowCancelConfirm(false)}
+                disabled={isCancelling}
+                className="training-cancel-dialog-keep"
+              >
+                No, Keep Going
+              </button>
+              <button
+                onClick={handleCancelProgram}
+                disabled={isCancelling}
+                className="training-cancel-dialog-confirm"
+              >
+                {isCancelling ? "Stopping…" : "Yes, Stop"}
+              </button>
+            </div>
+          </div>
+        </div>,
+        document.body
+      )}
     </div>
   );
 }
