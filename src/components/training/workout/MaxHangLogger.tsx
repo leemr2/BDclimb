@@ -3,8 +3,7 @@
 import { useState, useCallback } from "react";
 import { Timestamp } from "firebase/firestore";
 import { useWorkout } from "@/lib/hooks/training/useWorkout";
-import type { DrillDefinition } from "@/lib/plans/bouldering/types";
-import type { MaxHangData } from "@/lib/plans/bouldering/types";
+import type { DrillDefinition, MaxHangData } from "@/lib/plans/bouldering/types";
 import { NumberSlider } from "@/components/training/ui/NumberSlider";
 import { HangTimer } from "./HangTimer";
 import { RestTimer } from "./RestTimer";
@@ -33,6 +32,9 @@ export interface MaxHangLoggerProps {
   initialSetData?: PartialSetData[];
   onComplete: (data: MaxHangData) => void;
 }
+
+/** 87% of 1RM is the standard training intensity for max-strength hangs. */
+const TARGET_PERCENT = 87;
 
 function parseDurationSeconds(reps: number | string | undefined): number {
   if (typeof reps === "number") return reps;
@@ -91,8 +93,6 @@ export function MaxHangLogger({
   const [logPain, setLogPain] = useState(0);
   const [logNotes, setLogNotes] = useState("");
 
-  const targetPercent = 87;
-
   const handleTimerComplete = useCallback(() => {
     setPhase("log");
   }, []);
@@ -129,7 +129,7 @@ export function MaxHangLogger({
         sets: finalSets.map((s) => ({
           targetLoad,
           actualLoad: s.actualLoad,
-          targetPercent,
+          targetPercent: TARGET_PERCENT,
           duration: s.duration,
           heldClean: s.heldClean,
           pain: s.pain,
@@ -238,16 +238,14 @@ export function MaxHangLogger({
 
   if (phase === "timer") {
     return (
-      <>
-        <HangTimer
-          durationSeconds={durationSeconds}
-          preCountdownSeconds={3}
-          useAudio
-          setLabel={`Set ${currentSet + 1} of ${totalSets}`}
-          targetLabel={targetLoad > 0 ? `Target: ${targetLoad} lbs` : undefined}
-          onComplete={handleTimerComplete}
-        />
-      </>
+      <HangTimer
+        durationSeconds={durationSeconds}
+        preCountdownSeconds={3}
+        useAudio
+        setLabel={`Set ${currentSet + 1} of ${totalSets}`}
+        targetLabel={targetLoad > 0 ? `Target: ${targetLoad} ${weightUnit}` : undefined}
+        onComplete={handleTimerComplete}
+      />
     );
   }
 

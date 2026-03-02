@@ -14,6 +14,7 @@ const LoginPage = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [googleLoading, setGoogleLoading] = useState(false);
+  const [showEmailForm, setShowEmailForm] = useState(false);
 
   const handleSignInWithGoogle = () => {
     setGoogleLoading(true);
@@ -72,48 +73,59 @@ const LoginPage = () => {
               <hr className="border-white/10" />
             </div>
 
-            <form onSubmit={handleSignIn} className="space-y-4">
-              <div>
-                <label
-                  htmlFor="email"
-                  className="mb-1.5 block text-xs font-light text-white/70"
-                >
-                  Email
-                </label>
-                <input
-                  id="email"
-                  type="email"
-                  name="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-white placeholder:text-white/40 focus:border-white/20 focus:outline-none focus:ring-1 focus:ring-white/20"
-                  placeholder="you@example.com"
-                />
-              </div>
-              <div>
-                <label
-                  htmlFor="password"
-                  className="mb-1.5 block text-xs font-light text-white/70"
-                >
-                  Password
-                </label>
-                <input
-                  id="password"
-                  type="password"
-                  name="password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-white placeholder:text-white/40 focus:border-white/20 focus:outline-none focus:ring-1 focus:ring-white/20"
-                  placeholder="••••••••"
-                />
-              </div>
+            {!showEmailForm ? (
               <button
-                type="submit"
-                className="w-full rounded-2xl border border-white/20 bg-white/20 px-4 py-3 text-sm font-light text-white shadow-lg shadow-black/20 transition-colors hover:bg-white/30 focus:outline-none focus:ring-2 focus:ring-white/40"
+                type="button"
+                onClick={() => setShowEmailForm(true)}
+                className="flex w-full items-center justify-center gap-2 rounded-2xl border border-white/20 bg-white/20 px-4 py-3 text-sm font-light text-white shadow-lg shadow-black/20 transition-colors hover:bg-white/30 focus:outline-none focus:ring-2 focus:ring-white/40"
               >
                 Sign in with email
               </button>
-            </form>
+            ) : (
+              <form onSubmit={handleSignIn} className="space-y-4">
+                <div>
+                  <label
+                    htmlFor="email"
+                    className="mb-1.5 block text-xs font-light text-white/70"
+                  >
+                    Email
+                  </label>
+                  <input
+                    id="email"
+                    type="email"
+                    name="email"
+                    autoFocus
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-white placeholder:text-white/40 focus:border-white/20 focus:outline-none focus:ring-1 focus:ring-white/20"
+                    placeholder="you@example.com"
+                  />
+                </div>
+                <div>
+                  <label
+                    htmlFor="password"
+                    className="mb-1.5 block text-xs font-light text-white/70"
+                  >
+                    Password
+                  </label>
+                  <input
+                    id="password"
+                    type="password"
+                    name="password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-white placeholder:text-white/40 focus:border-white/20 focus:outline-none focus:ring-1 focus:ring-white/20"
+                    placeholder="••••••••"
+                  />
+                </div>
+                <button
+                  type="submit"
+                  className="w-full rounded-2xl border border-white/20 bg-white/20 px-4 py-3 text-sm font-light text-white shadow-lg shadow-black/20 transition-colors hover:bg-white/30 focus:outline-none focus:ring-2 focus:ring-white/40"
+                >
+                  Sign in
+                </button>
+              </form>
+            )}
           </div>
 
           <p className="mt-6 text-center text-xs text-white/60">

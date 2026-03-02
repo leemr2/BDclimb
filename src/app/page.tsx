@@ -30,8 +30,8 @@ const HomePage = () => {
   return (
     <NeuralNetworkHero
       logoSrc="/images/The%20Burly%20Burro.png"
-      logoAlt="The Burly Burro"
-      title="Where the BD comes together to climb."
+      logoAlt="BD Climbing"
+      title="The Burly Burro"
       description="Sign in to access The Burly Burro — training, events, and messaging."
       badgeText="The Burly Burro"
       badgeLabel="Community."
