@@ -9,8 +9,6 @@ import {
   updateDoc,
   query,
   where,
-  orderBy,
-  limit,
   onSnapshot,
   Timestamp,
   type Unsubscribe,
@@ -193,7 +191,10 @@ export async function getCompletedSessionLabelsForWeek(
 }
 
 /**
- * Get completed workouts for history list, ordered by date desc.
+ * Get completed workouts for history list, ordered by completedAt desc.
+ * We avoid orderBy() in the Firestore query because combining it with two
+ * equality filters requires a composite index that may not be deployed.
+ * Instead we filter and sort in memory after fetching.
  */
 export async function getCompletedWorkouts(
   userId: string,
@@ -204,19 +205,26 @@ export async function getCompletedWorkouts(
   const q = query(
     ref,
     where("programId", "==", programId),
-    where("status", "==", "completed"),
-    orderBy("completedAt", "desc"),
-    limit(limitCount)
+    where("status", "==", "completed")
   );
   const snapshot = await getDocs(q);
-  return snapshot.docs.map((d) => ({
+  const results = snapshot.docs.map((d) => ({
     id: d.id,
     ...d.data(),
   })) as Array<BoulderingWorkout & { id: string }>;
+
+  return results
+    .sort((a, b) => {
+      const aMs = (a.completedAt as Timestamp | null)?.toMillis?.() ?? 0;
+      const bMs = (b.completedAt as Timestamp | null)?.toMillis?.() ?? 0;
+      return bMs - aMs;
+    })
+    .slice(0, limitCount);
 }
 
 /**
  * Get all completed workouts for the user (any program), for history list.
+ * Sorted in memory to avoid requiring a composite index on (status, completedAt).
  */
 export async function getCompletedWorkoutsAll(
   userId: string,
@@ -225,15 +233,21 @@ export async function getCompletedWorkoutsAll(
   const ref = collection(db, "users", userId, "boulderingWorkouts");
   const q = query(
     ref,
-    where("status", "==", "completed"),
-    orderBy("completedAt", "desc"),
-    limit(limitCount)
+    where("status", "==", "completed")
   );
   const snapshot = await getDocs(q);
-  return snapshot.docs.map((d) => ({
+  const results = snapshot.docs.map((d) => ({
     id: d.id,
     ...d.data(),
   })) as Array<BoulderingWorkout & { id: string }>;
+
+  return results
+    .sort((a, b) => {
+      const aMs = (a.completedAt as Timestamp | null)?.toMillis?.() ?? 0;
+      const bMs = (b.completedAt as Timestamp | null)?.toMillis?.() ?? 0;
+      return bMs - aMs;
+    })
+    .slice(0, limitCount);
 }
 
 /**

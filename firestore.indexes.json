@@ -1,6 +1,14 @@
 {
   "indexes": [
     {
+      "collectionGroup": "boulderingAssessments",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "programId", "order": "ASCENDING" },
+        { "fieldPath": "week", "order": "ASCENDING" }
+      ]
+    },
+    {
       "collectionGroup": "boulderingWorkouts",
       "queryScope": "COLLECTION",
       "fields": [

@@ -12,7 +12,9 @@ import {
   getCompletedWorkoutsAll,
   type BoulderingWorkout,
 } from "@/lib/firebase/training/bouldering-workouts";
+import { getAssessmentsForProgram } from "@/lib/firebase/training/bouldering-assessments";
 import { ProfileCard } from "@/components/training/dashboard/ProfileCard";
+import type { BoulderingAssessment } from "@/lib/plans/bouldering/types";
 import type { Timestamp } from "firebase/firestore";
 
 const GOALS = [
@@ -100,6 +102,8 @@ export default function TrainingCenterPage() {
     Array<BoulderingWorkout & { id: string }>
   >([]);
   const [workoutsLoading, setWorkoutsLoading] = useState(false);
+  const [latestAssessment, setLatestAssessment] =
+    useState<BoulderingAssessment | null>(null);
   const recentCheckins = useRecentCheckinsForSafety(14);
   const { flags: safetyFlags, loading: safetyLoading } = useSafety(recentCheckins);
   const { checkin: todaysCheckin, loading: checkinLoading } = useTodaysCheckin();
@@ -118,6 +122,19 @@ export default function TrainingCenterPage() {
       .catch(() => setRecentWorkouts([]))
       .finally(() => setWorkoutsLoading(false));
   }, [user, programLoading]);
+
+  useEffect(() => {
+    if (!user || !program || program.currentWeek === 0 || program.goalType !== "bouldering") {
+      setLatestAssessment(null);
+      return;
+    }
+    const programId = (program.startDate as { toMillis?: () => number })?.toMillis
+      ? (program.startDate as { toMillis: () => number }).toMillis().toString()
+      : String(program.startDate);
+    getAssessmentsForProgram(user.uid, programId)
+      .then((list) => setLatestAssessment(list[list.length - 1] ?? null))
+      .catch(() => setLatestAssessment(null));
+  }, [user?.uid, program?.currentWeek, program?.startDate, program?.goalType]);
 
   if (authLoading || programLoading) {
     return (
@@ -369,24 +386,69 @@ export default function TrainingCenterPage() {
         <section className="tc-section tc-section--assessment">
           <div className="tc-section-header">
             <h3 className="tc-section-title">Assessment Results</h3>
-            <span className="tc-phase-badge">Phase 3</span>
-          </div>
-          <div className="tc-placeholder">
-            <div className="tc-placeholder-icon">📊</div>
-            <p className="tc-placeholder-text">
-              Baseline and retest results: max finger strength (lbs), limit
-              boulder send rate, and injury baseline. Retested at Week 4 and
-              Week 12.
-            </p>
-            {!isWeekZero && (
+            {!isWeekZero && latestAssessment && (
               <Link
                 href="/training-center/assessment"
-                className="tc-placeholder-link"
+                className="tc-section-link"
               >
-                View Assessment →
+                View full →
               </Link>
             )}
           </div>
+
+          {isWeekZero || !latestAssessment ? (
+            <div className="tc-placeholder">
+              <div className="tc-placeholder-icon">📊</div>
+              <p className="tc-placeholder-text">
+                Baseline and retest results: max finger strength (lbs), limit
+                boulder send rate, and injury baseline. Retested at Week 4 and
+                Week 12.
+              </p>
+            </div>
+          ) : (
+            <div className="ar-summary-metrics">
+              <div className="ar-summary-row">
+                <span className="ar-summary-label">Max hang</span>
+                <span className="ar-summary-value">
+                  {latestAssessment.maxHang.bestLoad}{" "}
+                  {program.goalType === "bouldering" ? "lbs" : "lbs"}
+                  <span style={{ fontWeight: 400, color: "rgba(255,255,255,0.45)", fontSize: "0.8rem", marginLeft: "0.35rem" }}>
+                    ({latestAssessment.maxHang.percentBodyweight.toFixed(1)}% BW)
+                  </span>
+                </span>
+              </div>
+              <div className="ar-summary-row">
+                <span className="ar-summary-label">Training target</span>
+                <span className="ar-summary-value ar-summary-value--target">
+                  {Math.round(latestAssessment.maxHang.bestLoad * 0.87)} lbs
+                </span>
+              </div>
+              {latestAssessment.limitBoulders.length > 0 && (
+                <div className="ar-summary-row">
+                  <span className="ar-summary-label">Send rate</span>
+                  <span className="ar-summary-value">
+                    {Math.round(
+                      (latestAssessment.limitBoulders.filter((p) => p.sent).length /
+                        latestAssessment.limitBoulders.length) *
+                        100
+                    )}%
+                    <span style={{ fontWeight: 400, color: "rgba(255,255,255,0.45)", fontSize: "0.8rem", marginLeft: "0.35rem" }}>
+                      ({latestAssessment.limitBoulders.filter((p) => p.sent).length}/
+                      {latestAssessment.limitBoulders.length} sent)
+                    </span>
+                  </span>
+                </div>
+              )}
+              {latestAssessment.campusBoard && (
+                <div className="ar-summary-row">
+                  <span className="ar-summary-label">Campus reach</span>
+                  <span className="ar-summary-value">
+                    Rung {latestAssessment.campusBoard.maxReach.bestRung}
+                  </span>
+                </div>
+              )}
+            </div>
+          )}
         </section>
 
         {/* Safety Flags — Phase 3 */}

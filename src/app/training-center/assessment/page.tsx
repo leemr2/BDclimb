@@ -7,7 +7,11 @@ import { useAuth } from "@/lib/firebase/auth";
 import { useActiveProgram } from "@/lib/hooks/training/useActiveProgram";
 import { useTrainingProfile } from "@/lib/hooks/training/useTrainingProfile";
 import { AssessmentFlow } from "@/components/training/assessment/AssessmentFlow";
-import { createAssessment } from "@/lib/firebase/training/bouldering-assessments";
+import { AssessmentResultsView } from "@/components/training/assessment/AssessmentResultsView";
+import {
+  createAssessment,
+  getAssessmentsForProgram,
+} from "@/lib/firebase/training/bouldering-assessments";
 import { updateActiveProgram } from "@/lib/firebase/training/program";
 import type { BoulderingAssessment } from "@/lib/plans/bouldering/types";
 
@@ -18,6 +22,8 @@ export default function AssessmentPage() {
   const { profile: trainingProfile, loading: profileLoading } = useTrainingProfile();
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [assessments, setAssessments] = useState<BoulderingAssessment[]>([]);
+  const [assessmentsLoading, setAssessmentsLoading] = useState(false);
 
   useEffect(() => {
     if (!authLoading && !user) {
@@ -31,6 +37,19 @@ export default function AssessmentPage() {
     }
   }, [authLoading, programLoading, user, program, router]);
 
+  // Load existing assessments when the program is past Week 0
+  useEffect(() => {
+    if (!user || !program || program.currentWeek === 0) return;
+    const programId = (program.startDate as { toMillis?: () => number })?.toMillis
+      ? (program.startDate as { toMillis: () => number }).toMillis().toString()
+      : String(program.startDate);
+    setAssessmentsLoading(true);
+    getAssessmentsForProgram(user.uid, programId)
+      .then(setAssessments)
+      .catch(() => setAssessments([]))
+      .finally(() => setAssessmentsLoading(false));
+  }, [user?.uid, program?.currentWeek, program?.startDate]);
+
   const handleAssessmentComplete = async (
     assessmentData: Omit<BoulderingAssessment, "id" | "date">
   ) => {
@@ -40,11 +59,6 @@ export default function AssessmentPage() {
     setError(null);
 
     try {
-      // Save assessment
-      const programId = (program.startDate as { toMillis?: () => number })?.toMillis?.() 
-        ? (program.startDate as { toMillis: () => number }).toMillis().toString()
-        : Number(program.startDate).toString();
-
       await createAssessment(user.uid, assessmentData);
 
       // Advance to Week 1
@@ -87,12 +101,45 @@ export default function AssessmentPage() {
     );
   }
 
+  // Past Week 0 — show results view instead of the assessment flow
   if (program.currentWeek > 0) {
+    if (assessmentsLoading) {
+      return (
+        <div className="loading-container">
+          <div>Loading results…</div>
+        </div>
+      );
+    }
+
+    const weightUnit = trainingProfile?.weightUnit ?? "lbs";
+
     return (
-      <div className="training-center-page">
-        <div className="training-center-content">
-          <h2>Assessment Already Complete</h2>
-          <p>You've already completed your Week 0 baseline assessment and started Week 1.</p>
+      <div className="training-assessment-screen">
+        <Link href="/training-center" className="training-assessment-back-link">
+          ← Training Home
+        </Link>
+
+        <div className="training-assessment-header">
+          <h2 className="training-assessment-title">Assessment Results</h2>
+          <p className="training-assessment-subtitle">
+            Week {program.currentWeek} of 12 · {assessments.length > 1 ? `${assessments.length} assessments` : "Baseline"}
+          </p>
+        </div>
+
+        <div className="training-assessment-content">
+          {assessments.length === 0 ? (
+            <p style={{ color: "rgba(255,255,255,0.55)", textAlign: "center" }}>
+              No assessment data found for this program.
+            </p>
+          ) : (
+            <AssessmentResultsView
+              assessments={assessments}
+              weightUnit={weightUnit}
+            />
+          )}
+        </div>
+
+        <div className="training-assessment-actions">
           <Link href="/training-center/dashboard" className="training-center-cta">
             Go to Dashboard
           </Link>

@@ -5272,6 +5272,205 @@ a {
   margin-bottom: 0.5rem;
 }
 
+/* ── Assessment Results View (AssessmentResultsView.tsx) ─────────── */
+.ar-view {
+  display: flex;
+  flex-direction: column;
+}
+
+.ar-week-tabs {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  margin-bottom: 1.25rem;
+}
+
+.ar-week-tab {
+  padding: 0.3rem 0.85rem;
+  border-radius: 1rem;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: transparent;
+  color: rgba(255, 255, 255, 0.55);
+  font-size: 0.8rem;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.ar-week-tab:hover {
+  border-color: rgba(255, 255, 255, 0.4);
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.ar-week-tab--active {
+  background: rgba(255, 255, 255, 0.12);
+  border-color: rgba(255, 255, 255, 0.35);
+  color: #fff;
+}
+
+.ar-date-note {
+  margin: 0 0 1.5rem;
+  font-size: 0.8rem;
+  color: rgba(255, 255, 255, 0.4);
+}
+
+.ar-section {
+  margin-bottom: 1.75rem;
+}
+
+.ar-section-title {
+  margin: 0 0 0.75rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: rgba(255, 255, 255, 0.4);
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+/* Training target card highlight */
+.ar-target-card {
+  border-color: rgba(99, 179, 237, 0.25) !important;
+  background: rgba(59, 130, 246, 0.07) !important;
+}
+
+.ar-target-value {
+  color: rgba(99, 179, 237, 0.95) !important;
+}
+
+.ar-pulling-value {
+  font-size: 1.35rem !important;
+}
+
+/* Pain color variants */
+.ar-pain.ar-pain--none { color: rgba(34, 197, 94, 0.9) !important; }
+.ar-pain.ar-pain--low  { color: rgba(251, 191, 36, 0.9) !important; }
+.ar-pain.ar-pain--mid  { color: rgba(249, 115, 22, 0.9) !important; }
+.ar-pain.ar-pain--high { color: rgba(239, 68, 68, 0.9) !important; }
+
+/* Boulder problem rows */
+.ar-boulder-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  margin-top: 0.75rem;
+}
+
+.ar-boulder-row {
+  display: grid;
+  grid-template-columns: 3.5rem 1fr auto;
+  gap: 0.5rem;
+  align-items: center;
+  padding: 0.5rem 0.75rem;
+  border-radius: 0.4rem;
+  font-size: 0.875rem;
+}
+
+.ar-boulder-row--sent {
+  background: rgba(34, 197, 94, 0.07);
+  border: 1px solid rgba(34, 197, 94, 0.2);
+}
+
+.ar-boulder-row--unsent {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+}
+
+.ar-boulder-grade {
+  font-weight: 600;
+  color: #fff;
+}
+
+.ar-boulder-desc {
+  color: rgba(255, 255, 255, 0.6);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.ar-boulder-result {
+  font-size: 0.8rem;
+  white-space: nowrap;
+}
+
+.ar-boulder-row--sent .ar-boulder-result {
+  color: rgba(34, 197, 94, 0.85);
+}
+
+.ar-boulder-row--unsent .ar-boulder-result {
+  color: rgba(255, 255, 255, 0.4);
+}
+
+.ar-injury-notes {
+  margin: 0.5rem 0 0;
+  font-size: 0.825rem;
+  color: rgba(255, 255, 255, 0.55);
+  font-style: italic;
+}
+
+/* Summary inline metrics used in training-center page card */
+.ar-summary-metrics {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.ar-summary-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  padding: 0.45rem 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.ar-summary-row:last-child {
+  border-bottom: none;
+}
+
+.ar-summary-label {
+  font-size: 0.825rem;
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.ar-summary-value {
+  font-size: 0.925rem;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.ar-summary-value--target {
+  color: rgba(99, 179, 237, 0.9);
+}
+
+/* Day-mode overrides */
+.community-page.day-mode .ar-week-tab {
+  border-color: rgba(0, 0, 0, 0.2);
+  color: rgba(0, 0, 0, 0.5);
+}
+.community-page.day-mode .ar-week-tab:hover,
+.community-page.day-mode .ar-week-tab--active {
+  border-color: rgba(0, 0, 0, 0.4);
+  color: rgba(0, 0, 0, 0.8);
+}
+.community-page.day-mode .ar-week-tab--active {
+  background: rgba(0, 0, 0, 0.08);
+}
+.community-page.day-mode .ar-date-note {
+  color: rgba(0, 0, 0, 0.35);
+}
+.community-page.day-mode .ar-section-title {
+  color: rgba(0, 0, 0, 0.4);
+  border-bottom-color: rgba(0, 0, 0, 0.08);
+}
+.community-page.day-mode .ar-boulder-grade { color: #1a1a1a; }
+.community-page.day-mode .ar-boulder-desc { color: rgba(0, 0, 0, 0.55); }
+.community-page.day-mode .ar-injury-notes { color: rgba(0, 0, 0, 0.45); }
+.community-page.day-mode .ar-summary-label { color: rgba(0, 0, 0, 0.45); }
+.community-page.day-mode .ar-summary-value { color: rgba(0, 0, 0, 0.85); }
+.community-page.day-mode .ar-summary-row {
+  border-bottom-color: rgba(0, 0, 0, 0.06);
+}
+
 /* Hang Timer in Assessment */
 .training-hang-timer-container {
   margin: 2rem 0;

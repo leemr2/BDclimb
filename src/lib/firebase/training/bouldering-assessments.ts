@@ -11,7 +11,6 @@ import {
   getDocs,
   query,
   where,
-  orderBy,
   Timestamp,
 } from "firebase/firestore";
 import { db } from "@/lib/firebase/client";
@@ -66,7 +65,11 @@ export async function getAssessment(
 }
 
 /**
- * Get all assessments for a specific program.
+ * Get all assessments for a specific program, ordered by week ascending.
+ * We intentionally avoid orderBy("week") in the Firestore query because that
+ * combination with where("programId", "==", ...) requires a composite index.
+ * Programs have at most 4 assessments (weeks 0, 4, 8, 12), so in-memory sort
+ * is trivial and avoids the index deployment requirement.
  */
 export async function getAssessmentsForProgram(
   userId: string,
@@ -80,14 +83,14 @@ export async function getAssessmentsForProgram(
   );
   const q = query(
     assessmentsRef,
-    where("programId", "==", programId),
-    orderBy("week", "asc")
+    where("programId", "==", programId)
   );
 
   const snapshot = await getDocs(q);
-  return snapshot.docs.map(
+  const assessments = snapshot.docs.map(
     (doc) => ({ id: doc.id, ...doc.data() } as BoulderingAssessment)
   );
+  return assessments.sort((a, b) => a.week - b.week);
 }
 
 /**
