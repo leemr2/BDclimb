@@ -316,7 +316,7 @@ export function MaxHangLogger({
             onClick={() => handleLogSet(logLoad, logHeldClean, logPain, logNotes)}
             className="training-timer-btn"
           >
-            {currentSet >= totalSets - 1 ? "Complete drill" : "Next set"}
+            {currentSet >= totalSets - 1 ? "Complete drill" : "Save and Next"}
           </button>
           {currentSet < totalSets - 1 && (
             <button
