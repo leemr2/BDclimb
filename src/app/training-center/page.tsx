@@ -206,18 +206,26 @@ export default function TrainingCenterPage() {
           </div>
         )}
 
-        <Link
-          href={
-            isWeekZero
-              ? "/training-center/assessment"
-              : "/training-center/dashboard"
-          }
-          className="tc-program-cta training-center-cta"
-        >
-          {isWeekZero
-            ? "Continue Assessment →"
-            : "Start Next Workout →"}
-        </Link>
+        <div className="tc-program-actions">
+          <Link
+            href={
+              isWeekZero
+                ? "/training-center/assessment"
+                : "/training-center/dashboard"
+            }
+            className="tc-program-cta training-center-cta"
+          >
+            {isWeekZero ? "Continue Assessment →" : "Start Next Workout →"}
+          </Link>
+          {!isWeekZero && (
+            <Link
+              href="/training-center/workout/custom"
+              className="tc-program-custom-btn"
+            >
+              Custom Workout
+            </Link>
+          )}
+        </div>
       </section>
 
       {/* ── Quick Stats ──────────────────────────────────────── */}
