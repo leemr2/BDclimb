@@ -406,45 +406,52 @@ export default function TrainingCenterPage() {
               </p>
             </div>
           ) : (
-            <div className="ar-summary-metrics">
-              <div className="ar-summary-row">
-                <span className="ar-summary-label">Max hang</span>
-                <span className="ar-summary-value">
-                  {latestAssessment.maxHang.bestLoad}{" "}
-                  {program.goalType === "bouldering" ? "lbs" : "lbs"}
-                  <span style={{ fontWeight: 400, color: "rgba(255,255,255,0.45)", fontSize: "0.8rem", marginLeft: "0.35rem" }}>
-                    ({latestAssessment.maxHang.percentBodyweight.toFixed(1)}% BW)
-                  </span>
+            <div className="tc-assessment-bubbles">
+              <div className="tc-assessment-bubble">
+                <span className="tc-assessment-bubble-label">Max Hang</span>
+                <span className="tc-assessment-bubble-value">
+                  {latestAssessment.maxHang.bestLoad}
+                  <span className="tc-assessment-bubble-unit">lbs</span>
+                </span>
+                <span className="tc-assessment-bubble-sub">
+                  {latestAssessment.maxHang.percentBodyweight.toFixed(1)}% BW
                 </span>
               </div>
-              <div className="ar-summary-row">
-                <span className="ar-summary-label">Training target</span>
-                <span className="ar-summary-value ar-summary-value--target">
-                  {Math.round(latestAssessment.maxHang.bestLoad * 0.87)} lbs
+
+              <div className="tc-assessment-bubble tc-assessment-bubble--target">
+                <span className="tc-assessment-bubble-label">Training Target</span>
+                <span className="tc-assessment-bubble-value">
+                  {Math.round(latestAssessment.maxHang.bestLoad * 0.87)}
+                  <span className="tc-assessment-bubble-unit">lbs</span>
                 </span>
+                <span className="tc-assessment-bubble-sub">87% of max hang</span>
               </div>
+
               {latestAssessment.limitBoulders.length > 0 && (
-                <div className="ar-summary-row">
-                  <span className="ar-summary-label">Send rate</span>
-                  <span className="ar-summary-value">
+                <div className="tc-assessment-bubble">
+                  <span className="tc-assessment-bubble-label">Send Rate</span>
+                  <span className="tc-assessment-bubble-value">
                     {Math.round(
                       (latestAssessment.limitBoulders.filter((p) => p.sent).length /
                         latestAssessment.limitBoulders.length) *
                         100
-                    )}%
-                    <span style={{ fontWeight: 400, color: "rgba(255,255,255,0.45)", fontSize: "0.8rem", marginLeft: "0.35rem" }}>
-                      ({latestAssessment.limitBoulders.filter((p) => p.sent).length}/
-                      {latestAssessment.limitBoulders.length} sent)
-                    </span>
+                    )}
+                    <span className="tc-assessment-bubble-unit">%</span>
+                  </span>
+                  <span className="tc-assessment-bubble-sub">
+                    {latestAssessment.limitBoulders.filter((p) => p.sent).length}/
+                    {latestAssessment.limitBoulders.length} sent
                   </span>
                 </div>
               )}
+
               {latestAssessment.campusBoard && (
-                <div className="ar-summary-row">
-                  <span className="ar-summary-label">Campus reach</span>
-                  <span className="ar-summary-value">
-                    Rung {latestAssessment.campusBoard.maxReach.bestRung}
+                <div className="tc-assessment-bubble">
+                  <span className="tc-assessment-bubble-label">Campus Reach</span>
+                  <span className="tc-assessment-bubble-value">
+                    {latestAssessment.campusBoard.maxReach.bestRung}
                   </span>
+                  <span className="tc-assessment-bubble-sub">max rung</span>
                 </div>
               )}
             </div>

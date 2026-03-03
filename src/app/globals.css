@@ -5442,6 +5442,119 @@ a {
   color: rgba(99, 179, 237, 0.9);
 }
 
+/* Assessment result bubbles grid */
+.tc-assessment-bubbles {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.625rem;
+}
+
+.tc-assessment-bubble {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.2rem;
+  padding: 0.875rem 0.625rem 0.75rem;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  text-align: center;
+}
+
+.tc-assessment-bubble--target {
+  background: rgba(99, 179, 237, 0.08);
+  border-color: rgba(99, 179, 237, 0.2);
+}
+
+.tc-assessment-bubble-label {
+  font-size: 0.7rem;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.45);
+}
+
+.tc-assessment-bubble--target .tc-assessment-bubble-label {
+  color: rgba(99, 179, 237, 0.65);
+}
+
+.tc-assessment-bubble-value {
+  font-size: 1.5rem;
+  font-weight: 700;
+  line-height: 1;
+  color: rgba(255, 255, 255, 0.92);
+  display: flex;
+  align-items: baseline;
+  gap: 0.2rem;
+}
+
+.tc-assessment-bubble--target .tc-assessment-bubble-value {
+  color: rgba(99, 179, 237, 0.95);
+}
+
+.tc-assessment-bubble-unit {
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.4);
+}
+
+.tc-assessment-bubble--target .tc-assessment-bubble-unit {
+  color: rgba(99, 179, 237, 0.55);
+}
+
+.tc-assessment-bubble-sub {
+  font-size: 0.7rem;
+  color: rgba(255, 255, 255, 0.35);
+  font-weight: 400;
+}
+
+.tc-assessment-bubble--target .tc-assessment-bubble-sub {
+  color: rgba(99, 179, 237, 0.45);
+}
+
+/* Day-mode overrides for assessment bubbles */
+.community-page.day-mode .tc-assessment-bubble {
+  background: rgba(0, 0, 0, 0.04);
+  border-color: rgba(0, 0, 0, 0.08);
+}
+
+.community-page.day-mode .tc-assessment-bubble--target {
+  background: rgba(59, 130, 246, 0.07);
+  border-color: rgba(59, 130, 246, 0.18);
+}
+
+.community-page.day-mode .tc-assessment-bubble-label {
+  color: rgba(0, 0, 0, 0.45);
+}
+
+.community-page.day-mode .tc-assessment-bubble--target .tc-assessment-bubble-label {
+  color: rgba(37, 99, 235, 0.7);
+}
+
+.community-page.day-mode .tc-assessment-bubble-value {
+  color: rgba(0, 0, 0, 0.85);
+}
+
+.community-page.day-mode .tc-assessment-bubble--target .tc-assessment-bubble-value {
+  color: rgba(37, 99, 235, 0.9);
+}
+
+.community-page.day-mode .tc-assessment-bubble-unit {
+  color: rgba(0, 0, 0, 0.35);
+}
+
+.community-page.day-mode .tc-assessment-bubble--target .tc-assessment-bubble-unit {
+  color: rgba(37, 99, 235, 0.5);
+}
+
+.community-page.day-mode .tc-assessment-bubble-sub {
+  color: rgba(0, 0, 0, 0.35);
+}
+
+.community-page.day-mode .tc-assessment-bubble--target .tc-assessment-bubble-sub {
+  color: rgba(37, 99, 235, 0.45);
+}
+
 /* Day-mode overrides */
 .community-page.day-mode .ar-week-tab {
   border-color: rgba(0, 0, 0, 0.2);

@@ -140,8 +140,8 @@ export default function AssessmentPage() {
         </div>
 
         <div className="training-assessment-actions">
-          <Link href="/training-center/dashboard" className="training-center-cta">
-            Go to Dashboard
+          <Link href="/training-center" className="training-center-cta">
+            Go to Training Center
           </Link>
         </div>
       </div>

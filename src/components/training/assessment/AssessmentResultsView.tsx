@@ -1,10 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import type {
-  BoulderingAssessment,
-  LimitBoulderProblem,
-} from "@/lib/plans/bouldering/types";
+import type { BoulderingAssessment } from "@/lib/plans/bouldering/types";
 
 interface Props {
   assessments: BoulderingAssessment[];
@@ -33,7 +30,7 @@ function gripLabel(g: string): string {
   return g;
 }
 
-function sendRateFromProblems(problems: LimitBoulderProblem[]): {
+function sendRateFromProblems(problems: BoulderingAssessment["limitBoulders"]): {
   sent: number;
   total: number;
   rate: number;
@@ -150,25 +147,6 @@ export function AssessmentResultsView({ assessments, weightUnit }: Props) {
             </p>
           </div>
         </div>
-
-        {a.limitBoulders.length > 0 && (
-          <div className="ar-boulder-list">
-            {a.limitBoulders.map((p, i) => (
-              <div
-                key={i}
-                className={`ar-boulder-row ${p.sent ? "ar-boulder-row--sent" : "ar-boulder-row--unsent"}`}
-              >
-                <span className="ar-boulder-grade">{p.grade}</span>
-                <span className="ar-boulder-desc">
-                  {p.problemDescription || p.style}
-                </span>
-                <span className="ar-boulder-result">
-                  {p.sent ? `Sent · ${p.attemptsToSend} att.` : "Working"}
-                </span>
-              </div>
-            ))}
-          </div>
-        )}
       </div>
 
       {/* ── Campus Board (optional) ───────────────────── */}
