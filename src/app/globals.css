@@ -3244,6 +3244,118 @@ a {
   border-bottom: 1px solid rgba(255, 255, 255, 0.12);
 }
 
+/* Morning check-in page */
+.training-checkin-page {
+  padding: 1rem 0;
+  max-width: 480px;
+  margin: 0 auto;
+}
+.training-checkin-page-title {
+  margin: 0 0 1.25rem;
+  font-size: 1.5rem;
+  color: rgba(255, 255, 255, 0.95);
+}
+.training-checkin-form-wrap {
+  padding: 1rem 0;
+}
+.training-checkin-intro {
+  margin: 0 0 1.5rem;
+  font-size: 0.9rem;
+  color: rgba(255, 255, 255, 0.65);
+  line-height: 1.5;
+}
+.training-checkin-form .training-form-group {
+  margin-bottom: 1.25rem;
+}
+.training-form-label {
+  display: block;
+  margin-bottom: 0.35rem;
+  font-size: 0.9rem;
+  color: rgba(255, 255, 255, 0.85);
+}
+.training-checkin-checkboxes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1rem;
+  margin-top: 0.35rem;
+}
+.training-checkin-check {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.9rem;
+  cursor: pointer;
+}
+.training-checkin-error {
+  margin: 0 0 1rem;
+  padding: 0.5rem 0.75rem;
+  background: rgba(220, 38, 38, 0.2);
+  border-radius: 0.5rem;
+  font-size: 0.9rem;
+  color: rgb(248, 113, 113);
+}
+.training-checkin-actions {
+  display: flex;
+  gap: 0.75rem;
+  margin-top: 1.5rem;
+}
+.training-btn-secondary {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+}
+.training-btn-secondary:hover {
+  background: rgba(255, 255, 255, 0.15);
+}
+
+/* Safety flags */
+.tc-safety-ok {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  align-items: flex-start;
+}
+.tc-safety-ok-icon {
+  color: rgba(255, 255, 255, 0.4);
+  font-size: 1rem;
+}
+.tc-checkin-done {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+.tc-checkin-done-icon {
+  color: rgba(255, 255, 255, 0.4);
+  font-size: 1rem;
+}
+.tc-safety-flags {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+.tc-safety-flag {
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
+  border-left: 4px solid;
+}
+.tc-safety-flag--red {
+  background: rgba(220, 38, 38, 0.15);
+  border-left-color: rgb(220, 38, 38);
+}
+.tc-safety-flag--yellow {
+  background: rgba(234, 179, 8, 0.15);
+  border-left-color: rgb(234, 179, 8);
+}
+.tc-safety-flag-message {
+  display: block;
+  font-size: 0.9rem;
+  margin-bottom: 0.25rem;
+}
+.tc-safety-flag-action {
+  margin: 0;
+  font-size: 0.8rem;
+  opacity: 0.9;
+}
+
 /* Profile card */
 .tc-profile-list {
   margin: 0;
@@ -4539,6 +4651,13 @@ a {
 .training-antagonist-exercise,
 .training-core-exercise { display: grid; gap: 0.5rem; margin-bottom: 1rem; }
 .training-progress-comparison { font-size: 0.85rem; color: rgba(255, 255, 255, 0.65); margin-bottom: 0.75rem; }
+.training-progression-inline { font-size: 0.85rem; color: rgba(255, 255, 255, 0.7); margin-bottom: 0.75rem; padding: 0.5rem 0.75rem; background: rgba(255, 255, 255, 0.06); border-radius: 0.5rem; }
+.training-progression-inline-label { font-weight: 600; color: rgba(255, 255, 255, 0.9); }
+.training-progression-tip { padding: 0.75rem 1rem; border-radius: 0.5rem; margin-top: 0.5rem; }
+.training-progression-tip--increase { background: rgba(34, 197, 94, 0.15); border-left: 4px solid rgb(34, 197, 94); }
+.training-progression-tip--maintain { background: rgba(255, 255, 255, 0.06); border-left: 4px solid rgba(255, 255, 255, 0.3); }
+.training-progression-message { margin: 0 0 0.25rem; font-size: 0.9rem; }
+.training-progression-load { margin: 0; font-size: 0.85rem; opacity: 0.9; }
 
 /* Workout summary */
 .training-workout-summary { padding: 1.5rem; }

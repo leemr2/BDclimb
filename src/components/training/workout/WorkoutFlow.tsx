@@ -50,6 +50,8 @@ export function WorkoutFlow() {
     dispatch,
     bodyweight,
     weightUnit,
+    progressionSuggestion,
+    targetLoadForMaxHang,
   } = useWorkout();
 
   const durationMinutes = useMemo(() => {
@@ -226,10 +228,12 @@ export function WorkoutFlow() {
         return (
           <MaxHangLogger
             drill={currentDrill}
+            targetLoad={targetLoadForMaxHang}
             bodyweight={bodyweight}
             weightUnit={weightUnit}
             initialSet={resumeSet}
             initialSetData={partialSets}
+            progressionSuggestion={progressionSuggestion ?? undefined}
             onComplete={onComplete}
           />
         );

@@ -4,6 +4,7 @@ import { useState, useCallback } from "react";
 import { Timestamp } from "firebase/firestore";
 import { useWorkout } from "@/lib/hooks/training/useWorkout";
 import type { DrillDefinition, MaxHangData } from "@/lib/plans/bouldering/types";
+import type { ProgressionSuggestion } from "@/lib/calculations/progression";
 import { NumberSlider } from "@/components/training/ui/NumberSlider";
 import { HangTimer } from "./HangTimer";
 import { RestTimer } from "./RestTimer";
@@ -30,6 +31,8 @@ export interface MaxHangLoggerProps {
   initialSet?: number;
   /** Previously logged set data when resuming a partial drill. */
   initialSetData?: PartialSetData[];
+  /** Optional progression tip from recent sessions (shown on last set). */
+  progressionSuggestion?: ProgressionSuggestion | null;
   onComplete: (data: MaxHangData) => void;
 }
 
@@ -53,6 +56,7 @@ export function MaxHangLogger({
   weightUnit = "lbs",
   initialSet = 0,
   initialSetData,
+  progressionSuggestion,
   onComplete,
 }: MaxHangLoggerProps) {
   const { dispatch, currentDrillIndex, persistDrills, drills } = useWorkout();
@@ -310,6 +314,12 @@ export function MaxHangLogger({
             className="training-form-group input"
           />
         </label>
+        {currentSet >= totalSets - 1 && progressionSuggestion && (
+          <div className="training-progression-inline">
+            <span className="training-progression-inline-label">Tip:</span>{" "}
+            {progressionSuggestion.message}
+          </div>
+        )}
         <div className="training-drill-btn-row">
           <button
             type="button"

@@ -10,10 +10,19 @@ import { usePlan } from "@/lib/hooks/training/usePlan";
 import { getWeekDefinition } from "@/lib/plans/bouldering/planEngine";
 import type { BoulderingFrequency } from "@/lib/plans/bouldering/planEngine";
 import { updateActiveProgram, cancelProgram } from "@/lib/firebase/training/program";
+import { getCompletedWorkouts } from "@/lib/firebase/training/bouldering-workouts";
+import { getAssessmentsForProgram } from "@/lib/firebase/training/bouldering-assessments";
+import { getKeyMetrics } from "@/lib/calculations/metrics";
+import {
+  getRecentMaxHangSessions,
+  evaluateMaxHangProgression,
+  type ProgressionSuggestion,
+} from "@/lib/calculations/progression";
 import { DashboardHeader } from "@/components/training/dashboard/DashboardHeader";
 import { TodayWorkoutCard } from "@/components/training/dashboard/TodayWorkoutCard";
 import { WeekSchedule } from "@/components/training/dashboard/WeekSchedule";
 import { KeyMetrics } from "@/components/training/dashboard/KeyMetrics";
+import { ProgressionCard } from "@/components/training/dashboard/ProgressionCard";
 
 export default function DashboardPage() {
   const { user, loading: authLoading } = useAuth();
@@ -23,6 +32,11 @@ export default function DashboardPage() {
   const [isAdvancing, setIsAdvancing] = useState(false);
   const [showCancelConfirm, setShowCancelConfirm] = useState(false);
   const [isCancelling, setIsCancelling] = useState(false);
+  const [progressionSuggestion, setProgressionSuggestion] =
+    useState<ProgressionSuggestion | null>(null);
+  const [progressionLoading, setProgressionLoading] = useState(false);
+  const [keyMetrics, setKeyMetrics] = useState<ReturnType<typeof getKeyMetrics> | null>(null);
+  const [keyMetricsLoading, setKeyMetricsLoading] = useState(false);
 
   async function handleAdvanceWeek() {
     if (!user || !program || program.currentWeek >= 12 || isAdvancing) return;
@@ -87,6 +101,45 @@ export default function DashboardPage() {
       router.replace("/training-center");
     }
   }, [authLoading, programLoading, user, program, router]);
+
+  useEffect(() => {
+    if (!user?.uid || !program || program.goalType !== "bouldering") {
+      setProgressionSuggestion(null);
+      return;
+    }
+    const programId = (program.startDate as { toMillis?: () => number })?.toMillis
+      ? (program.startDate as { toMillis: () => number }).toMillis().toString()
+      : String(program.startDate);
+    setProgressionLoading(true);
+    getCompletedWorkouts(user.uid, programId, 20)
+      .then((workouts) => {
+        const sessions = getRecentMaxHangSessions(workouts, 2);
+        const chronological = [...sessions].reverse();
+        setProgressionSuggestion(evaluateMaxHangProgression(chronological));
+      })
+      .catch(() => setProgressionSuggestion(null))
+      .finally(() => setProgressionLoading(false));
+  }, [user?.uid, program?.startDate, program?.goalType]);
+
+  useEffect(() => {
+    if (!user?.uid || !program || program.goalType !== "bouldering") {
+      setKeyMetrics(null);
+      return;
+    }
+    const programId = (program.startDate as { toMillis?: () => number })?.toMillis
+      ? (program.startDate as { toMillis: () => number }).toMillis().toString()
+      : String(program.startDate);
+    setKeyMetricsLoading(true);
+    Promise.all([
+      getAssessmentsForProgram(user.uid, programId),
+      getCompletedWorkouts(user.uid, programId, 100),
+    ])
+      .then(([assessments, workouts]) => {
+        setKeyMetrics(getKeyMetrics(assessments, workouts));
+      })
+      .catch(() => setKeyMetrics(null))
+      .finally(() => setKeyMetricsLoading(false));
+  }, [user?.uid, program?.startDate, program?.goalType]);
 
   if (authLoading || programLoading) {
     return (
@@ -186,7 +239,13 @@ export default function DashboardPage() {
           )}
         </div>
       )}
-      <KeyMetrics />
+      <KeyMetrics metrics={keyMetrics} loading={keyMetricsLoading} />
+      {!isWeekZero && (
+        <ProgressionCard
+          suggestion={progressionSuggestion}
+          loading={progressionLoading}
+        />
+      )}
 
       <div className="training-stop-cycle-wrap">
         <button

@@ -9,7 +9,9 @@ import { useActiveProgram } from "@/lib/hooks/training/useActiveProgram";
 import { getWeekDefinition, getSessionWithDrills } from "@/lib/plans/bouldering/planEngine";
 import type { ActiveProgram } from "@/lib/firebase/training/program";
 import { createWorkout } from "@/lib/firebase/training/bouldering-workouts";
+import { getLatestAssessment } from "@/lib/firebase/training/bouldering-assessments";
 import { getTrainingProfile, type TrainingProfile } from "@/lib/firebase/training/profile";
+import { getTargetLoad } from "@/lib/calculations/metrics";
 import { WorkoutProvider } from "@/components/training/workout/WorkoutProvider";
 import { WorkoutFlow } from "@/components/training/workout/WorkoutFlow";
 
@@ -31,6 +33,7 @@ export default function WorkoutPage({
   const [starting, setStarting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [trainingProfile, setTrainingProfile] = useState<TrainingProfile | null>(null);
+  const [targetLoadForMaxHang, setTargetLoadForMaxHang] = useState<number>(0);
 
   useEffect(() => {
     params.then((p) => setSessionId(p.sessionId));
@@ -51,6 +54,17 @@ export default function WorkoutPage({
       getTrainingProfile(user.uid).then(setTrainingProfile);
     }
   }, [user?.uid]);
+
+  useEffect(() => {
+    if (!user?.uid || !program || program.goalType !== "bouldering") return;
+    const programId = getProgramId(program);
+    getLatestAssessment(user.uid, programId)
+      .then((assessment) => {
+        const load = getTargetLoad(assessment, 0.87);
+        setTargetLoadForMaxHang(load ?? 0);
+      })
+      .catch(() => setTargetLoadForMaxHang(0));
+  }, [user?.uid, program?.startDate, program?.goalType]);
 
   const parsedSession = useMemo(() => {
     if (!sessionId) return null;
@@ -203,6 +217,7 @@ export default function WorkoutPage({
         userId={user.uid}
         bodyweight={trainingProfile?.weight ?? 150}
         weightUnit={trainingProfile?.weightUnit ?? "lbs"}
+        targetLoadForMaxHang={targetLoadForMaxHang}
       >
         <WorkoutFlow />
       </WorkoutProvider>

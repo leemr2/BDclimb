@@ -5,6 +5,9 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useAuth } from "@/lib/firebase/auth";
 import { useActiveProgram } from "@/lib/hooks/training/useActiveProgram";
+import { useSafety } from "@/lib/hooks/training/useSafety";
+import { useTodaysCheckin } from "@/lib/hooks/training/useCheckin";
+import { useRecentCheckinsForSafety } from "@/lib/hooks/training/useCheckin";
 import {
   getCompletedWorkoutsAll,
   type BoulderingWorkout,
@@ -97,6 +100,9 @@ export default function TrainingCenterPage() {
     Array<BoulderingWorkout & { id: string }>
   >([]);
   const [workoutsLoading, setWorkoutsLoading] = useState(false);
+  const recentCheckins = useRecentCheckinsForSafety(14);
+  const { flags: safetyFlags, loading: safetyLoading } = useSafety(recentCheckins);
+  const { checkin: todaysCheckin, loading: checkinLoading } = useTodaysCheckin();
 
   useEffect(() => {
     if (!authLoading && !user) {
@@ -300,20 +306,41 @@ export default function TrainingCenterPage() {
           )}
         </section>
 
-        {/* Morning Check-in — Phase 3 */}
+        {/* Morning Check-in */}
         <section className="tc-section tc-section--checkin">
           <div className="tc-section-header">
             <h3 className="tc-section-title">Morning Check-in</h3>
-            <span className="tc-phase-badge">Phase 3</span>
           </div>
-          <div className="tc-placeholder">
-            <div className="tc-placeholder-icon">📋</div>
-            <p className="tc-placeholder-text">
-              Daily check-ins will track sleep, soreness, and readiness so the
-              program can flag recovery issues and auto-adjust load before it
-              becomes an injury.
-            </p>
-          </div>
+          {checkinLoading ? (
+            <p className="tc-section-empty">Loading…</p>
+          ) : todaysCheckin ? (
+            <div className="tc-checkin-done">
+              <span className="tc-checkin-done-icon" aria-hidden>✓</span>
+              <p className="tc-placeholder-text">
+                Done for today. Fingers {todaysCheckin.fingerStiffness}/10
+                stiffness, {todaysCheckin.readinessForTraining}/5 readiness.
+              </p>
+              <Link
+                href="/training-center/checkin"
+                className="tc-placeholder-link"
+              >
+                Update check-in →
+              </Link>
+            </div>
+          ) : (
+            <div className="tc-placeholder">
+              <p className="tc-placeholder-text">
+                Quick daily check: sleep, soreness, and readiness so the program
+                can flag recovery issues.
+              </p>
+              <Link
+                href="/training-center/checkin"
+                className="training-center-cta"
+              >
+                Do today&apos;s check-in →
+              </Link>
+            </div>
+          )}
         </section>
 
         {/* Progress Charts — Phase 4 */}
@@ -366,16 +393,31 @@ export default function TrainingCenterPage() {
         <section className="tc-section tc-section--safety">
           <div className="tc-section-header">
             <h3 className="tc-section-title">Safety &amp; Load Flags</h3>
-            <span className="tc-phase-badge">Phase 3</span>
           </div>
-          <div className="tc-placeholder">
-            <div className="tc-placeholder-icon">🚦</div>
-            <p className="tc-placeholder-text">
-              Auto-calculated sRPE load trends, weekly load spikes, and finger
-              pain flags surface here so you can catch overtraining before it
-              causes injury.
-            </p>
-          </div>
+          {safetyLoading ? (
+            <p className="tc-section-empty">Checking…</p>
+          ) : safetyFlags.length === 0 ? (
+            <div className="tc-safety-ok">
+              <span className="tc-safety-ok-icon" aria-hidden>✓</span>
+              <p className="tc-placeholder-text">
+                No flags this week. Auto-calculated sRPE load trends, weekly
+                load spikes, and finger pain flags will surface here when
+                relevant.
+              </p>
+            </div>
+          ) : (
+            <div className="tc-safety-flags">
+              {safetyFlags.map((f) => (
+                <div
+                  key={f.id}
+                  className={`tc-safety-flag tc-safety-flag--${f.severity}`}
+                >
+                  <strong className="tc-safety-flag-message">{f.message}</strong>
+                  <p className="tc-safety-flag-action">{f.action}</p>
+                </div>
+              ))}
+            </div>
+          )}
         </section>
 
         {/* Training Profile */}
