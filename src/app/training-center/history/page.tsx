@@ -50,7 +50,7 @@ export default function HistoryPage() {
   return (
     <div className="training-history">
       <div className="training-history-header">
-        <Link href="/training-center/dashboard" className="training-center-cta">
+        <Link href="/training-center" className="training-center-cta">
           Back to dashboard
         </Link>
         <h2 className="training-history-title">Workout history</h2>
