@@ -3253,7 +3253,6 @@ a {
 .training-checkin-page-title {
   margin: 0 0 1.25rem;
   font-size: 1.5rem;
-  color: rgba(255, 255, 255, 0.95);
 }
 .training-checkin-form-wrap {
   padding: 1rem 0;
@@ -3261,7 +3260,6 @@ a {
 .training-checkin-intro {
   margin: 0 0 1.5rem;
   font-size: 0.9rem;
-  color: rgba(255, 255, 255, 0.65);
   line-height: 1.5;
 }
 .training-checkin-form .training-form-group {
@@ -3271,7 +3269,6 @@ a {
   display: block;
   margin-bottom: 0.35rem;
   font-size: 0.9rem;
-  color: rgba(255, 255, 255, 0.85);
 }
 .training-checkin-checkboxes {
   display: flex;
@@ -3285,6 +3282,12 @@ a {
   gap: 0.35rem;
   font-size: 0.9rem;
   cursor: pointer;
+}
+.community-page:not(.day-mode) .training-checkin-intro {
+  color: rgba(255, 255, 255, 0.65);
+}
+.community-page:not(.day-mode) .training-form-label {
+  color: rgba(255, 255, 255, 0.85);
 }
 .training-checkin-error {
   margin: 0 0 1rem;
@@ -3305,6 +3308,23 @@ a {
 }
 .training-btn-secondary:hover {
   background: rgba(255, 255, 255, 0.15);
+}
+
+.community-page.day-mode .training-checkin-intro {
+  color: #555;
+}
+.community-page.day-mode .training-form-label {
+  color: #333;
+}
+.community-page.day-mode .training-checkin-check {
+  color: #333;
+}
+.community-page.day-mode .training-btn-secondary {
+  background: rgba(0, 0, 0, 0.05);
+  border-color: rgba(0, 0, 0, 0.15);
+}
+.community-page.day-mode .training-btn-secondary:hover {
+  background: rgba(0, 0, 0, 0.08);
 }
 
 /* Safety flags */
