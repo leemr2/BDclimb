@@ -492,20 +492,18 @@ export default function TrainingCenterPage() {
         {/* Training Profile */}
         <ProfileCard frequency={program.frequency} />
 
-        {/* Education — Phase 4 */}
+        {/* Education */}
         <section className="tc-section tc-section--education">
           <div className="tc-section-header">
             <h3 className="tc-section-title">Education</h3>
-            <span className="tc-phase-badge">Phase 4</span>
           </div>
-          <div className="tc-placeholder">
-            <div className="tc-placeholder-icon">📚</div>
-            <p className="tc-placeholder-text">
-              Training science articles unlocked at key milestones: why max
-              strength comes first, the deload week explained, power/RFD phase
-              overview, and more.
-            </p>
-          </div>
+          <p className="tc-placeholder-text">
+            Training science articles for max strength, deload weeks, power/RFD,
+            and more — unlocked at milestones and always in the library.
+          </p>
+          <Link href="/training-center/education" className="training-center-cta">
+            Browse education library →
+          </Link>
         </section>
       </div>
     </div>

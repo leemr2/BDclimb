@@ -178,6 +178,11 @@ export default function DashboardPage() {
       >
         ← Training Home
       </Link>
+      <div className="training-dashboard-top-links">
+        <Link href="/training-center/education" className="training-dashboard-education-link">
+          Education library
+        </Link>
+      </div>
       <DashboardHeader program={program} />
       {isWeekZero && (
         <div className="training-week-zero-cta">

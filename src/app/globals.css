@@ -3913,6 +3913,31 @@ a {
   color: rgba(0, 0, 0, 0.8);
 }
 
+.training-dashboard-top-links {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 0.5rem;
+}
+
+.training-dashboard-education-link {
+  font-size: 0.825rem;
+  color: rgba(96, 165, 250, 0.9);
+  text-decoration: none;
+  transition: color 0.15s;
+}
+
+.training-dashboard-education-link:hover {
+  color: rgba(147, 197, 253, 1);
+}
+
+.community-page.day-mode .training-dashboard-education-link {
+  color: #2563eb;
+}
+
+.community-page.day-mode .training-dashboard-education-link:hover {
+  color: #1d4ed8;
+}
+
 .training-dashboard-header {
   margin-bottom: 0.25rem;
 }
@@ -6820,4 +6845,192 @@ a {
 .community-page.day-mode .training-week-zero-try {
   color: #555;
   border-color: #e5e7eb;
+}
+
+/* --- Education library & articles --- */
+.education-library-page,
+.education-article-page {
+  width: 100%;
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 0.5rem 0 2rem;
+}
+
+.education-page-nav {
+  margin-bottom: 1.25rem;
+}
+
+.education-library-header {
+  margin-bottom: 1.5rem;
+}
+
+.education-library-title,
+.education-article-title {
+  margin: 0 0 0.5rem;
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.95);
+}
+
+.education-library-subtitle,
+.education-article-subtitle {
+  margin: 0 0 0.5rem;
+  font-size: 0.95rem;
+  color: rgba(255, 255, 255, 0.65);
+  line-height: 1.5;
+}
+
+.education-article-meta,
+.education-card-meta {
+  font-size: 0.8rem;
+  color: rgba(255, 255, 255, 0.45);
+}
+
+.education-library-grid {
+  display: grid;
+  gap: 1rem;
+}
+
+.education-card {
+  display: block;
+  padding: 1.25rem;
+  background: rgba(0, 0, 0, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 0.75rem;
+  text-decoration: none;
+  transition: border-color 0.15s, background 0.15s;
+}
+
+.education-card:hover {
+  border-color: rgba(96, 165, 250, 0.4);
+  background: rgba(0, 0, 0, 0.5);
+}
+
+.education-card-title {
+  margin: 0 0 0.35rem;
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.95);
+}
+
+.education-card-subtitle {
+  margin: 0 0 0.75rem;
+  font-size: 0.875rem;
+  color: rgba(255, 255, 255, 0.6);
+  line-height: 1.45;
+}
+
+.education-article-header {
+  margin-bottom: 1.5rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.education-article-body {
+  font-size: 0.95rem;
+  line-height: 1.65;
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.education-article-body h2 {
+  margin: 1.75rem 0 0.65rem;
+  font-size: 1.15rem;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.95);
+}
+
+.education-article-body h2:first-child {
+  margin-top: 0;
+}
+
+.education-article-body p {
+  margin: 0 0 1rem;
+}
+
+.education-article-takeaways {
+  margin-top: 2rem;
+  padding: 1.25rem;
+  background: rgba(59, 130, 246, 0.08);
+  border: 1px solid rgba(59, 130, 246, 0.25);
+  border-radius: 0.75rem;
+}
+
+.education-takeaways-title {
+  margin: 0 0 0.75rem;
+  font-size: 1rem;
+  font-weight: 600;
+  color: rgba(147, 197, 253, 0.95);
+}
+
+.education-takeaways-list {
+  margin: 0;
+  padding-left: 1.25rem;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.education-takeaways-list li {
+  margin-bottom: 0.5rem;
+  line-height: 1.5;
+}
+
+.education-takeaways-list li:last-child {
+  margin-bottom: 0;
+}
+
+.community-page.day-mode .education-library-title,
+.community-page.day-mode .education-article-title {
+  color: #1a1a1a;
+}
+
+.community-page.day-mode .education-library-subtitle,
+.community-page.day-mode .education-article-subtitle {
+  color: #555;
+}
+
+.community-page.day-mode .education-article-meta,
+.community-page.day-mode .education-card-meta {
+  color: #888;
+}
+
+.community-page.day-mode .education-card {
+  background: #f8f9fa;
+  border-color: #eaeaea;
+}
+
+.community-page.day-mode .education-card:hover {
+  border-color: #93c5fd;
+  background: #f3f4f6;
+}
+
+.community-page.day-mode .education-card-title {
+  color: #1a1a1a;
+}
+
+.community-page.day-mode .education-card-subtitle {
+  color: #555;
+}
+
+.community-page.day-mode .education-article-header {
+  border-color: #e5e7eb;
+}
+
+.community-page.day-mode .education-article-body {
+  color: #333;
+}
+
+.community-page.day-mode .education-article-body h2 {
+  color: #1a1a1a;
+}
+
+.community-page.day-mode .education-article-takeaways {
+  background: rgba(59, 130, 246, 0.07);
+  border-color: rgba(59, 130, 246, 0.2);
+}
+
+.community-page.day-mode .education-takeaways-title {
+  color: #1e40af;
+}
+
+.community-page.day-mode .education-takeaways-list {
+  color: #374151;
 }
