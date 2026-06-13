@@ -7,6 +7,7 @@ import {
   collection,
   doc,
   setDoc,
+  updateDoc,
   getDoc,
   getDocs,
   query,
@@ -14,7 +15,7 @@ import {
   Timestamp,
 } from "firebase/firestore";
 import { db } from "@/lib/firebase/client";
-import type { BoulderingAssessment } from "@/lib/plans/bouldering/types";
+import type { BoulderingAssessment, MaxHangAssessment } from "@/lib/plans/bouldering/types";
 
 /**
  * Create a new assessment document.
@@ -120,6 +121,48 @@ export async function getAssessmentForWeek(
 
   const doc = snapshot.docs[0];
   return { id: doc.id, ...doc.data() } as BoulderingAssessment;
+}
+
+/**
+ * Save max hang retest results into the assessment for a test week (4, 8, or 12).
+ * Creates a partial assessment if none exists yet for that week.
+ */
+export async function upsertAssessmentMaxHang(
+  userId: string,
+  programId: string,
+  week: number,
+  maxHang: MaxHangAssessment
+): Promise<void> {
+  const existing = await getAssessmentForWeek(userId, programId, week);
+
+  if (existing?.id) {
+    const assessmentRef = doc(
+      db,
+      "users",
+      userId,
+      "boulderingAssessments",
+      existing.id
+    );
+    await updateDoc(assessmentRef, { maxHang });
+    return;
+  }
+
+  const latest = await getLatestAssessment(userId, programId);
+  await createAssessment(userId, {
+    programId,
+    week,
+    maxHang,
+    campusBoard: latest?.campusBoard ?? null,
+    limitBoulders: latest?.limitBoulders ?? [],
+    pullingStrength: latest?.pullingStrength ?? null,
+    injuryBaseline: latest?.injuryBaseline ?? {
+      fingers: {},
+      elbowPain: { left: 0, right: 0 },
+      shoulderPain: { left: 0, right: 0 },
+      morningStiffness: 0,
+      concerns: "",
+    },
+  });
 }
 
 /**

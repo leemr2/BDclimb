@@ -14,6 +14,7 @@ import { getTrainingProfile, type TrainingProfile } from "@/lib/firebase/trainin
 import { getTargetLoad } from "@/lib/calculations/metrics";
 import { WorkoutProvider } from "@/components/training/workout/WorkoutProvider";
 import { WorkoutFlow } from "@/components/training/workout/WorkoutFlow";
+import type { MaxHangAssessment } from "@/lib/plans/bouldering/types";
 
 function getProgramId(program: ActiveProgram): string {
   const start = program.startDate as { toMillis?: () => number };
@@ -34,6 +35,7 @@ export default function WorkoutPage({
   const [error, setError] = useState<string | null>(null);
   const [trainingProfile, setTrainingProfile] = useState<TrainingProfile | null>(null);
   const [targetLoadForMaxHang, setTargetLoadForMaxHang] = useState<number>(0);
+  const [baselineMaxHang, setBaselineMaxHang] = useState<MaxHangAssessment | null>(null);
 
   useEffect(() => {
     params.then((p) => setSessionId(p.sessionId));
@@ -62,8 +64,12 @@ export default function WorkoutPage({
       .then((assessment) => {
         const load = getTargetLoad(assessment, 0.87);
         setTargetLoadForMaxHang(load ?? 0);
+        setBaselineMaxHang(assessment?.maxHang ?? null);
       })
-      .catch(() => setTargetLoadForMaxHang(0));
+      .catch(() => {
+        setTargetLoadForMaxHang(0);
+        setBaselineMaxHang(null);
+      });
   }, [user?.uid, program?.startDate, program?.goalType]);
 
   const parsedSession = useMemo(() => {
@@ -218,6 +224,9 @@ export default function WorkoutPage({
         bodyweight={trainingProfile?.weight ?? 150}
         weightUnit={trainingProfile?.weightUnit ?? "lbs"}
         targetLoadForMaxHang={targetLoadForMaxHang}
+        programId={getProgramId(program)}
+        workoutWeek={parsedSession?.weekNumber ?? program.currentWeek}
+        baselineMaxHang={baselineMaxHang}
       >
         <WorkoutFlow />
       </WorkoutProvider>

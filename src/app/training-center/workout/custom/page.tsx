@@ -19,6 +19,7 @@ import type { DrillType } from "@/lib/plans/bouldering/types";
 const DRILL_TYPE_LABELS: Record<DrillType, string> = {
   warmup: "Warm-Up",
   max_hang: "Max Hangs",
+  max_hang_retest: "Max Hang Retest",
   limit_boulder: "Limit Bouldering",
   campus: "Campus Board",
   pull_up: "Pull-Ups",
@@ -31,6 +32,7 @@ const DRILL_TYPE_LABELS: Record<DrillType, string> = {
 const DRILL_TYPE_ORDER: DrillType[] = [
   "warmup",
   "max_hang",
+  "max_hang_retest",
   "limit_boulder",
   "campus",
   "pull_up",
@@ -66,6 +68,7 @@ function estimateDuration(drills: ReturnType<typeof resolveDrills>): number {
     const mins: Record<DrillType, number> = {
       warmup: 20,
       max_hang: 20,
+      max_hang_retest: 25,
       limit_boulder: 30,
       campus: 20,
       pull_up: 15,

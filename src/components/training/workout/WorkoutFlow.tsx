@@ -4,6 +4,7 @@ import { useMemo } from "react";
 import { useWorkout } from "@/lib/hooks/training/useWorkout";
 import { DrillCard } from "./DrillCard";
 import { MaxHangLogger, type PartialSetData } from "./MaxHangLogger";
+import { MaxHangRetestLogger } from "./MaxHangRetestLogger";
 import { BoulderLogger } from "./BoulderLogger";
 import { CampusLogger } from "./CampusLogger";
 import { PullUpLogger, type PullUpPartialSetData } from "./PullUpLogger";
@@ -19,6 +20,7 @@ import type { DrillDefinition, DrillType } from "@/lib/plans/bouldering/types";
 const DRILL_TYPE_LABEL: Record<DrillType, string> = {
   warmup: "Warm-up",
   max_hang: "Max Hangs",
+  max_hang_retest: "Max Hang Retest",
   limit_boulder: "Limit Bouldering",
   campus: "Campus Board",
   pull_up: "Pull-ups",
@@ -238,6 +240,13 @@ export function WorkoutFlow() {
           />
         );
       }
+      case "max_hang_retest":
+        return (
+          <MaxHangRetestLogger
+            drill={currentDrill}
+            onComplete={onComplete}
+          />
+        );
       case "limit_boulder":
         return <BoulderLogger drill={currentDrill} onComplete={onComplete} />;
       case "campus":

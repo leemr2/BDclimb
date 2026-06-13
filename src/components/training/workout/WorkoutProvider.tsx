@@ -7,7 +7,7 @@ import {
   type ReactNode,
 } from "react";
 import { Timestamp } from "firebase/firestore";
-import type { SessionWithDrills } from "@/lib/plans/bouldering/types";
+import type { MaxHangAssessment, SessionWithDrills } from "@/lib/plans/bouldering/types";
 import type { CompletedDrill } from "@/lib/firebase/training/bouldering-workouts";
 import type { ProgressionSuggestion } from "@/lib/calculations/progression";
 import { updateWorkout } from "@/lib/firebase/training/bouldering-workouts";
@@ -207,6 +207,9 @@ export interface WorkoutContextValue extends WorkoutState {
   persistDrills: (drills: CompletedDrill[]) => Promise<void>;
   progressionSuggestion: ProgressionSuggestion | null;
   targetLoadForMaxHang: number;
+  programId: string;
+  workoutWeek: number;
+  baselineMaxHang: MaxHangAssessment | null;
 }
 
 const WorkoutContext = createContext<WorkoutContextValue | null>(null);
@@ -222,6 +225,10 @@ export interface WorkoutProviderProps {
   progressionSuggestion?: ProgressionSuggestion | null;
   /** Target load for max hang drill (from latest assessment × 0.87). */
   targetLoadForMaxHang?: number;
+  programId?: string;
+  workoutWeek?: number;
+  /** Prior max hang test data — used to pre-fill retest edge/grip defaults. */
+  baselineMaxHang?: MaxHangAssessment | null;
 }
 
 export function WorkoutProvider({
@@ -233,6 +240,9 @@ export function WorkoutProvider({
   weightUnit = "lbs",
   progressionSuggestion = null,
   targetLoadForMaxHang = 0,
+  programId = "",
+  workoutWeek = 1,
+  baselineMaxHang = null,
 }: WorkoutProviderProps) {
   const [state, dispatch] = useReducer(workoutReducer, {
     workoutId,
@@ -265,6 +275,9 @@ export function WorkoutProvider({
     persistDrills,
     progressionSuggestion,
     targetLoadForMaxHang,
+    programId,
+    workoutWeek,
+    baselineMaxHang,
   };
 
   return (

@@ -96,6 +96,7 @@ export type MobilityData = {
 export type DrillType =
   | "warmup"
   | "max_hang"
+  | "max_hang_retest"
   | "limit_boulder"
   | "campus"
   | "pull_up"
@@ -188,6 +189,9 @@ export interface MaxHangAssessment {
   edgeSize: number; // mm (typically 20mm)
   gripType: GripType;
 }
+
+/** Stored in workout drill logs when user completes a max hang retest drill. */
+export type MaxHangRetestData = MaxHangAssessment;
 
 export interface CampusReachAttempt {
   rung: number;

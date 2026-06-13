@@ -448,17 +448,19 @@ const DRILLS: Record<string, Omit<DrillDefinition, "id">> = {
   },
 
   max_hang_retest: {
-    type: "max_hang",
+    type: "max_hang_retest",
     name: "Max Hang Retest",
-    description: "Work up to new 7-second max",
+    description: "Work up to new 7-second max (same protocol as Week 0)",
     instructions: [
-      "Same protocol as Week 0",
-      "Progressive attempts until you find 7s max",
-      "Rest 2+ min between attempts",
+      "Same protocol as your baseline assessment",
+      "Hang on a 20mm edge for 7 seconds per attempt",
+      "Start with bodyweight, then add weight until you find your max",
+      "Rest 3-5 minutes between attempts",
+      "Record your best successful 7-second hang",
     ],
     notes: [],
     isOptional: false,
-    safetyWarnings: ["Full warm-up required before testing"],
+    safetyWarnings: ["Full warm-up required before testing", "Stop if pain > 2/10"],
     progressionRules: [],
   },
 
