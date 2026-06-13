@@ -3,7 +3,14 @@
 import { useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { useWorkout } from "@/lib/hooks/training/useWorkout";
-import { completeWorkout, type CompleteWorkoutInput, type SkinCondition } from "@/lib/firebase/training/bouldering-workouts";
+import { useActiveProgram } from "@/lib/hooks/training/useActiveProgram";
+import {
+  completeWorkout,
+  getCompletedSessionLabelsForWeek,
+  type CompleteWorkoutInput,
+  type SkinCondition,
+} from "@/lib/firebase/training/bouldering-workouts";
+import { advanceProgramWeekIfComplete } from "@/lib/firebase/training/program";
 
 export interface WorkoutSummaryProps {
   /** Duration in minutes (from workout start to now). */
@@ -13,7 +20,8 @@ export interface WorkoutSummaryProps {
 
 export function WorkoutSummary({ durationMinutes, onSaved }: WorkoutSummaryProps) {
   const router = useRouter();
-  const { workoutId, userId } = useWorkout();
+  const { workoutId, userId, programId, workoutWeek } = useWorkout();
+  const { program } = useActiveProgram();
   const [rpe, setRpe] = useState(6);
   const [sessionQuality, setSessionQuality] = useState(3);
   const [fingerPainDuring, setFingerPainDuring] = useState(0);
@@ -36,6 +44,21 @@ export function WorkoutSummary({ durationMinutes, onSaved }: WorkoutSummaryProps
         notes: notes || undefined,
       };
       await completeWorkout(userId, workoutId, summary);
+
+      if (program && programId && workoutWeek > 0) {
+        const completedLabels = await getCompletedSessionLabelsForWeek(
+          userId,
+          programId,
+          workoutWeek
+        );
+        await advanceProgramWeekIfComplete(
+          userId,
+          program,
+          workoutWeek,
+          completedLabels
+        );
+      }
+
       onSaved?.();
       router.push("/training-center/dashboard");
     } catch (e) {
@@ -43,7 +66,20 @@ export function WorkoutSummary({ durationMinutes, onSaved }: WorkoutSummaryProps
     } finally {
       setSaving(false);
     }
-  }, [userId, workoutId, rpe, sessionQuality, fingerPainDuring, skinCondition, notes, router, onSaved]);
+  }, [
+    userId,
+    workoutId,
+    programId,
+    workoutWeek,
+    program,
+    rpe,
+    sessionQuality,
+    fingerPainDuring,
+    skinCondition,
+    notes,
+    router,
+    onSaved,
+  ]);
 
   return (
     <div className="training-workout-summary">

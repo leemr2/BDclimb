@@ -11,6 +11,13 @@ import {
   type Unsubscribe,
 } from "firebase/firestore";
 import { db } from "../client";
+import {
+  getWeekDefinition,
+  isWeekFullyComplete,
+  resolveProgramWeek,
+  type BoulderingFrequency,
+  type WorkoutWeekProgress,
+} from "@/lib/plans/bouldering/planEngine";
 
 export type GoalType =
   | "bouldering"
@@ -31,6 +38,16 @@ export interface ActiveProgram {
 }
 
 const PROGRAM_VERSION = "bouldering-v1";
+
+/** Stable program id derived from startDate (used across workout/assessment queries). */
+export function getProgramId(program: Pick<ActiveProgram, "startDate">): string {
+  const start = program.startDate as { toMillis?: () => number };
+  return (
+    typeof start?.toMillis === "function"
+      ? start.toMillis()
+      : Number(start)
+  ).toString();
+}
 
 /**
  * Start a new training program (sets activeProgram on user doc).
@@ -85,6 +102,54 @@ export async function updateActiveProgram(
   const userRef = doc(db, "users", userId);
   await updateDoc(userRef, {
     activeProgram: { ...current, ...updates },
+  });
+}
+
+/**
+ * After a workout is saved, advance currentWeek when the completed week is fully done.
+ */
+export async function advanceProgramWeekIfComplete(
+  userId: string,
+  program: ActiveProgram,
+  completedWeek: number,
+  completedSessionLabels: string[]
+): Promise<void> {
+  if (program.goalType !== "bouldering" || completedWeek < program.currentWeek) return;
+
+  const frequency = program.frequency as BoulderingFrequency;
+  if (!isWeekFullyComplete(frequency, completedWeek, completedSessionLabels)) return;
+
+  const nextWeek = Math.min(completedWeek + 1, 12);
+  if (nextWeek <= program.currentWeek) return;
+
+  const nextWeekDef = getWeekDefinition(frequency, nextWeek);
+  await updateActiveProgram(userId, {
+    currentWeek: nextWeek,
+    currentMesocycle: nextWeekDef?.mesocycle ?? program.currentMesocycle,
+    status: "active",
+  });
+}
+
+/**
+ * Reconcile stored currentWeek with completed workout history (fixes drift from
+ * manual week navigation or URL/session mismatches during testing).
+ */
+export async function syncProgramWeekFromWorkouts(
+  userId: string,
+  program: ActiveProgram,
+  workouts: WorkoutWeekProgress[]
+): Promise<void> {
+  if (program.goalType !== "bouldering" || program.currentWeek === 0) return;
+
+  const frequency = program.frequency as BoulderingFrequency;
+  const resolvedWeek = resolveProgramWeek(frequency, workouts, program.currentWeek);
+  if (resolvedWeek === program.currentWeek) return;
+
+  const weekDef = getWeekDefinition(frequency, resolvedWeek);
+  await updateActiveProgram(userId, {
+    currentWeek: resolvedWeek,
+    currentMesocycle: weekDef?.mesocycle ?? program.currentMesocycle,
+    status: "active",
   });
 }
 

@@ -87,6 +87,15 @@ export default function WorkoutPage({
     return null;
   }, [sessionId, program]);
 
+  useEffect(() => {
+    if (!program || !parsedSession || program.currentWeek === 0) return;
+    if (parsedSession.weekNumber !== program.currentWeek) {
+      router.replace(
+        `/training-center/workout/week-${program.currentWeek}-session-${parsedSession.sessionLabel}`
+      );
+    }
+  }, [program, parsedSession, router]);
+
   const sessionWithDrills = useMemo(() => {
     if (!program || program.goalType !== "bouldering" || !parsedSession) return null;
     const weekDef = getWeekDefinition(program.frequency, parsedSession.weekNumber);
@@ -102,6 +111,7 @@ export default function WorkoutPage({
     setError(null);
     try {
       const programId = getProgramId(program);
+      const weekDef = getWeekDefinition(program.frequency, program.currentWeek);
       const initialDrills = sessionWithDrills.drills.map((d, i) => ({
         drillId: d.id,
         drillType: d.type,
@@ -112,8 +122,8 @@ export default function WorkoutPage({
       }));
       const id = await createWorkout(user.uid, {
         programId,
-        week: parsedSession.weekNumber,
-        mesocycle: program.currentMesocycle,
+        week: program.currentWeek,
+        mesocycle: weekDef?.mesocycle ?? program.currentMesocycle,
         sessionLabel: sessionWithDrills.label,
         sessionType: sessionWithDrills.title,
         drills: initialDrills,
@@ -225,7 +235,7 @@ export default function WorkoutPage({
         weightUnit={trainingProfile?.weightUnit ?? "lbs"}
         targetLoadForMaxHang={targetLoadForMaxHang}
         programId={getProgramId(program)}
-        workoutWeek={parsedSession?.weekNumber ?? program.currentWeek}
+        workoutWeek={program.currentWeek}
         baselineMaxHang={baselineMaxHang}
       >
         <WorkoutFlow />

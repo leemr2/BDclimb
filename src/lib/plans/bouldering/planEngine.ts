@@ -147,3 +147,64 @@ export const MESOCYCLE_NAMES: Record<1 | 2 | 3, string> = {
   2: "Power / RFD Development",
   3: "Peak Performance",
 };
+
+export interface WorkoutWeekProgress {
+  week: number;
+  sessionLabel: string;
+}
+
+/** True when every planned session for the week has a completed workout log. */
+export function isWeekFullyComplete(
+  frequency: BoulderingFrequency,
+  week: number,
+  completedSessionLabels: string[]
+): boolean {
+  const weekDef = getWeekDefinition(frequency, week);
+  if (!weekDef) return false;
+  const completed = new Set(completedSessionLabels);
+  return weekDef.sessions.every((s) => completed.has(s.label));
+}
+
+/**
+ * Derives the program week from completed workouts.
+ * Walks weeks in order; if workouts exist in later weeks (e.g. after manual
+ * week skips during testing), follows the highest logged week instead.
+ */
+export function resolveProgramWeek(
+  frequency: BoulderingFrequency,
+  workouts: WorkoutWeekProgress[],
+  storedWeek: number
+): number {
+  if (workouts.length === 0) return storedWeek;
+
+  const byWeek = new Map<number, Set<string>>();
+  for (const w of workouts) {
+    if (!byWeek.has(w.week)) byWeek.set(w.week, new Set());
+    byWeek.get(w.week)!.add(w.sessionLabel);
+  }
+
+  let firstIncomplete = 12;
+  for (let week = 1; week <= 12; week++) {
+    const weekDef = getWeekDefinition(frequency, week);
+    if (!weekDef) continue;
+    const done = byWeek.get(week) ?? new Set();
+    if (!weekDef.sessions.every((s) => done.has(s.label))) {
+      firstIncomplete = week;
+      break;
+    }
+  }
+
+  const maxLoggedWeek = Math.max(...workouts.map((w) => w.week));
+  if (maxLoggedWeek <= firstIncomplete) return firstIncomplete;
+
+  for (let week = maxLoggedWeek; week >= 1; week--) {
+    if (!byWeek.has(week)) continue;
+    const weekDef = getWeekDefinition(frequency, week);
+    if (!weekDef) continue;
+    const done = byWeek.get(week)!;
+    const allComplete = weekDef.sessions.every((s) => done.has(s.label));
+    return allComplete ? Math.min(week + 1, 12) : week;
+  }
+
+  return firstIncomplete;
+}

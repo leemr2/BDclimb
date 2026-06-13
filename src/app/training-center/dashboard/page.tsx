@@ -9,7 +9,7 @@ import { useActiveProgram } from "@/lib/hooks/training/useActiveProgram";
 import { usePlan } from "@/lib/hooks/training/usePlan";
 import { getWeekDefinition } from "@/lib/plans/bouldering/planEngine";
 import type { BoulderingFrequency } from "@/lib/plans/bouldering/planEngine";
-import { updateActiveProgram, cancelProgram } from "@/lib/firebase/training/program";
+import { cancelProgram } from "@/lib/firebase/training/program";
 import { getCompletedWorkouts } from "@/lib/firebase/training/bouldering-workouts";
 import { getAssessmentsForProgram } from "@/lib/firebase/training/bouldering-assessments";
 import { getKeyMetrics } from "@/lib/calculations/metrics";
@@ -29,7 +29,6 @@ export default function DashboardPage() {
   const router = useRouter();
   const { program, loading: programLoading } = useActiveProgram();
   const { schedule } = usePlan(program);
-  const [isAdvancing, setIsAdvancing] = useState(false);
   const [showCancelConfirm, setShowCancelConfirm] = useState(false);
   const [isCancelling, setIsCancelling] = useState(false);
   const [progressionSuggestion, setProgressionSuggestion] =
@@ -37,26 +36,6 @@ export default function DashboardPage() {
   const [progressionLoading, setProgressionLoading] = useState(false);
   const [keyMetrics, setKeyMetrics] = useState<ReturnType<typeof getKeyMetrics> | null>(null);
   const [keyMetricsLoading, setKeyMetricsLoading] = useState(false);
-
-  async function handleAdvanceWeek() {
-    if (!user || !program || program.currentWeek >= 12 || isAdvancing) return;
-    setIsAdvancing(true);
-    try {
-      const nextWeek = program.currentWeek + 1;
-      const nextWeekDef = getWeekDefinition(
-        program.frequency as BoulderingFrequency,
-        nextWeek
-      );
-      const nextMesocycle = nextWeekDef?.mesocycle ?? program.currentMesocycle;
-      await updateActiveProgram(user.uid, {
-        currentWeek: nextWeek,
-        currentMesocycle: nextMesocycle,
-        status: "active",
-      });
-    } finally {
-      setIsAdvancing(false);
-    }
-  }
 
   async function handleCancelProgram() {
     if (!user || isCancelling) return;
@@ -67,26 +46,6 @@ export default function DashboardPage() {
     } finally {
       setIsCancelling(false);
       setShowCancelConfirm(false);
-    }
-  }
-
-  async function handlePreviousWeek() {
-    if (!user || !program || program.currentWeek <= 1 || isAdvancing) return;
-    setIsAdvancing(true);
-    try {
-      const prevWeek = program.currentWeek - 1;
-      const prevWeekDef = getWeekDefinition(
-        program.frequency as BoulderingFrequency,
-        prevWeek
-      );
-      const prevMesocycle = prevWeekDef?.mesocycle ?? program.currentMesocycle;
-      await updateActiveProgram(user.uid, {
-        currentWeek: prevWeek,
-        currentMesocycle: prevMesocycle,
-        status: "active",
-      });
-    } finally {
-      setIsAdvancing(false);
     }
   }
 
@@ -222,28 +181,6 @@ export default function DashboardPage() {
         weekNumber={program.currentWeek}
       />
       <WeekSchedule schedule={schedule} />
-      {!isWeekZero && (program.currentWeek > 1 || program.currentWeek < 12) && (
-        <div className="training-advance-week">
-          {program.currentWeek > 1 && (
-            <button
-              onClick={handlePreviousWeek}
-              disabled={isAdvancing}
-              className="training-advance-week-btn"
-            >
-              ← Previous Week
-            </button>
-          )}
-          {program.currentWeek < 12 && (
-            <button
-              onClick={handleAdvanceWeek}
-              disabled={isAdvancing}
-              className="training-advance-week-btn"
-            >
-              {isAdvancing ? "Advancing…" : "Next Week →"}
-            </button>
-          )}
-        </div>
-      )}
       <KeyMetrics metrics={keyMetrics} loading={keyMetricsLoading} />
       {!isWeekZero && (
         <ProgressionCard

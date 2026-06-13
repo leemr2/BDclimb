@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import { useSyncProgramWeek } from "@/lib/hooks/training/useSyncProgramWeek";
 
 const DAY_MODE_KEY = "bdclimb-day-mode";
 
@@ -11,6 +12,7 @@ export default function TrainingCenterLayout({
   children: React.ReactNode;
 }) {
   const [dayMode, setDayMode] = useState(false);
+  useSyncProgramWeek();
 
   useEffect(() => {
     try {
