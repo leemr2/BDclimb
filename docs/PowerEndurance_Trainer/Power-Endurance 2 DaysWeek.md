@@ -59,12 +59,10 @@ Same assessment battery as the 3-day plan—this doesn't change based on trainin
 
 ## The 12-Week Structure
 
-Same mesocycle framework, but condensed into 2 sessions per week:
-
 ```
 Weeks 1-3: Aerobic Base + Max Force Foundation
 Week 4: Deload + Test
-Weeks 5-7: Power-Endurance Build + Crux Simulations  
+Weeks 5-7: Power-Endurance Build + Crux Simulations
 Week 8: Deload + Test
 Weeks 9-11: Specific Linking + Redpoint Focus
 Week 12: Taper + Performance Week
@@ -77,7 +75,6 @@ Week 12: Taper + Performance Week
 With only 2 days, you'll alternate between two session types, with at least 2 days (preferably 3) between sessions:
 
 ### Option A: Tuesday/Friday or Tuesday/Saturday
-
 ### Option B: Wednesday/Saturday or Wednesday/Sunday
 
 | Day                               | Session Type                        | Purpose                       |
@@ -87,6 +84,20 @@ With only 2 days, you'll alternate between two session types, with at least 2 da
 | Other days                        | Rest or optional very easy climbing | Recovery and adaptation       |
 
 **Important**: You need 2-3 full rest days between sessions because each session will be longer and combine multiple stimuli.
+
+### Rest Day Work (Self-Directed, ~25-30 min)
+
+With only 2 climbing days, use one rest day per week for the **antagonist and shoulder-stability circuit**. This requires no climbing facility and directly protects shoulder and elbow structures under sustained climbing load.
+
+**Circuit (2-3 rounds)**:
+- Scapular push-ups: 8-12
+- Band external rotations: 12-20 each side
+- Face pulls or reverse fly: 10-15
+- Push-ups: 8-12
+- Y-T-W raises: 6-10 each
+- Hollow hold 20-40 s + side plank 20-40 s each side
+
+Track: loads used, symptom score (0-10).
 
 ------
 
@@ -100,7 +111,7 @@ With only 2 days, you'll alternate between two session types, with at least 2 da
 
 ### Session A (Day 1): Strength + Aerobic Base
 
-This session combines max hangs with aerobic endurance work. The order matters: do strength work first when fresh, then endurance.
+Do strength work first when fresh, then endurance.
 
 #### Part 1: Maximum Hangs (30-35 minutes total)
 
@@ -108,106 +119,93 @@ This session combines max hangs with aerobic endurance work. The order matters: 
 
 - Warm up: 10 min easy climbing + progressive hangs
 - 6 sets × 10 seconds at 85-95% of max hang
-- 2-3 minutes rest between sets (longer than 3-day plan due to limited frequency)
+- 2-3 minutes rest between sets
 - **Week 1**: 6 × 10s at 85%
 - **Week 2**: 6 × 10s at 87-90%
 - **Week 3**: 6 × 10s at 90-92%
 
-**Track**:
+**Track**: Load used, all reps completed (yes/no), form quality, finger pain (0-10)
 
-- Load used (BW + added weight)
-- All reps completed? (yes/no)
-- Form quality
-- Finger pain (0-10)
-
-#### Part 2: Long Continuous Climbing (40-50 minutes total)
+#### Part 2: Long Continuous Climbing with Fluency Constraint (40-50 minutes total)
 
 **Structure**:
 
 - 10 min rest after hangs
 - 2-3 sets of 10-15 minute continuous climbing
 - Rest 5 minutes between sets
-- Intensity: RPE 5-6 (very manageable, conversational)
+- Intensity: RPE 5-6 (conversational, light pump)
 - Use traversing, circuits, or up-down routes
+- **Fluency constraint**: you may not stop moving for more than 2 seconds unless at a designated rest hold. Log the number and location of stops exceeding this threshold each set. Aim to reduce stop count week over week.
 - **Week 1**: 2 × 10 min
 - **Week 2**: 2 × 12 min
 - **Week 3**: 3 × 12 min
 
-**Track**:
+**Track**: Total time climbed, average RPE per set, pump level (1-10), stop count per set
 
-- Total time climbed
-- Average RPE per set
-- Pump level at end of each set (1-10)
+**Total Session Duration**: 70-85 minutes
 
-**Total Session Duration**: 70-85 minutes **Session-RPE**: Record overall session duration × global RPE (assessed 30 min after session ends) **Next Morning**: Check finger stiffness, soreness
-
-**Why This Combination**: Strength work requires freshness, so it goes first. Aerobic work can be done in a fatigued state and actually benefits from it (teaches efficiency under duress). This pairing ensures you hit both critical limiters in one session.
+**Why This Combination**: Strength work requires freshness, so it goes first. Aerobic work with the fluency constraint teaches movement economy under mild fatigue—a direct transfer to managing the sustained section of your routes.
 
 ------
 
-### Session B (Day 2): Crux-After-Fatigue Specific Work
+### Session B (Day 2): Bouldering 4×4 + Crux-After-Fatigue
 
-This session is entirely focused on your specific goal: executing hard moves while fatigued.
+Mesocycle 1 Session B has two parts. The 4×4 builds anaerobic capacity under accumulating fatigue; the crux simulation develops the specific skill of executing hard moves when already pumped.
 
-#### Full Session: Crux-After-Fatigue Progression
+#### Warm-Up: Silent Feet Primer (10-15 min)
+
+Before any intensity, run your warm-up with the silent feet rule: every foot placement must be silent and "one-and-done" (no scraping or readjusting). This costs no extra time and reinforces precision before you're pumped.
+
+#### Part 1: Bouldering 4×4 (35-45 minutes total)
 
 **Structure**:
 
-- Warm up: 10-15 min easy climbing
-- Main work: 4-5 rounds of:
-  - Part 1: 2-3 minutes continuous moderate climbing (don't fall)
-  - Part 2 (immediately): Attempt a 6-12 move crux sequence (RPE 9)
-  - Rest 12-15 minutes between rounds (longer than 3-day plan)
-- **Week 1**: 4 rounds, 2-min lead-in
-- **Week 2**: 4 rounds, 2.5-min lead-in
-- **Week 3**: 5 rounds, 3-min lead-in
+- Pick **4 boulder problems** about 2-4 grades below your limit (hard enough to get pumped, doable when fresh)
+- Climb each problem **4 times** with minimal rest between climbs (step off, chalk, go)
+- After completing all 4 problems × 4 reps (16 total), rest **10-12 minutes**
+- **Intensity**: RPE 8-9; late reps should be shaky but not failing every time
+- **Week 1**: 2 rounds
+- **Week 2**: 2 rounds, slightly harder problems
+- **Week 3**: 3 rounds, same problems as Week 2
 
-**Track**:
+**Track**: Rounds completed at target grade, number of falls per round, recovery quality between rounds (1-5)
 
-- Crux success rate per round (e.g., "3/5")
-- Moves completed per attempt
-- Quality of execution (crisp vs. desperate)
-- Pump level before crux (1-10)
-- Pacing notes (did you rush the lead-in?)
+#### Part 2: Crux-After-Fatigue Drill (45-55 minutes total)
 
-**Total Session Duration**: 90-110 minutes **Session-RPE**: Duration × global RPE
+- Rest 12-15 minutes after 4×4 before beginning
 
-**Why Full Session**: With only 2 days/week, this session needs to be purely specific. No mixing in other qualities—this is your performance simulation day.
+**Structure**:
+
+- Part A: 2-3 minutes continuous moderate climbing (don't fall)
+- Part B (immediately): Attempt a 6-12 move crux sequence (RPE 9)
+- Rest 12-15 minutes between rounds
+- **Week 1**: 3 rounds, 2-min lead-in
+- **Week 2**: 3 rounds, 2.5-min lead-in
+- **Week 3**: 3 rounds, 3-min lead-in (3 rounds instead of 4 to account for 4×4 fatigue)
+
+**Track**: Crux success rate per round (e.g., "2/3"), moves completed per attempt, pump level before crux (1-10)
+
+**Total Session Duration**: 100-120 minutes
+
+**Why This Structure**: 4×4 fills the anaerobic capacity gap before the crux simulation tests your most specific skill. Together they cover both the capacity to sustain and the ability to execute under fatigue.
 
 ------
 
 ### Week 4: Deload + Retest
 
-**Purpose**: Same as 3-day plan—reduce fatigue, allow adaptations, reassess.
-
-**Structure**:
-
-- Reduce volume by 50-60% (more aggressive than 3-day plan)
-- Maintain intensity where possible
-
 **Session A (Day 1)**:
 
 - 4 × 10s hangs at 85% (instead of 6)
-- 1 × 12 min continuous climbing (instead of 2-3 sets)
+- 1 × 12 min continuous climbing with fluency constraint (instead of 2-3 sets)
 - **Total**: ~45 minutes
 
 **Session B (Day 2)**:
 
-- 2-3 rounds crux-after-fatigue (instead of 4-5)
+- Skip 4×4 this week
+- 2 rounds crux-after-fatigue (instead of 3)
 - **Total**: ~50 minutes
 
-**Testing**: Schedule for Day 2 or add a 3rd day this week just for testing
-
-- 7-second max hang
-- Intermittent endurance test
-- Crux-after-fatigue benchmark
-
-**Track**:
-
-- All test results
-- Compare to baseline (Week 0)
-- Recovery quality (sleep, soreness, motivation)
-- Injury signals
+**Testing**: Repeat all Week 0 assessments. Compare to baseline.
 
 ------
 
@@ -215,119 +213,76 @@ This session is entirely focused on your specific goal: executing hard moves whi
 
 ### Power-Endurance Build + Threshold Work
 
-**Goal**: Increase capacity for repeated hard efforts and improve your ability to work at higher intensities.
-
 ------
 
 ### Session A (Day 1): Intermittent Endurance + Strength Maintenance
 
-This session blends finger endurance work with maintenance strength.
+#### Part 1: Intermittent Hangs OR Critical-Force Blocks (alternating weeks)
 
-#### Part 1: Intermittent Finger Endurance (45-50 minutes total)
+Alternate between these two. They target the same energy system from different angles and prevent accommodation.
 
-**Structure**:
+**Option A — Intermittent Hangs at 60% MVC (Weeks 5 and 7)**:
 
-- Warm up thoroughly
-- Using 60% of your max hang weight
 - 7 seconds on, 3 seconds off pattern
 - 4-6 sets to near-failure (stop before form breaks)
-- 3 minutes rest between sets (longer than 3-day version)
-- **Week 5**: 4 sets
-- **Week 6**: 5 sets
-- **Week 7**: 6 sets
+- 3 minutes rest between sets
+- **Week 5**: 4 sets | **Week 7**: 5 sets
 
-**Track**:
+**Track**: Repetitions per set, total time under tension, finger pain (0-10)
 
-- Repetitions per set
-- Total time under tension
-- Force consistency
-- Finger pain (0-10)
+**Option B — Critical-Force Blocks (Week 6)**:
+
+- Using the 7 s on / 3 s off rhythm
+- Target: slightly below what you'd hit at end of an all-out test—RPE 8-9, stable across the block
+- **2-3 blocks of 2 minutes** at target intensity
+- **6-8 minutes full rest** between blocks
+- Log carefully—this is your objective intensity anchor for the mesocycle
+
+**Track**: Reps completed within each block at consistent form, perceived force stability late in each block, recovery time required
+
+**Why Alternate**: Intermittent hangs at 60% MVC build rhythmic endurance. Critical-force blocks train the boundary between sustainable and non-sustainable output. Rotating prevents accommodation and gives you an intensity anchor you can track across cycles.
 
 #### Part 2: Strength Maintenance Hangs (25-30 minutes total)
 
-**Structure**:
+- 10 min rest after endurance work
+- 4 sets × 10 seconds at 85-90%
+- 2-3 minutes rest between sets
 
-- 10 min rest after intermittent work
-- 4 sets × 10 seconds at 85-90% (reduced from 6 sets in mesocycle 1)
-- 2-3 minutes rest
-- Focus on quality
-
-**Track**:
-
-- Load used
-- Form quality
-- Any fatigue impact from Part 1
-
-**Total Session Duration**: 70-80 minutes **Session-RPE**: Overall duration × global RPE
-
-**Why This Combination**: Intermittent endurance is the priority in this phase, so it goes first while fresh. Strength maintenance comes second with reduced volume to manage overall fatigue.
+**Total Session Duration**: 70-85 minutes
 
 ------
 
 ### Session B (Day 2): Enhanced Crux-After-Fatigue + Threshold Intervals
 
-This session increases the difficulty of your specific simulation while adding some threshold work.
-
 #### Part 1: Crux-After-Fatigue Progression (60-70 minutes)
 
-**Structure**:
+- **Week 5**: 4 rounds, 3-min lead-in, harder crux (+1 grade)
+- **Week 6**: 4 rounds, 3.5-min lead-in, maintain crux difficulty
+- **Week 7**: 5 rounds, 4-min lead-in, maintain crux difficulty
 
-- Same format as Weeks 1-3, but harder:
-  - **Week 5**: 4 rounds, 3-min lead-in, harder crux (+1 grade)
-  - **Week 6**: 4 rounds, 3.5-min lead-in, maintain crux difficulty
-  - **Week 7**: 5 rounds, 4-min lead-in, maintain crux difficulty
-
-**Track**:
-
-- Success rate (compare to Mesocycle 1)
-- Quality under fatigue
-- Shake efficiency
+**Track**: Success rate (compare to Mesocycle 1), quality under fatigue, shake efficiency
 
 #### Part 2: Short Threshold Intervals (20-25 minutes)
-
-**Structure**:
 
 - 15 min rest after crux work
 - 4-6 repeats × 45-60 seconds hard climbing
 - Rest 1:1 (45-60 seconds between)
 - RPE 8-9
-- **Week 5**: 4 × 45s
-- **Week 6**: 5 × 60s
-- **Week 7**: 6 × 60s
+- **Week 5**: 4 × 45s | **Week 6**: 5 × 60s | **Week 7**: 6 × 60s
 
-**Track**:
-
-- Intervals completed at target intensity
-- Power feel (explosive vs. grinding)
-
-**Total Session Duration**: 80-95 minutes **Session-RPE**: Overall duration × global RPE
-
-**Why This Combination**: Both elements are high-intensity, but the crux simulation is more specific so it goes first. The threshold intervals add anaerobic capacity stimulus while you're already warmed up and activated.
+**Total Session Duration**: 80-95 minutes
 
 ------
 
 ### Week 8: Deload + Retest
 
-Same structure as Week 4:
+- 50-60% volume reduction; maintain intensity
 
-- 50-60% volume reduction
-- Maintain intensity
+**Session A**: 3 sets intermittent endurance (skip critical-force blocks), 3 × 10s hangs at 85%
 
-**Session A**:
+**Session B**: 2-3 rounds crux-after-fatigue, 3 × 45s threshold intervals
 
-- 3 sets intermittent endurance (instead of 6)
-- 3 × 10s hangs at 85% (instead of 4)
-
-**Session B**:
-
-- 2-3 rounds crux-after-fatigue (instead of 4-5)
-- 3 × 45s threshold intervals (instead of 6)
-
-**Testing**: Repeat full assessment battery
-
-- Compare to Week 4 and Week 0
-- Adjust loads based on new max hang
-- Check trajectory: Is crux-after-fatigue improving?
+**Testing**: Repeat full assessment battery. Adjust loads for Mesocycle 3.
 
 ------
 
@@ -335,13 +290,9 @@ Same structure as Week 4:
 
 ### Specific Linking + Redpoint Practice
 
-**Goal**: Apply improved capacity to route attempts, refine tactics and execution.
-
 ------
 
 ### Session A (Day 1): Route Practice + Strength Maintenance
-
-This session shifts toward performance attempts with minimal strength maintenance.
 
 #### Part 1: Route Linking Practice (60-75 minutes)
 
@@ -349,280 +300,96 @@ This session shifts toward performance attempts with minimal strength maintenanc
 
 - 4-6 high-quality burns on routes similar to your goal
 - Full rest (15-20 minutes) between attempts
-- Focus: efficiency, pacing, shake placement, beta refinement
-- No junk volume—every burn has a purpose
-- **Week 9**: 4 burns, focus on lower section efficiency
-- **Week 10**: 5 burns, practice full links
+- Apply the **fluency constraint** on beta rehearsal burns (log stops >2 seconds and where they occur). Drop the constraint on send attempts—just climb.
+- **Week 9**: 4 burns, lower section efficiency focus
+- **Week 10**: 5 burns, full links
 - **Week 11**: 5-6 burns, prioritize sending
 
-**Track**:
-
-- High point achieved each burn
-- Number of falls/rests
-- Pump level at crux (1-10)
-- Tactical observations (beta changes, rest improvements)
-- Quality rating (1-5 for each burn)
+**Track**: High point per burn, falls/rests, pump level at crux (1-10), stop count on rehearsal burns, quality rating (1-5)
 
 #### Part 2: Minimal Strength Maintenance (20-25 minutes)
 
-**Structure**:
-
 - 15 min rest after routes
-- 3 × 10s hangs at 85-90% (minimal dose)
+- 3 × 10s hangs at 85-90%
 - 3 minutes rest between sets
 
-**Track**:
-
-- Load maintained
-- Form quality despite route fatigue
-
-**Total Session Duration**: 80-100 minutes **Session-RPE**: Overall duration × global RPE
+**Total Session Duration**: 80-100 minutes
 
 ------
 
-### Session B (Day 2): Performance-Focused Simulation
-
-#### Full Session: Competition-Style Crux-After-Fatigue (70-90 minutes)
+### Session B (Day 2): Performance-Focused Simulation (70-90 minutes)
 
 **Structure**:
 
-- This is your "mock performance" day
 - 3-4 rounds of:
   - Extended lead-in (4-5 minutes continuous)
-  - Immediate crux attempt (your actual goal-route crux if possible)
+  - Immediate crux attempt (goal-route crux if possible)
   - Full rest (15-20 minutes)
-- **Week 9**: 3 rounds, focus on pacing the lead-in
-- **Week 10**: 4 rounds, focus on crux precision
-- **Week 11**: 3 rounds, focus on complete execution (taper volume)
+- **Week 9**: 3 rounds, pacing focus
+- **Week 10**: 4 rounds, crux precision focus
+- **Week 11**: 3 rounds, full execution (taper volume)
 
-**Track**:
-
-- Success rate
-- How sustainable was the lead-in? (RPE 1-10)
-- Crux execution quality
-- Recovery between rounds
-- Mental state (confidence, anxiety, flow)
-
-**Total Session Duration**: 70-90 minutes **Session-RPE**: Overall duration × global RPE
-
-**Why**: This becomes your "dress rehearsal" for the actual performance.
+**Track**: Success rate, lead-in sustainability (RPE 1-10), crux execution quality, mental state
 
 ------
 
 ## Week 12: Taper + Performance
 
-**Goal**: Minimize fatigue, maintain sharpness, attempt goal route.
+**Session A**: 2 easy route burns (movement rehearsal only) + 2 × 10s hangs at 85%. ~40-50 min, RPE 4-5.
 
-**Session A (Day 1)**: Very light—Monday or Tuesday if performing Saturday
-
-- 2 easy burns on goal route, movement rehearsal only
-- 2 × 10s hangs at 85%, very crisp
-- **Total**: 40-50 minutes, RPE 4-5
-
-**Session B (Day 2)**: Performance day—Friday/Saturday
-
-- Option 1: Attempt goal route (fresh, after 3-4 rest days)
-- Option 2: Final assessment battery if not attempting route
-
-**Track**:
-
-- Performance outcome
-- How did the crux feel relative to 12 weeks ago?
-- Final test results if conducted
+**Session B**: Goal route attempt(s) after 3-4 rest days, OR final assessment battery.
 
 ------
 
-## Weekly Monitoring System
+## Weekly Monitoring
 
-Same tracking structure as 3-day plan, but with only 2 sessions per week:
+| Date | Session | Duration (min) | RPE (0-10) | sRPE | Key Metrics | Finger Pain | Notes |
+| ---- | ------- | -------------- | ---------- | ---- | ----------- | ----------- | ----- |
+|      | A or B  |                |            |      |             | 0-10        |       |
 
-| Date | Session | Duration (min) | RPE (0-10) | sRPE | Key Metrics | Finger Pain | Notes                           |
-| ---- | ------- | -------------- | ---------- | ---- | ----------- | ----------- | ------------------------------- |
-|      | A or B  |                |            |      |             | 0-10        | Sleep, stress, recovery quality |
-
-**Weekly Review Questions**:
-
-1. Did you get at least 2 full rest days between sessions?
-2. Is sRPE per session creeping dangerously high? (If yes → reduce next week)
-3. Is finger pain increasing? (If yes → immediate deload)
-4. Are you hitting target volumes/loads? (With 2 days, you can't afford missed sessions)
-5. How's recovery quality? (More critical with longer sessions)
-
-**After each session**: Check next-day stiffness and soreness **Monthly (Week 4, 8, 12)**: Full test battery and comparison
+**Weekly Review**:
+1. ≥2 full rest days between sessions?
+2. sRPE per session trending up dangerously?
+3. Finger pain increasing?
+4. Antagonist circuit completed on a rest day?
 
 ------
 
-## Progression Rules (Adjusted for 2-Day Schedule)
+## Drill Inventory
 
-**For Hangboard**:
-
-- Same rules as 3-day plan: add 2-3kg only when 2 consecutive sessions are perfect
-- BUT: "2 consecutive sessions" = 2 weeks with only 2 days/week, so progression is slower
-- This is appropriate—your tissues get less frequent stimulus
-
-**For Intervals/Endurance**:
-
-- Progress every 2-3 weeks instead of every 1-2 weeks
-- Add volume first, then intensity
-- With limited frequency, quality matters more than volume
-
-**For Crux-After-Fatigue**:
-
-- Same progression logic but slightly more conservative
-- You get fewer reps per month, so each one counts more
-
-**General Rule**: If in doubt, repeat a week instead of progressing. With only 2 days/week, you cannot afford injury setbacks.
+| Drill | Where Used | Mesocycle |
+|---|---|---|
+| Max hangs | Session A, Part 1 | 1, 2, 3 |
+| Long continuous climbing (ARC-style) | Session A, Part 2 | 1 |
+| Fluency laps (no-stops constraint) | Session A Part 2 + Meso 3 rehearsal burns | 1, 3 |
+| Silent feet primer | Session B warm-up | 1, 2, 3 |
+| Bouldering 4×4 | Session B, Part 1 | 1 |
+| Linked crux simulations | Session B, Part 2 | 1, 2, 3 |
+| Intermittent hangs 7:3 at 60% MVC | Session A, Part 1 | 2 |
+| Critical-force blocks | Session A, Part 1 (alternating Week 6) | 2 |
+| Threshold intervals | Session B, Part 2 | 2 |
+| Redpoint burn template | Session A, Part 1 | 3 |
+| Antagonist + shoulder stability | Rest day (self-directed) | All |
 
 ------
 
-## Safety Guidelines (Enhanced for 2-Day Plan)
+## Progression Rules
 
-### Everything from 3-day plan applies, plus:
+**For Hangboard**: Add 2-3kg only when 2 consecutive sessions are perfect. With 2 days/week this means 2 weeks per progression step—appropriate for tissue adaptation.
 
-**Session Duration Management**:
+**For 4×4**: Progress round count (2 → 3) before raising problem difficulty. Only increase difficulty after 3 clean rounds for 2 sessions.
 
-- Sessions will be 70-110 minutes (longer than 3-day splits)
-- This means more cumulative fatigue per session
-- **Stop criteria**: If session quality deteriorates significantly, end it
-- Don't push through just to complete planned volume
+**For Critical-Force Blocks**: Increase target force once all blocks are stable. Cap at 2-3 blocks—do not add more.
 
-**Recovery Is Your Limiting Factor**:
+**For Crux-After-Fatigue**: Increase lead-in duration first, then round count, then crux difficulty. Quality always over quantity.
 
-- With only 2 sessions/week, you should NOT feel chronically fatigued
-- If you do, you're doing too much per session
-- Better to do 75% of planned volume well than 100% poorly
-
-**Red Flags Specific to Low-Frequency Training**:
-
-- Needing >48 hours to feel recovered between sessions = too much volume
-- Dreading sessions = probably overreaching
-- Persistent finger soreness 3+ days after session = immediate deload
-
-### Deload Weeks Are Even More Critical:
-
-- Week 4 and Week 8: 50-60% volume reduction (more aggressive than 3-day)
-- These are injury prevention weeks
-- With limited frequency, overuse injuries can develop without you noticing
+**General Rule**: If in doubt, repeat the week. With only 2 days, injury setbacks are disproportionately costly.
 
 ------
 
-## Comparison: 2-Day vs. 3-Day Plan
+## Safety Guidelines
 
-### What You Sacrifice:
-
-- **Frequency of skill practice**: Less motor learning reinforcement
-- **Total weekly volume**: Approximately 65-75% of 3-day plan
-- **Progression speed**: Adaptations may take 25-40% longer
-- **Flexibility**: Can't adjust individual sessions as easily
-
-### What You Maintain:
-
-- **All key training stimuli**: Strength, endurance, specificity
-- **Progressive overload**: Still present, just slower
-- **Testing structure**: Same assessment schedule
-- **Injury risk management**: Actually better due to more recovery time
-
-### Expected Outcomes (Week 12):
-
-- **Strength**: +3-10% max hang (vs. +5-15% on 3-day)
-- **Endurance**: +15-35% intermittent reps (vs. +20-50% on 3-day)
-- **Specific**: 1.5-2× better crux-after-fatigue (vs. 2-3× on 3-day)
-- **Performance**: Meaningful improvement but may need longer runway to peak performance
-
-------
-
-## Making the Most of Limited Training Days
-
-### Between Sessions (Rest Days):
-
-You have 5 non-training days per week. Use them wisely:
-
-**Active Recovery Options (Optional)**:
-
-- Very easy climbing (20-30 min, RPE 3-4, pure technique)
-- Mobility work (15-20 min)
-- Antagonist exercises (push-ups, shoulder work)
-- Walking, yoga, general movement
-
-**Do NOT**:
-
-- Climb hard "for fun" on rest days
-- Add unofficial "easy sessions" that accumulate fatigue
-- Ignore recovery signals because you "only train 2 days"
-
-### Session Preparation:
-
-- Get good sleep the night before
-- Eat properly before longer sessions
-- Arrive mentally ready (these sessions are dense)
-- Warm up thoroughly (budget 15-20 minutes)
-
-### Mindset Adjustment:
-
-- 2 days/week CAN produce results—research shows meaningful adaptations from 2×/week training
-- Your limit is not frequency but recovery capacity and consistency
-- Every session matters—no "throw-away" days
-- Think in terms of 6-month or 12-month improvement, not just 12 weeks
-
-------
-
-## Alternative 24-Week Extension
-
-If you want to extend this plan, the 2-day structure actually works well for longer cycles:
-
-**Weeks 1-12**: Run this exact plan (foundation + build) **Weeks 13-14**: Active recovery (very easy climbing only) **Weeks 15-26**: Run modified version:
-
-- Weeks 15-18: Higher volume aerobic base
-- Weeks 19-22: More aggressive power-endurance
-- Weeks 23-26: Specific peaking + attempts
-
-With 2 days/week, longer cycles with distinct phases often work better than short intense blocks.
-
-------
-
-## Quick Reference Card - 2 Day Version
-
-**Weekly Structure**:
-
-- **Session A** (Day 1): Strength + Aerobic or Intermittent Endurance + Maintenance
-- **Session B** (Day 2): Crux-After-Fatigue + Specificity
-- At least 2 rest days between sessions
-
-**Track Every Session**:
-
-- sRPE (duration × global RPE)
-- All key metrics (load, reps, success rate)
-- Finger pain (0-10)
-- Next-morning recovery quality
-
-**Test Every 4 Weeks**:
-
-- Week 0, 4, 8, 12
-- Max hang, intermittent endurance, crux-after-fatigue
-
-**Deload Weeks 4 & 8**:
-
-- Cut volume 50-60%
-- Maintain some intensity
-- Retest
-
-**Critical for 2-Day Success**:
-
-- Perfect attendance (missing sessions is devastating with low frequency)
-- Session quality > volume (don't just "get through it")
-- Recovery discipline (use those 5 rest days properly)
-- Conservative progression (injuries cost you weeks, not days)
-
-------
-
-## Final Thoughts
-
-The 2-day plan is not a "worse" version of the 3-day plan—it's a different strategy optimized for limited training frequency. You'll make progress, but you need patience and consistency. The climbers who succeed on 2 days/week are those who:
-
-1. Show up consistently (every week, both days)
-2. Execute sessions with full focus and quality
-3. Recover properly between sessions
-4. Progress conservatively
-5. Think long-term (6-12 months, not just 12 weeks)
-
-If you can commit to these principles, you'll be surprised how much you can improve with just 2 dedicated days per week.
+- **Sessions run 70-120 min**—stop if quality deteriorates significantly before hitting target volume.
+- **Red flags**: needing >48 hr to recover between sessions; persistent finger soreness 3+ days post-session; dreading sessions. All = immediate deload.
+- **Deloads (Weeks 4 & 8)**: 50-60% volume cut. With limited frequency, overuse can develop quietly.
+- **Warm-up mandatory**: 10+ min easy climbing before any finger intensity. Never start max efforts cold.
