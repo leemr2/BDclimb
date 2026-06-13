@@ -13,6 +13,18 @@ const CONTENT_DIR = path.join(
   "src/content/training/bouldering"
 );
 
+interface ParsedEducationSource {
+  meta: EducationPieceMeta;
+  mdxBody: string;
+  data: Record<string, unknown>;
+}
+
+const parsedSourceCache = new Map<string, ParsedEducationSource>();
+
+function normalizeSlug(slug: string): string {
+  return decodeURIComponent(slug.trim());
+}
+
 export const BOULDERING_EDUCATION_REGISTRY: EducationPieceMeta[] = [
   {
     slug: "bouldering-intro-why-test",
@@ -157,17 +169,48 @@ export function getAllEducationPieces(
   return BOULDERING_EDUCATION_REGISTRY;
 }
 
-export async function getEducationPiece(
+async function getParsedSource(
   slug: string
-): Promise<EducationPiece | null> {
-  const meta = BOULDERING_EDUCATION_REGISTRY.find((p) => p.slug === slug);
+): Promise<ParsedEducationSource | null> {
+  const normalized = normalizeSlug(slug);
+  const cached = parsedSourceCache.get(normalized);
+  if (cached) return cached;
+
+  const meta = BOULDERING_EDUCATION_REGISTRY.find((p) => p.slug === normalized);
   if (!meta) return null;
 
   const filePath = path.join(CONTENT_DIR, meta.filename);
   try {
     const raw = await fs.readFile(filePath, "utf8");
     const { content: mdxBody, data } = matter(raw);
+    const parsed: ParsedEducationSource = {
+      meta,
+      mdxBody,
+      data: data as Record<string, unknown>,
+    };
+    parsedSourceCache.set(normalized, parsed);
+    return parsed;
+  } catch {
+    return null;
+  }
+}
 
+/** Warm filesystem + frontmatter cache when entering the education section. */
+export async function preloadEducationContent(): Promise<void> {
+  await Promise.all(
+    BOULDERING_EDUCATION_REGISTRY.map((meta) => getParsedSource(meta.slug))
+  );
+}
+
+export async function getEducationPiece(
+  slug: string
+): Promise<EducationPiece | null> {
+  const parsed = await getParsedSource(slug);
+  if (!parsed) return null;
+
+  const { meta, mdxBody, data } = parsed;
+
+  try {
     const { content } = await compileMDX({
       source: mdxBody,
       options: { parseFrontmatter: false },

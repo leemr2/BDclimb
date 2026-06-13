@@ -6847,6 +6847,20 @@ a {
   border-color: #e5e7eb;
 }
 
+.training-auth-redirect-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.85);
+}
+
+.community-page.day-mode .training-auth-redirect-overlay {
+  background: rgba(255, 255, 255, 0.92);
+}
+
 /* --- Education library & articles --- */
 .education-library-page,
 .education-article-page {

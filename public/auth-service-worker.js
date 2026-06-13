@@ -8019,9 +8019,13 @@
     return await fetch(newRequest);
   };
   self.addEventListener("fetch", (event) => {
-    const { origin } = new URL(event.request.url);
-    if (origin !== self.location.origin) return;
-    event.respondWith(fetchWithFirebaseHeaders(event.request));
+    const url = new URL(event.request.url);
+    if (url.origin !== self.location.origin) return;
+    const request = event.request;
+    if (url.searchParams.has("_rsc") || url.pathname.startsWith("/_next/") || request.headers.get("RSC") === "1" || request.headers.get("Next-Router-Prefetch") === "1" || request.headers.get("Next-Router-State-Tree") != null) {
+      return;
+    }
+    event.respondWith(fetchWithFirebaseHeaders(request));
   });
 })();
 /*! Bundled license information:

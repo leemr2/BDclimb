@@ -36,7 +36,22 @@ export const fetchWithFirebaseHeaders = async (request) => {
 };
 
 self.addEventListener("fetch", (event) => {
-  const { origin } = new URL(event.request.url);
-  if (origin !== self.location.origin) return;
-  event.respondWith(fetchWithFirebaseHeaders(event.request));
+  const url = new URL(event.request.url);
+  if (url.origin !== self.location.origin) return;
+
+  const request = event.request;
+
+  // Next.js client navigation uses RSC/flight requests — intercepting them
+  // can cause 404 on first visit while a full refresh still works.
+  if (
+    url.searchParams.has("_rsc") ||
+    url.pathname.startsWith("/_next/") ||
+    request.headers.get("RSC") === "1" ||
+    request.headers.get("Next-Router-Prefetch") === "1" ||
+    request.headers.get("Next-Router-State-Tree") != null
+  ) {
+    return;
+  }
+
+  event.respondWith(fetchWithFirebaseHeaders(request));
 });
