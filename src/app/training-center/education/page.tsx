@@ -8,8 +8,8 @@ export default function EducationLibraryPage() {
   return (
     <div className="education-library-page">
       <div className="education-page-nav">
-        <Link href="/training-center/dashboard" className="training-center-back">
-          ← Back to dashboard
+        <Link href="/training-center" className="training-center-back">
+          ← Training Home
         </Link>
       </div>
 
