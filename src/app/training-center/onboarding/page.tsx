@@ -1,11 +1,11 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { useAuth } from "@/lib/firebase/auth";
 import { saveTrainingProfile } from "@/lib/firebase/training/profile";
-import { startProgram } from "@/lib/firebase/training/program";
+import { startProgram, type GoalType } from "@/lib/firebase/training/program";
 import { TrainingProfileForm } from "@/components/training/onboarding/TrainingProfileForm";
 import type { TrainingProfileFormData } from "@/components/training/onboarding/TrainingProfileForm";
 import { FrequencySelector } from "@/components/training/onboarding/FrequencySelector";
@@ -15,6 +15,13 @@ import { OnboardingConfirmation } from "@/components/training/onboarding/Onboard
 const STEP_PROFILE = 0;
 const STEP_FREQUENCY = 1;
 const STEP_CONFIRM = 2;
+
+const SUPPORTED_GOALS: GoalType[] = ["bouldering", "route_power_endurance"];
+
+const GOAL_LABELS: Record<string, string> = {
+  bouldering: "Bouldering",
+  route_power_endurance: "Route Power/Endurance",
+};
 
 const defaultProfile: TrainingProfileFormData = {
   age: 0,
@@ -33,7 +40,14 @@ export default function OnboardingPage() {
   const [frequency, setFrequency] = useState<FrequencyOption | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const goal = searchParams.get("goal");
+  const goalParam = searchParams.get("goal");
+  const goal = useMemo(
+    () =>
+      SUPPORTED_GOALS.includes(goalParam as GoalType)
+        ? (goalParam as GoalType)
+        : null,
+    [goalParam]
+  );
 
   useEffect(() => {
     if (!authLoading && !user) {
@@ -42,13 +56,13 @@ export default function OnboardingPage() {
   }, [user, authLoading, router]);
 
   useEffect(() => {
-    if (!authLoading && goal !== "bouldering") {
+    if (!authLoading && !goal) {
       router.replace("/training-center");
     }
   }, [authLoading, goal, router]);
 
   const handleConfirm = async () => {
-    if (!user || frequency === null) return;
+    if (!user || frequency === null || !goal) return;
     setIsSubmitting(true);
     try {
       await saveTrainingProfile(user.uid, {
@@ -58,8 +72,8 @@ export default function OnboardingPage() {
         experienceLevel: profile.experienceLevel,
         currentLimitGrade: profile.currentLimitGrade,
       });
-      await startProgram(user.uid, "bouldering", frequency);
-      router.replace("/training-center/dashboard");
+      await startProgram(user.uid, goal, frequency);
+      router.replace("/training-center/assessment");
     } catch (err) {
       console.error("Onboarding error:", err);
       setIsSubmitting(false);
@@ -74,11 +88,7 @@ export default function OnboardingPage() {
     );
   }
 
-  if (!user) {
-    return null;
-  }
-
-  if (goal !== "bouldering") {
+  if (!user || !goal) {
     return null;
   }
 
@@ -103,8 +113,15 @@ export default function OnboardingPage() {
         {step === STEP_FREQUENCY && (
           <>
             <h2 className="training-onboarding-step-title">
-              How often will you train?
+              How many days per week?
             </h2>
+            <button
+              type="button"
+              className="training-onboarding-back-step"
+              onClick={() => setStep(STEP_PROFILE)}
+            >
+              ← Back
+            </button>
             <FrequencySelector
               value={frequency}
               onChange={setFrequency}
@@ -112,18 +129,15 @@ export default function OnboardingPage() {
             />
           </>
         )}
-        {step === STEP_CONFIRM && (
-          <>
-            <h2 className="training-onboarding-step-title">
-              Ready to start
-            </h2>
-            <OnboardingConfirmation
-              profile={profile}
-              frequency={frequency!}
-              onConfirm={handleConfirm}
-              isSubmitting={isSubmitting}
-            />
-          </>
+        {step === STEP_CONFIRM && frequency !== null && (
+          <OnboardingConfirmation
+            profile={profile}
+            frequency={frequency}
+            goalType={goal}
+            goalLabel={GOAL_LABELS[goal] ?? goal}
+            onConfirm={handleConfirm}
+            isSubmitting={isSubmitting}
+          />
         )}
       </div>
     </div>

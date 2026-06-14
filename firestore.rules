@@ -65,9 +65,10 @@ service cloud.firestore {
             'programHistory',
             'boulderingAssessments',
             'boulderingWorkouts',
+            'powerEnduranceAssessments',
+            'powerEnduranceWorkouts',
             'routeEnduranceWorkouts',
             'routePowerWorkouts',
-            'routePowerEnduranceWorkouts',
             'dailyCheckins'
           ];
       }

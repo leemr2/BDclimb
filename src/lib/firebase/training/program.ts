@@ -12,12 +12,18 @@ import {
 } from "firebase/firestore";
 import { db } from "../client";
 import {
-  getWeekDefinition,
-  isWeekFullyComplete,
-  resolveProgramWeek,
+  getWeekDefinition as getBoulderingWeekDefinition,
+  isWeekFullyComplete as isBoulderingWeekFullyComplete,
+  resolveProgramWeek as resolveBoulderingProgramWeek,
   type BoulderingFrequency,
   type WorkoutWeekProgress,
 } from "@/lib/plans/bouldering/planEngine";
+import {
+  getWeekDefinition as getPEWeekDefinition,
+  isWeekFullyComplete as isPEWeekFullyComplete,
+  resolveProgramWeek as resolvePEProgramWeek,
+  type PEFrequency,
+} from "@/lib/plans/power-endurance/planEngine";
 
 export type GoalType =
   | "bouldering"
@@ -39,7 +45,19 @@ export interface ActiveProgram {
   seenEducationSlugs?: string[];
 }
 
-const PROGRAM_VERSION = "bouldering-v1";
+const PROGRAM_VERSIONS: Record<GoalType, string> = {
+  bouldering: "bouldering-v1",
+  route_endurance: "route-endurance-v1",
+  route_power: "route-power-v1",
+  route_power_endurance: "power-endurance-v1",
+};
+
+function getWeekDefinitionForGoal(goalType: GoalType, frequency: 2 | 3 | 4, week: number) {
+  if (goalType === "route_power_endurance") {
+    return getPEWeekDefinition(frequency as PEFrequency, week);
+  }
+  return getBoulderingWeekDefinition(frequency as BoulderingFrequency, week);
+}
 
 /** Stable program id derived from startDate (used across workout/assessment queries). */
 export function getProgramId(program: Pick<ActiveProgram, "startDate">): string {
@@ -67,7 +85,7 @@ export async function startProgram(
     currentWeek: 0,
     currentMesocycle: 1,
     status: "assessment",
-    programVersion: PROGRAM_VERSION,
+    programVersion: PROGRAM_VERSIONS[goalType],
   };
   const snap = await getDoc(userRef);
   if (snap.exists()) {
@@ -116,15 +134,34 @@ export async function advanceProgramWeekIfComplete(
   completedWeek: number,
   completedSessionLabels: string[]
 ): Promise<void> {
-  if (program.goalType !== "bouldering" || completedWeek < program.currentWeek) return;
+  if (
+    (program.goalType !== "bouldering" &&
+      program.goalType !== "route_power_endurance") ||
+    completedWeek < program.currentWeek
+  ) {
+    return;
+  }
 
-  const frequency = program.frequency as BoulderingFrequency;
-  if (!isWeekFullyComplete(frequency, completedWeek, completedSessionLabels)) return;
+  const frequency = program.frequency;
+  const weekComplete =
+    program.goalType === "route_power_endurance"
+      ? isPEWeekFullyComplete(
+          frequency as PEFrequency,
+          completedWeek,
+          completedSessionLabels
+        )
+      : isBoulderingWeekFullyComplete(
+          frequency as BoulderingFrequency,
+          completedWeek,
+          completedSessionLabels
+        );
+
+  if (!weekComplete) return;
 
   const nextWeek = Math.min(completedWeek + 1, 12);
   if (nextWeek <= program.currentWeek) return;
 
-  const nextWeekDef = getWeekDefinition(frequency, nextWeek);
+  const nextWeekDef = getWeekDefinitionForGoal(program.goalType, frequency, nextWeek);
   await updateActiveProgram(userId, {
     currentWeek: nextWeek,
     currentMesocycle: nextWeekDef?.mesocycle ?? program.currentMesocycle,
@@ -141,13 +178,31 @@ export async function syncProgramWeekFromWorkouts(
   program: ActiveProgram,
   workouts: WorkoutWeekProgress[]
 ): Promise<void> {
-  if (program.goalType !== "bouldering" || program.currentWeek === 0) return;
+  if (
+    (program.goalType !== "bouldering" &&
+      program.goalType !== "route_power_endurance") ||
+    program.currentWeek === 0
+  ) {
+    return;
+  }
 
-  const frequency = program.frequency as BoulderingFrequency;
-  const resolvedWeek = resolveProgramWeek(frequency, workouts, program.currentWeek);
+  const frequency = program.frequency;
+  const resolvedWeek =
+    program.goalType === "route_power_endurance"
+      ? resolvePEProgramWeek(
+          frequency as PEFrequency,
+          workouts,
+          program.currentWeek
+        )
+      : resolveBoulderingProgramWeek(
+          frequency as BoulderingFrequency,
+          workouts,
+          program.currentWeek
+        );
+
   if (resolvedWeek === program.currentWeek) return;
 
-  const weekDef = getWeekDefinition(frequency, resolvedWeek);
+  const weekDef = getWeekDefinitionForGoal(program.goalType, frequency, resolvedWeek);
   await updateActiveProgram(userId, {
     currentWeek: resolvedWeek,
     currentMesocycle: weekDef?.mesocycle ?? program.currentMesocycle,

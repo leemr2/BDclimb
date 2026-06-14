@@ -7,8 +7,10 @@ import { useRouter } from "next/navigation";
 import { useAuth } from "@/lib/firebase/auth";
 import { useActiveProgram } from "@/lib/hooks/training/useActiveProgram";
 import { usePlan } from "@/lib/hooks/training/usePlan";
-import { getWeekDefinition } from "@/lib/plans/bouldering/planEngine";
+import { getWeekDefinition as getBoulderingWeekDefinition } from "@/lib/plans/bouldering/planEngine";
+import { getWeekDefinition as getPEWeekDefinition } from "@/lib/plans/power-endurance/planEngine";
 import type { BoulderingFrequency } from "@/lib/plans/bouldering/planEngine";
+import type { PEFrequency } from "@/lib/plans/power-endurance/planEngine";
 import { cancelProgram, getProgramId } from "@/lib/firebase/training/program";
 import { getCompletedWorkouts } from "@/lib/firebase/training/bouldering-workouts";
 import { getAssessmentsForProgram } from "@/lib/firebase/training/bouldering-assessments";
@@ -30,7 +32,7 @@ export default function DashboardPage() {
   const { user, loading: authLoading } = useAuth();
   const router = useRouter();
   const { program, loading: programLoading } = useActiveProgram();
-  const { schedule } = usePlan(program);
+  const { schedule, workoutsAvailable } = usePlan(program);
   const [showCancelConfirm, setShowCancelConfirm] = useState(false);
   const [isCancelling, setIsCancelling] = useState(false);
   const [progressionSuggestion, setProgressionSuggestion] =
@@ -139,20 +141,29 @@ export default function DashboardPage() {
     return null;
   }
 
-  if (program.goalType !== "bouldering") {
+  if (
+    program.goalType !== "bouldering" &&
+    program.goalType !== "route_power_endurance"
+  ) {
     return (
       <div className="training-dashboard">
         <p>This program type is not supported yet. Go back to Training Center.</p>
+        <Link href="/training-center" className="training-center-cta">
+          Back to Training Center
+        </Link>
       </div>
     );
   }
 
+  const isPE = program.goalType === "route_power_endurance";
+  const isBouldering = program.goalType === "bouldering";
+
   const nextSession = schedule?.nextSession ?? null;
   const isWeekZero = program.currentWeek === 0;
   const weekOneFirstSession = isWeekZero
-    ? getWeekDefinition(
-        program.frequency as BoulderingFrequency,
-        1
+    ? (isPE
+        ? getPEWeekDefinition(program.frequency as PEFrequency, 1)
+        : getBoulderingWeekDefinition(program.frequency as BoulderingFrequency, 1)
       )?.sessions[0] ?? null
     : null;
 
@@ -180,9 +191,20 @@ export default function DashboardPage() {
             Before starting Week 1, you'll complete a baseline assessment to establish your:
           </p>
           <ul className="training-week-zero-list">
-            <li>Injury baseline (current pain/stiffness levels)</li>
-            <li>Max finger strength (determines training loads)</li>
-            <li>Limit boulder performance (send rate baseline)</li>
+            {isPE ? (
+              <>
+                <li>Max finger strength (sets IHE working load at 60%)</li>
+                <li>Intermittent endurance test (7s on / 3s off)</li>
+                <li>Crux-after-fatigue simulation (primary KPI baseline)</li>
+                <li>Injury baseline including shoulder symptom score</li>
+              </>
+            ) : (
+              <>
+                <li>Injury baseline (current pain/stiffness levels)</li>
+                <li>Max finger strength (determines training loads)</li>
+                <li>Limit boulder performance (send rate baseline)</li>
+              </>
+            )}
           </ul>
           <p className="training-week-zero-estimate">
             <strong>Time required:</strong> ~60 minutes
@@ -193,7 +215,7 @@ export default function DashboardPage() {
           >
             Start Baseline Assessment
           </Link>
-          {weekOneFirstSession && (
+          {isBouldering && weekOneFirstSession && (
             <p className="training-week-zero-try">
               Or preview the workout flow with a sample session:{" "}
               <Link
@@ -206,17 +228,22 @@ export default function DashboardPage() {
           )}
         </div>
       )}
-      <TodayWorkoutCard 
-        session={nextSession} 
+      <TodayWorkoutCard
+        session={nextSession}
         weekNumber={program.currentWeek}
+        workoutsAvailable={workoutsAvailable}
       />
       <WeekSchedule schedule={schedule} />
-      <KeyMetrics metrics={keyMetrics} loading={keyMetricsLoading} />
-      {!isWeekZero && (
-        <ProgressionCard
-          suggestion={progressionSuggestion}
-          loading={progressionLoading}
-        />
+      {isBouldering && (
+        <>
+          <KeyMetrics metrics={keyMetrics} loading={keyMetricsLoading} />
+          {!isWeekZero && (
+            <ProgressionCard
+              suggestion={progressionSuggestion}
+              loading={progressionLoading}
+            />
+          )}
+        </>
       )}
 
       <div className="training-stop-cycle-wrap">

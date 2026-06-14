@@ -8,13 +8,22 @@ import { useActiveProgram } from "@/lib/hooks/training/useActiveProgram";
 import { useTrainingProfile } from "@/lib/hooks/training/useTrainingProfile";
 import { AssessmentFlow } from "@/components/training/assessment/AssessmentFlow";
 import { AssessmentResultsView } from "@/components/training/assessment/AssessmentResultsView";
+import { PowerEnduranceAssessmentFlow } from "@/components/training/assessment/PowerEnduranceAssessmentFlow";
+import { PowerEnduranceAssessmentResultsView } from "@/components/training/assessment/PowerEnduranceAssessmentResultsView";
 import { AssessmentComparisonSection } from "@/components/training/progress/AssessmentComparisonSection";
 import {
-  createAssessment,
-  getAssessmentsForProgram,
+  createAssessment as createBoulderingAssessment,
+  getAssessmentsForProgram as getBoulderingAssessments,
 } from "@/lib/firebase/training/bouldering-assessments";
-import { updateActiveProgram } from "@/lib/firebase/training/program";
+import {
+  createAssessment as createPEAssessment,
+  getAssessmentsForProgram as getPEAssessments,
+} from "@/lib/firebase/training/power-endurance-assessments";
+import { getProgramId, updateActiveProgram } from "@/lib/firebase/training/program";
 import type { BoulderingAssessment } from "@/lib/plans/bouldering/types";
+import type { PowerEnduranceAssessment } from "@/lib/plans/power-endurance/types";
+
+const SUPPORTED_GOALS = ["bouldering", "route_power_endurance"] as const;
 
 export default function AssessmentPage() {
   const { user, loading: authLoading } = useAuth();
@@ -23,8 +32,19 @@ export default function AssessmentPage() {
   const { profile: trainingProfile, loading: profileLoading } = useTrainingProfile();
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [assessments, setAssessments] = useState<BoulderingAssessment[]>([]);
+  const [boulderingAssessments, setBoulderingAssessments] = useState<
+    BoulderingAssessment[]
+  >([]);
+  const [peAssessments, setPeAssessments] = useState<PowerEnduranceAssessment[]>(
+    []
+  );
   const [assessmentsLoading, setAssessmentsLoading] = useState(false);
+
+  const isPE = program?.goalType === "route_power_endurance";
+  const isBouldering = program?.goalType === "bouldering";
+  const isSupported =
+    program &&
+    SUPPORTED_GOALS.includes(program.goalType as (typeof SUPPORTED_GOALS)[number]);
 
   useEffect(() => {
     if (!authLoading && !user) {
@@ -38,37 +58,50 @@ export default function AssessmentPage() {
     }
   }, [authLoading, programLoading, user, program, router]);
 
-  // Load existing assessments when the program is past Week 0
   useEffect(() => {
-    if (!user || !program || program.currentWeek === 0) return;
-    const programId = (program.startDate as { toMillis?: () => number })?.toMillis
-      ? (program.startDate as { toMillis: () => number }).toMillis().toString()
-      : String(program.startDate);
+    if (!user || !program || program.currentWeek === 0 || !isSupported) return;
+    const programId = getProgramId(program);
     setAssessmentsLoading(true);
-    getAssessmentsForProgram(user.uid, programId)
-      .then(setAssessments)
-      .catch(() => setAssessments([]))
-      .finally(() => setAssessmentsLoading(false));
-  }, [user?.uid, program?.currentWeek, program?.startDate]);
+    const load = isPE
+      ? getPEAssessments(user.uid, programId).then(setPeAssessments)
+      : getBoulderingAssessments(user.uid, programId).then(setBoulderingAssessments);
 
-  const handleAssessmentComplete = async (
+    load
+      .catch(() => {
+        if (isPE) setPeAssessments([]);
+        else setBoulderingAssessments([]);
+      })
+      .finally(() => setAssessmentsLoading(false));
+  }, [user?.uid, program, isPE, isSupported]);
+
+  const handleBoulderingComplete = async (
     assessmentData: Omit<BoulderingAssessment, "id" | "date">
   ) => {
     if (!user || !program) return;
-
     setSaving(true);
     setError(null);
-
     try {
-      await createAssessment(user.uid, assessmentData);
+      await createBoulderingAssessment(user.uid, assessmentData);
+      await updateActiveProgram(user.uid, { currentWeek: 1, status: "active" });
+      router.push("/training-center/dashboard");
+    } catch (e) {
+      console.error("Failed to save assessment:", e);
+      setError(e instanceof Error ? e.message : "Failed to save assessment");
+      setSaving(false);
+    }
+  };
 
-      // Advance to Week 1
-      await updateActiveProgram(user.uid, {
-        currentWeek: 1,
-        status: "active",
-      });
-
-      // Redirect to dashboard
+  const handlePEComplete = async (
+    assessmentData: Omit<PowerEnduranceAssessment, "id" | "date">
+  ) => {
+    if (!user || !program) return;
+    setSaving(true);
+    setError(null);
+    try {
+      await createPEAssessment(user.uid, assessmentData);
+      if (program.currentWeek === 0) {
+        await updateActiveProgram(user.uid, { currentWeek: 1, status: "active" });
+      }
       router.push("/training-center/dashboard");
     } catch (e) {
       console.error("Failed to save assessment:", e);
@@ -89,11 +122,11 @@ export default function AssessmentPage() {
     return null;
   }
 
-  if (program.goalType !== "bouldering") {
+  if (!isSupported) {
     return (
       <div className="training-center-page">
         <div className="training-center-content">
-          <p>Assessment is only available for bouldering programs.</p>
+          <p>Assessment is not available for this program type yet.</p>
           <Link href="/training-center" className="training-center-cta">
             Back to Training Center
           </Link>
@@ -102,8 +135,11 @@ export default function AssessmentPage() {
     );
   }
 
-  // Past Week 0 — show results view instead of the assessment flow
-  if (program.currentWeek > 0) {
+  const weightUnit = trainingProfile?.weightUnit ?? "lbs";
+  const bodyweight = trainingProfile?.weight || 150;
+  const programId = getProgramId(program);
+
+  if (program.currentWeek > 0 && program.status !== "assessment") {
     if (assessmentsLoading) {
       return (
         <div className="loading-container">
@@ -112,55 +148,54 @@ export default function AssessmentPage() {
       );
     }
 
-    const weightUnit = trainingProfile?.weightUnit ?? "lbs";
-
     return (
       <div className="training-assessment-screen">
         <Link href="/training-center" className="training-assessment-back-link">
           ← Training Home
         </Link>
-
         <div className="training-assessment-header">
           <h2 className="training-assessment-title">Assessment Results</h2>
           <p className="training-assessment-subtitle">
-            Week {program.currentWeek} of 12 · {assessments.length > 1 ? `${assessments.length} assessments` : "Baseline"}
+            Week {program.currentWeek} of 12
           </p>
         </div>
-
         <div className="training-assessment-content">
-          {assessments.length === 0 ? (
+          {isPE ? (
+            peAssessments.length === 0 ? (
+              <p style={{ color: "rgba(255,255,255,0.55)", textAlign: "center" }}>
+                No assessment data found for this program.
+              </p>
+            ) : (
+              <PowerEnduranceAssessmentResultsView
+                assessments={peAssessments}
+                weightUnit={weightUnit}
+              />
+            )
+          ) : boulderingAssessments.length === 0 ? (
             <p style={{ color: "rgba(255,255,255,0.55)", textAlign: "center" }}>
               No assessment data found for this program.
             </p>
           ) : (
             <>
               <AssessmentResultsView
-                assessments={assessments}
+                assessments={boulderingAssessments}
                 weightUnit={weightUnit}
               />
               <AssessmentComparisonSection
-                assessments={assessments}
+                assessments={boulderingAssessments}
                 weightUnit={weightUnit}
               />
             </>
           )}
         </div>
-
         <div className="training-assessment-actions">
-          <Link href="/training-center" className="training-center-cta">
-            Go to Training Center
+          <Link href="/training-center/dashboard" className="training-center-cta">
+            Go to Dashboard
           </Link>
         </div>
       </div>
     );
   }
-
-  const bodyweight = trainingProfile?.weight || 150;
-  const weightUnit = trainingProfile?.weightUnit || "lbs";
-
-  const programId = (program.startDate as { toMillis?: () => number })?.toMillis?.() 
-    ? (program.startDate as { toMillis: () => number }).toMillis().toString()
-    : Number(program.startDate).toString();
 
   if (saving) {
     return (
@@ -190,12 +225,22 @@ export default function AssessmentPage() {
 
   return (
     <div className="training-center-page">
-      <AssessmentFlow
-        programId={programId}
-        bodyweight={bodyweight}
-        weightUnit={weightUnit}
-        onComplete={handleAssessmentComplete}
-      />
+      {isPE ? (
+        <PowerEnduranceAssessmentFlow
+          programId={programId}
+          week={program.currentWeek}
+          bodyweight={bodyweight}
+          weightUnit={weightUnit}
+          onComplete={handlePEComplete}
+        />
+      ) : (
+        <AssessmentFlow
+          programId={programId}
+          bodyweight={bodyweight}
+          weightUnit={weightUnit}
+          onComplete={handleBoulderingComplete}
+        />
+      )}
     </div>
   );
 }

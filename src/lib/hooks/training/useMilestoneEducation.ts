@@ -5,8 +5,10 @@ import type { ActiveProgram } from "@/lib/firebase/training/program";
 import { markEducationSlugSeen } from "@/lib/firebase/training/program";
 import { getEducationMeta } from "@/lib/content/educationRegistry";
 import type { EducationPieceMeta } from "@/lib/types/education";
-import { getPendingEducationSlug } from "@/lib/plans/bouldering/educationTriggers";
+import { getPendingEducationSlug as getBoulderingPendingSlug } from "@/lib/plans/bouldering/educationTriggers";
+import { getPendingEducationSlug as getPEPendingSlug } from "@/lib/plans/power-endurance/educationTriggers";
 import type { BoulderingFrequency } from "@/lib/plans/bouldering/planEngine";
+import type { PEFrequency } from "@/lib/plans/power-endurance/planEngine";
 
 interface UseMilestoneEducationOptions {
   program: ActiveProgram | null;
@@ -24,17 +26,29 @@ export function useMilestoneEducation({
   const [meta, setMeta] = useState<EducationPieceMeta | null>(null);
 
   useEffect(() => {
-    if (!program || program.goalType !== "bouldering") {
+    if (
+      !program ||
+      (program.goalType !== "bouldering" &&
+        program.goalType !== "route_power_endurance")
+    ) {
       setPendingSlug(null);
       setMeta(null);
       return;
     }
 
-    const slug = getPendingEducationSlug(
-      program,
-      program.frequency as BoulderingFrequency,
-      completedSessionLabelsForWeek12
-    );
+    const slug =
+      program.goalType === "route_power_endurance"
+        ? getPEPendingSlug(
+            program,
+            program.frequency as PEFrequency,
+            completedSessionLabelsForWeek12
+          )
+        : getBoulderingPendingSlug(
+            program,
+            program.frequency as BoulderingFrequency,
+            completedSessionLabelsForWeek12
+          );
+
     setPendingSlug(slug);
     setMeta(slug ? getEducationMeta(slug) : null);
     setDismissedSlug(null);

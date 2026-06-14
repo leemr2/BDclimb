@@ -2,10 +2,13 @@
 
 import type { TrainingProfileFormData } from "./TrainingProfileForm";
 import type { FrequencyOption } from "./FrequencySelector";
+import type { GoalType } from "@/lib/firebase/training/program";
 
 interface OnboardingConfirmationProps {
   profile: TrainingProfileFormData;
   frequency: FrequencyOption;
+  goalType: GoalType;
+  goalLabel: string;
   onConfirm: () => void;
   isSubmitting: boolean;
 }
@@ -13,13 +16,22 @@ interface OnboardingConfirmationProps {
 export function OnboardingConfirmation({
   profile,
   frequency,
+  goalType,
+  goalLabel,
   onConfirm,
   isSubmitting,
 }: OnboardingConfirmationProps) {
+  const programName =
+    goalType === "route_power_endurance"
+      ? "power-endurance"
+      : "bouldering";
+
   return (
     <div className="training-onboarding-confirmation">
       <h3 className="training-confirmation-title">Summary</h3>
       <dl className="training-confirmation-list">
+        <dt>Program</dt>
+        <dd>{goalLabel}</dd>
         <dt>Age</dt>
         <dd>{profile.age}</dd>
         <dt>Weight</dt>
@@ -35,7 +47,7 @@ export function OnboardingConfirmation({
       </dl>
       <p className="training-confirmation-note">
         You&apos;ll start with a Week 0 assessment, then begin Week 1 of your
-        12-week bouldering program.
+        12-week {programName} program.
       </p>
       <button
         type="button"

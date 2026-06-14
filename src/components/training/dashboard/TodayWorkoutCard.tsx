@@ -6,9 +6,15 @@ import type { SessionDefinition } from "@/lib/plans/bouldering/types";
 interface TodayWorkoutCardProps {
   session: SessionDefinition | null;
   weekNumber?: number;
+  /** When false, show session preview without start link (Phase 2 placeholder). */
+  workoutsAvailable?: boolean;
 }
 
-export function TodayWorkoutCard({ session, weekNumber }: TodayWorkoutCardProps) {
+export function TodayWorkoutCard({
+  session,
+  weekNumber,
+  workoutsAvailable = true,
+}: TodayWorkoutCardProps) {
   if (!session) {
     return (
       <div className="training-today-card">
@@ -31,15 +37,24 @@ export function TodayWorkoutCard({ session, weekNumber }: TodayWorkoutCardProps)
         ~{session.estimatedDuration} min · {session.intent}
       </p>
       <div className="training-today-actions">
-        <Link
-          href={`/training-center/workout/week-${weekNumber ?? 1}-session-${session.label}`}
-          className="training-today-start training-center-cta"
-        >
-          Start workout
-        </Link>
-        <span className="training-today-skip-hint">
-          or mark as Rest day / Skip
-        </span>
+        {workoutsAvailable ? (
+          <>
+            <Link
+              href={`/training-center/workout/week-${weekNumber ?? 1}-session-${session.label}`}
+              className="training-today-start training-center-cta"
+            >
+              Start workout
+            </Link>
+            <span className="training-today-skip-hint">
+              or mark as Rest day / Skip
+            </span>
+          </>
+        ) : (
+          <p className="training-today-empty">
+            Workout logging for this program is coming in Phase 2. Your schedule
+            is shown below — complete your Week 0 assessment to begin training.
+          </p>
+        )}
       </div>
     </div>
   );

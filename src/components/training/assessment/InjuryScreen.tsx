@@ -2,10 +2,13 @@
 
 import { useState } from "react";
 import type { InjuryBaseline } from "@/lib/plans/bouldering/types";
+import type { PEInjuryBaseline } from "@/lib/plans/power-endurance/types";
 
 interface InjuryScreenProps {
-  onComplete: (data: InjuryBaseline) => void;
+  onComplete: (data: InjuryBaseline | PEInjuryBaseline) => void;
   onBack?: () => void;
+  /** PE programs collect composite shoulder symptom score. */
+  showShoulderSymptomScore?: boolean;
 }
 
 const FINGERS = [
@@ -19,7 +22,7 @@ const FINGERS = [
   { id: "l_pinky", label: "Left Pinky" },
 ];
 
-export function InjuryScreen({ onComplete, onBack }: InjuryScreenProps) {
+export function InjuryScreen({ onComplete, onBack, showShoulderSymptomScore = false }: InjuryScreenProps) {
   const [fingerData, setFingerData] = useState<Record<string, { painAtRest: number; painWithPressure: number; stiffness: number }>>(() => {
     const initial: Record<string, { painAtRest: number; painWithPressure: number; stiffness: number }> = {};
     FINGERS.forEach(f => {
@@ -31,6 +34,7 @@ export function InjuryScreen({ onComplete, onBack }: InjuryScreenProps) {
   const [elbowPain, setElbowPain] = useState({ left: 0, right: 0 });
   const [shoulderPain, setShoulderPain] = useState({ left: 0, right: 0 });
   const [morningStiffness, setMorningStiffness] = useState(0);
+  const [shoulderSymptomScore, setShoulderSymptomScore] = useState(0);
   const [concerns, setConcerns] = useState("");
   const [showWarning, setShowWarning] = useState(false);
 
@@ -55,6 +59,7 @@ export function InjuryScreen({ onComplete, onBack }: InjuryScreenProps) {
       shoulderPain,
       morningStiffness,
       concerns,
+      ...(showShoulderSymptomScore ? { shoulderSymptomScore } : {}),
     });
   };
 
@@ -65,6 +70,7 @@ export function InjuryScreen({ onComplete, onBack }: InjuryScreenProps) {
       shoulderPain,
       morningStiffness,
       concerns,
+      ...(showShoulderSymptomScore ? { shoulderSymptomScore } : {}),
     });
   };
 
@@ -227,6 +233,24 @@ export function InjuryScreen({ onComplete, onBack }: InjuryScreenProps) {
             </label>
           </div>
         </div>
+
+        {showShoulderSymptomScore && (
+          <div className="training-assessment-section">
+            <h3 className="training-assessment-section-title">Shoulder Symptom Score</h3>
+            <p className="training-assessment-section-hint">
+              Composite 0-10 for overall shoulder symptoms (tracked throughout the PE program)
+            </p>
+            <input
+              type="range"
+              min="0"
+              max="10"
+              value={shoulderSymptomScore}
+              onChange={(e) => setShoulderSymptomScore(parseInt(e.target.value))}
+              className="training-injury-slider"
+            />
+            <div className="training-injury-slider-value">{shoulderSymptomScore} / 10</div>
+          </div>
+        )}
 
         {/* Morning Stiffness */}
         <div className="training-assessment-section">

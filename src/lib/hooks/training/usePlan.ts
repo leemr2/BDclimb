@@ -5,24 +5,25 @@ import { useAuth } from "@/lib/firebase/auth";
 import type { ActiveProgram } from "@/lib/firebase/training/program";
 import type { PlanDefinition, WeekSchedule } from "@/lib/plans/bouldering/types";
 import {
-  getPlanDefinition,
-  getCurrentWeekSchedule,
+  getPlanDefinition as getBoulderingPlanDefinition,
+  getCurrentWeekSchedule as getBoulderingWeekSchedule,
   type BoulderingFrequency,
 } from "@/lib/plans/bouldering/planEngine";
+import {
+  getPlanDefinition as getPEPlanDefinition,
+  getCurrentWeekSchedule as getPEWeekSchedule,
+  type PEFrequency,
+} from "@/lib/plans/power-endurance/planEngine";
 import { getCompletedSessionLabelsForWeek } from "@/lib/firebase/training/bouldering-workouts";
-
-function getProgramId(program: ActiveProgram): string {
-  const start = program.startDate as { toMillis?: () => number };
-  return (typeof start?.toMillis === "function" ? start.toMillis() : Number(start)).toString();
-}
+import { getProgramId } from "@/lib/firebase/training/program";
 
 /**
  * Resolves plan definition and current week schedule from active program state.
- * Fetches completed session labels for the current week so the schedule shows checkmarks.
  */
 export function usePlan(activeProgram: ActiveProgram | null): {
   plan: PlanDefinition | null;
   schedule: WeekSchedule | null;
+  workoutsAvailable: boolean;
 } {
   const { user } = useAuth();
   const [completedLabels, setCompletedLabels] = useState<string[]>([]);
@@ -32,24 +33,39 @@ export function usePlan(activeProgram: ActiveProgram | null): {
       setCompletedLabels([]);
       return;
     }
-    const programId = getProgramId(activeProgram);
     getCompletedSessionLabelsForWeek(
       user.uid,
-      programId,
+      getProgramId(activeProgram),
       activeProgram.currentWeek
-    ).then(setCompletedLabels).catch(() => setCompletedLabels([]));
+    )
+      .then(setCompletedLabels)
+      .catch(() => setCompletedLabels([]));
   }, [user?.uid, activeProgram?.currentWeek, activeProgram?.goalType, activeProgram?.startDate]);
 
-  if (!activeProgram || activeProgram.goalType !== "bouldering") {
-    return { plan: null, schedule: null };
+  if (!activeProgram) {
+    return { plan: null, schedule: null, workoutsAvailable: false };
+  }
+
+  if (activeProgram.goalType === "route_power_endurance") {
+    const frequency = activeProgram.frequency as PEFrequency;
+    const plan = getPEPlanDefinition(frequency);
+    const schedule = getPEWeekSchedule(
+      activeProgram as Parameters<typeof getPEWeekSchedule>[0],
+      completedLabels
+    );
+    return { plan, schedule, workoutsAvailable: false };
+  }
+
+  if (activeProgram.goalType !== "bouldering") {
+    return { plan: null, schedule: null, workoutsAvailable: false };
   }
 
   const frequency = activeProgram.frequency as BoulderingFrequency;
-  const plan = getPlanDefinition(frequency);
-  const schedule = getCurrentWeekSchedule(
-    activeProgram as Parameters<typeof getCurrentWeekSchedule>[0],
+  const plan = getBoulderingPlanDefinition(frequency);
+  const schedule = getBoulderingWeekSchedule(
+    activeProgram as Parameters<typeof getBoulderingWeekSchedule>[0],
     completedLabels
   );
 
-  return { plan, schedule };
+  return { plan, schedule, workoutsAvailable: true };
 }

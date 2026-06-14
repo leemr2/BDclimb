@@ -13,12 +13,14 @@ import {
   getCompletedWorkouts,
   type BoulderingWorkout,
 } from "@/lib/firebase/training/bouldering-workouts";
-import { getAssessmentsForProgram } from "@/lib/firebase/training/bouldering-assessments";
+import { getAssessmentsForProgram as getBoulderingAssessments } from "@/lib/firebase/training/bouldering-assessments";
+import { getAssessmentsForProgram as getPEAssessments } from "@/lib/firebase/training/power-endurance-assessments";
 import { getProgramId } from "@/lib/firebase/training/program";
 import { useMilestoneEducation } from "@/lib/hooks/training/useMilestoneEducation";
 import { ProfileCard } from "@/components/training/dashboard/ProfileCard";
 import { MilestoneModal } from "@/components/training/education/MilestoneModal";
 import type { BoulderingAssessment } from "@/lib/plans/bouldering/types";
+import type { PowerEnduranceAssessment } from "@/lib/plans/power-endurance/types";
 import type { Timestamp } from "firebase/firestore";
 
 const GOALS = [
@@ -51,15 +53,22 @@ const GOALS = [
     title: "Route Power/Endurance",
     description:
       "Hybrid program for routes that demand both power and sustained effort.",
-    href: "#",
-    available: false,
+    href: "/training-center/onboarding?goal=route_power_endurance",
+    available: true,
   },
 ];
 
-const MESOCYCLE_NAMES: Record<number, string> = {
-  1: "Max Strength",
-  2: "Power / RFD",
-  3: "Performance",
+const MESOCYCLE_NAMES: Record<string, Record<number, string>> = {
+  bouldering: {
+    1: "Max Strength",
+    2: "Power / RFD",
+    3: "Performance",
+  },
+  route_power_endurance: {
+    1: "Aerobic Base + Max Force",
+    2: "Power-Endurance Build",
+    3: "Specific Linking + Redpoint",
+  },
 };
 
 const GOAL_LABELS: Record<string, string> = {
@@ -106,8 +115,10 @@ export default function TrainingCenterPage() {
     Array<BoulderingWorkout & { id: string }>
   >([]);
   const [workoutsLoading, setWorkoutsLoading] = useState(false);
-  const [latestAssessment, setLatestAssessment] =
+  const [latestBoulderingAssessment, setLatestBoulderingAssessment] =
     useState<BoulderingAssessment | null>(null);
+  const [latestPEAssessment, setLatestPEAssessment] =
+    useState<PowerEnduranceAssessment | null>(null);
   const recentCheckins = useRecentCheckinsForSafety(14);
   const { flags: safetyFlags, loading: safetyLoading } = useSafety(recentCheckins);
   const { checkin: todaysCheckin, loading: checkinLoading } = useTodaysCheckin();
@@ -135,16 +146,28 @@ export default function TrainingCenterPage() {
   }, [user, programLoading]);
 
   useEffect(() => {
-    if (!user || !program || program.currentWeek === 0 || program.goalType !== "bouldering") {
-      setLatestAssessment(null);
+    if (!user || !program || program.currentWeek === 0) {
+      setLatestBoulderingAssessment(null);
+      setLatestPEAssessment(null);
       return;
     }
-    const programId = (program.startDate as { toMillis?: () => number })?.toMillis
-      ? (program.startDate as { toMillis: () => number }).toMillis().toString()
-      : String(program.startDate);
-    getAssessmentsForProgram(user.uid, programId)
-      .then((list) => setLatestAssessment(list[list.length - 1] ?? null))
-      .catch(() => setLatestAssessment(null));
+    const programId = getProgramId(program);
+    if (program.goalType === "bouldering") {
+      getBoulderingAssessments(user.uid, programId)
+        .then((list) => setLatestBoulderingAssessment(list[list.length - 1] ?? null))
+        .catch(() => setLatestBoulderingAssessment(null));
+      setLatestPEAssessment(null);
+      return;
+    }
+    if (program.goalType === "route_power_endurance") {
+      getPEAssessments(user.uid, programId)
+        .then((list) => setLatestPEAssessment(list[list.length - 1] ?? null))
+        .catch(() => setLatestPEAssessment(null));
+      setLatestBoulderingAssessment(null);
+      return;
+    }
+    setLatestBoulderingAssessment(null);
+    setLatestPEAssessment(null);
   }, [user?.uid, program?.currentWeek, program?.startDate, program?.goalType]);
 
   useEffect(() => {
@@ -202,7 +225,7 @@ export default function TrainingCenterPage() {
                   href={goal.href}
                   className="training-center-goal-cta training-center-cta"
                 >
-                  Start Bouldering Program
+                  Start {goal.title} Program
                 </Link>
               ) : (
                 <span className="training-center-goal-cta disabled">
@@ -218,8 +241,9 @@ export default function TrainingCenterPage() {
 
   // Active program → training hub
   const isWeekZero = program.currentWeek === 0;
+  const isPE = program.goalType === "route_power_endurance";
   const mesocycleName =
-    MESOCYCLE_NAMES[program.currentMesocycle] ??
+    MESOCYCLE_NAMES[program.goalType]?.[program.currentMesocycle] ??
     `Mesocycle ${program.currentMesocycle}`;
   const goalLabel = GOAL_LABELS[program.goalType] ?? program.goalType;
   const progressPct = Math.min(
@@ -267,9 +291,9 @@ export default function TrainingCenterPage() {
             }
             className="tc-program-cta training-center-cta"
           >
-            {isWeekZero ? "Continue Assessment →" : "Start Next Workout →"}
+            {isWeekZero ? "Continue Assessment →" : isPE ? "Open Dashboard →" : "Start Next Workout →"}
           </Link>
-          {!isWeekZero && (
+          {!isWeekZero && program.goalType === "bouldering" && (
             <Link
               href="/training-center/workout/custom"
               className="tc-program-custom-btn"
@@ -421,7 +445,7 @@ export default function TrainingCenterPage() {
         <section className="tc-section tc-section--assessment">
           <div className="tc-section-header">
             <h3 className="tc-section-title">Assessment Results</h3>
-            {!isWeekZero && latestAssessment && (
+            {!isWeekZero && (latestBoulderingAssessment || latestPEAssessment) && (
               <Link
                 href="/training-center/assessment"
                 className="tc-section-link"
@@ -431,66 +455,89 @@ export default function TrainingCenterPage() {
             )}
           </div>
 
-          {isWeekZero || !latestAssessment ? (
+          {isWeekZero || (!latestBoulderingAssessment && !latestPEAssessment) ? (
             <div className="tc-placeholder">
               <div className="tc-placeholder-icon">📊</div>
               <p className="tc-placeholder-text">
-                Baseline and retest results: max finger strength (lbs), limit
-                boulder send rate, and injury baseline. Retested at Week 4 and
-                Week 12.
+                {isPE
+                  ? "Baseline and retest results: max hang, IHE reps, crux success rate, and injury baseline. Retested at Weeks 4, 8, and 12."
+                  : "Baseline and retest results: max finger strength (lbs), limit boulder send rate, and injury baseline. Retested at Week 4 and Week 12."}
               </p>
             </div>
-          ) : (
+          ) : latestPEAssessment ? (
             <div className="tc-assessment-bubbles">
               <div className="tc-assessment-bubble">
                 <span className="tc-assessment-bubble-label">Max Hang</span>
                 <span className="tc-assessment-bubble-value">
-                  {latestAssessment.maxHang.bestLoad}
+                  {latestPEAssessment.fingerMaxStrength.bestLoad}
+                  <span className="tc-assessment-bubble-unit">lbs</span>
+                </span>
+              </div>
+              <div className="tc-assessment-bubble">
+                <span className="tc-assessment-bubble-label">IHE Reps</span>
+                <span className="tc-assessment-bubble-value">
+                  {latestPEAssessment.intermittentEndurance.totalReps}
+                </span>
+              </div>
+              <div className="tc-assessment-bubble">
+                <span className="tc-assessment-bubble-label">Crux Success</span>
+                <span className="tc-assessment-bubble-value">
+                  {latestPEAssessment.cruxAfterFatigue.successRate}
+                  <span className="tc-assessment-bubble-unit">%</span>
+                </span>
+              </div>
+            </div>
+          ) : latestBoulderingAssessment ? (
+            <div className="tc-assessment-bubbles">
+              <div className="tc-assessment-bubble">
+                <span className="tc-assessment-bubble-label">Max Hang</span>
+                <span className="tc-assessment-bubble-value">
+                  {latestBoulderingAssessment.maxHang.bestLoad}
                   <span className="tc-assessment-bubble-unit">lbs</span>
                 </span>
                 <span className="tc-assessment-bubble-sub">
-                  {latestAssessment.maxHang.percentBodyweight.toFixed(1)}% BW
+                  {latestBoulderingAssessment.maxHang.percentBodyweight.toFixed(1)}% BW
                 </span>
               </div>
 
               <div className="tc-assessment-bubble tc-assessment-bubble--target">
                 <span className="tc-assessment-bubble-label">Training Target</span>
                 <span className="tc-assessment-bubble-value">
-                  {Math.round(latestAssessment.maxHang.bestLoad * 0.87)}
+                  {Math.round(latestBoulderingAssessment.maxHang.bestLoad * 0.87)}
                   <span className="tc-assessment-bubble-unit">lbs</span>
                 </span>
                 <span className="tc-assessment-bubble-sub">87% of max hang</span>
               </div>
 
-              {latestAssessment.limitBoulders.length > 0 && (
+              {latestBoulderingAssessment.limitBoulders.length > 0 && (
                 <div className="tc-assessment-bubble">
                   <span className="tc-assessment-bubble-label">Send Rate</span>
                   <span className="tc-assessment-bubble-value">
                     {Math.round(
-                      (latestAssessment.limitBoulders.filter((p) => p.sent).length /
-                        latestAssessment.limitBoulders.length) *
+                      (latestBoulderingAssessment.limitBoulders.filter((p) => p.sent).length /
+                        latestBoulderingAssessment.limitBoulders.length) *
                         100
                     )}
                     <span className="tc-assessment-bubble-unit">%</span>
                   </span>
                   <span className="tc-assessment-bubble-sub">
-                    {latestAssessment.limitBoulders.filter((p) => p.sent).length}/
-                    {latestAssessment.limitBoulders.length} sent
+                    {latestBoulderingAssessment.limitBoulders.filter((p) => p.sent).length}/
+                    {latestBoulderingAssessment.limitBoulders.length} sent
                   </span>
                 </div>
               )}
 
-              {latestAssessment.campusBoard && (
+              {latestBoulderingAssessment.campusBoard && (
                 <div className="tc-assessment-bubble">
                   <span className="tc-assessment-bubble-label">Campus Reach</span>
                   <span className="tc-assessment-bubble-value">
-                    {latestAssessment.campusBoard.maxReach.bestRung}
+                    {latestBoulderingAssessment.campusBoard.maxReach.bestRung}
                   </span>
                   <span className="tc-assessment-bubble-sub">max rung</span>
                 </div>
               )}
             </div>
-          )}
+          ) : null}
         </section>
 
         {/* Safety Flags — Phase 3 */}
