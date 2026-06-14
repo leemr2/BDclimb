@@ -47,7 +47,7 @@ const ASSESSMENT_TASKS: TaskMeta[] = [
   },
   {
     id: "max-hang",
-    title: "Finger Max Strength Test",
+    title: "Max Hang",
     description: "7s max hang on 20-22mm edge — sets IHE working load at 60%.",
     time: "15–20 min",
     optional: false,
@@ -212,7 +212,7 @@ export function PowerEnduranceAssessmentFlow({
     );
   }
 
-  if (activeTask === "max-hang" && maxHangData === null) {
+  if (activeTask === "max-hang") {
     return (
       <MaxHangTest
         bodyweight={bodyweight}
@@ -309,7 +309,7 @@ export function PowerEnduranceAssessmentFlow({
           {week === 0 ? "Week 0 Baseline Assessment" : `Week ${week} Retest`}
         </h2>
         <p className="training-assessment-subtitle">
-          Power-endurance assessment: max hang, intermittent endurance, and crux-after-fatigue.
+          Complete the required assessments in any order. Optional assessments improve training precision.
         </p>
       </div>
 
@@ -330,41 +330,44 @@ export function PowerEnduranceAssessmentFlow({
 
         <div className="training-tasklist-section-label">Required</div>
         <div className="training-tasklist">
-          {ASSESSMENT_TASKS.filter((t) => !t.optional).map((task) => (
-            <button
-              key={task.id}
-              type="button"
-              className={`training-tasklist-item ${completedMap[task.id] ? "done" : ""}`}
-              onClick={() => {
-                if (task.id === "ihe" && !maxHangData) return;
-                setActiveTask(task.id);
-              }}
-              disabled={task.id === "ihe" && !maxHangData}
-            >
-              <span className="training-tasklist-item-title">{task.title}</span>
-              <span className="training-tasklist-item-meta">{task.time}</span>
-              {task.id === "ihe" && !maxHangData && (
-                <span className="training-tasklist-item-note">Complete max hang first</span>
-              )}
-            </button>
-          ))}
+          {ASSESSMENT_TASKS.filter((t) => !t.optional).map((task) => {
+            const done = completedMap[task.id];
+            const iheLocked = task.id === "ihe" && !maxHangData;
+            return (
+              <TaskRow
+                key={task.id}
+                task={task}
+                done={done}
+                disabled={iheLocked}
+                disabledNote={iheLocked ? "Complete max hang first" : undefined}
+                onStart={() => {
+                  if (iheLocked) return;
+                  setActiveTask(task.id);
+                }}
+              />
+            );
+          })}
         </div>
 
         <div className="training-tasklist-section-label" style={{ marginTop: "1.25rem" }}>
-          Optional
+          Optional <span className="training-tasklist-section-note">— improves training precision</span>
         </div>
         <div className="training-tasklist">
-          {ASSESSMENT_TASKS.filter((t) => t.optional).map((task) => (
-            <button
-              key={task.id}
-              type="button"
-              className={`training-tasklist-item ${completedMap[task.id] ? "done" : ""}`}
-              onClick={() => setActiveTask(task.id)}
-            >
-              <span className="training-tasklist-item-title">{task.title}</span>
-              <span className="training-tasklist-item-meta">{task.time}</span>
-            </button>
-          ))}
+          {ASSESSMENT_TASKS.filter((t) => t.optional).map((task) => {
+            const done = completedMap[task.id];
+            const skipped =
+              (task.id === "campus-board" && campusData === "skipped") ||
+              (task.id === "pulling-strength" && pullingData === "skipped");
+            return (
+              <TaskRow
+                key={task.id}
+                task={task}
+                done={done}
+                skipped={skipped}
+                onStart={() => setActiveTask(task.id)}
+              />
+            );
+          })}
         </div>
 
         {requiredDone && maxHangData && iheData && cafData && (
@@ -396,8 +399,89 @@ export function PowerEnduranceAssessmentFlow({
           onClick={handleFinish}
           disabled={!requiredDone}
           className="training-center-cta"
+          style={{
+            opacity: requiredDone ? 1 : 0.45,
+            cursor: requiredDone ? "pointer" : "not-allowed",
+          }}
         >
-          Confirm &amp; {week === 0 ? "Start Program" : "Save Retest"}
+          {requiredDone
+            ? week === 0
+              ? "Save & Start Week 1"
+              : "Save Retest"
+            : `Complete required assessments (${Math.min(completedCount, 5)}/5)`}
+        </button>
+      </div>
+    </div>
+  );
+}
+
+function TaskRow({
+  task,
+  done,
+  skipped = false,
+  disabled = false,
+  disabledNote,
+  onStart,
+}: {
+  task: TaskMeta;
+  done: boolean;
+  skipped?: boolean;
+  disabled?: boolean;
+  disabledNote?: string;
+  onStart: () => void;
+}) {
+  const isActedOn = done;
+
+  return (
+    <div
+      className={`training-tasklist-item${
+        isActedOn && !skipped ? " training-tasklist-item--done" : ""
+      }${skipped ? " training-tasklist-item--skipped" : ""}`}
+    >
+      <div className="training-tasklist-status">
+        {isActedOn && !skipped ? (
+          <span className="training-tasklist-check" aria-label="Complete">
+            ✓
+          </span>
+        ) : skipped ? (
+          <span className="training-tasklist-skip-icon" aria-label="Skipped">
+            —
+          </span>
+        ) : (
+          <span className="training-tasklist-dot" aria-hidden="true" />
+        )}
+      </div>
+
+      <div className="training-tasklist-info">
+        <div className="training-tasklist-title">
+          {task.title}
+          {task.optional && (
+            <span className="training-tasklist-optional-badge">Optional</span>
+          )}
+        </div>
+        <p className="training-tasklist-desc">{task.description}</p>
+        <div className="training-tasklist-meta">
+          <span className="training-tasklist-time">⏱ {task.time}</span>
+          {disabledNote && (
+            <span className="training-tasklist-equipment">{disabledNote}</span>
+          )}
+        </div>
+      </div>
+
+      <div className="training-tasklist-action">
+        <button
+          type="button"
+          onClick={onStart}
+          disabled={disabled}
+          className={`training-tasklist-btn${
+            isActedOn ? " training-tasklist-btn--redo" : ""
+          }`}
+          style={{
+            opacity: disabled ? 0.45 : 1,
+            cursor: disabled ? "not-allowed" : "pointer",
+          }}
+        >
+          {skipped ? "Do it" : isActedOn ? "Edit" : "Start"}
         </button>
       </div>
     </div>
