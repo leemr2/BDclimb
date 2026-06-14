@@ -48,6 +48,8 @@ export function RepeaterTimer({
 
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const preCountdownRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const runHangPhaseRef = useRef<() => void>(() => {});
+  const runRestPhaseRef = useRef<() => void>(() => {});
 
   const clearAll = useCallback(() => {
     if (intervalRef.current) {
@@ -71,11 +73,12 @@ export function RepeaterTimer({
             clearInterval(intervalRef.current);
             intervalRef.current = null;
           }
+          // One rep = full hang + rest; increment when the rest phase finishes.
+          setTotalReps((r) => r + 1);
           setPhase("hang");
           setPhaseSecondsLeft(HANG_SECONDS);
-          setTotalReps((r) => r + 1);
           if (useAudio) playStartBeep();
-          intervalRef.current = setInterval(runHangPhase, 1000);
+          intervalRef.current = setInterval(() => runHangPhaseRef.current(), 1000);
           return HANG_SECONDS;
         }
         return prev - 1;
@@ -91,20 +94,23 @@ export function RepeaterTimer({
           intervalRef.current = null;
         }
         if (useAudio) playStopBeep();
-        runRestPhase();
+        runRestPhaseRef.current();
         return restChoice;
       }
       return prev - 1;
     });
-  }, [restChoice, useAudio, runRestPhase]);
+  }, [restChoice, useAudio]);
+
+  runHangPhaseRef.current = runHangPhase;
+  runRestPhaseRef.current = runRestPhase;
 
   const startCycle = useCallback(() => {
     setPhase("hang");
     setPhaseSecondsLeft(HANG_SECONDS);
-    setTotalReps(1);
+    setTotalReps(0);
     if (useAudio) playStartBeep();
-    intervalRef.current = setInterval(runHangPhase, 1000);
-  }, [useAudio, runHangPhase]);
+    intervalRef.current = setInterval(() => runHangPhaseRef.current(), 1000);
+  }, [useAudio]);
 
   const handleStart = useCallback(() => {
     if (phase !== "idle") return;
@@ -129,8 +135,8 @@ export function RepeaterTimer({
 
   const handleStop = useCallback(() => {
     clearAll();
-    // During hang, totalReps includes the in-progress rep — only count completed hangs.
-    const reps = phase === "hang" ? Math.max(0, totalReps - 1) : totalReps;
+    // Rep = hang + rest; in-progress hang or rest does not count.
+    const reps = totalReps;
     const hangTotal = reps * HANG_SECONDS;
     setFinalReps(reps);
     setFinalHangSeconds(hangTotal);
@@ -139,7 +145,7 @@ export function RepeaterTimer({
       setShowSummary(true);
     }
     onStop?.(reps, hangTotal, restChoice);
-  }, [totalReps, phase, clearAll, onStop, restChoice, showSummaryOnStop]);
+  }, [totalReps, clearAll, onStop, restChoice, showSummaryOnStop]);
 
   useEffect(() => {
     setRestChoice(initialRest);
