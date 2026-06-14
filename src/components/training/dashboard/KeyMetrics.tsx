@@ -8,10 +8,30 @@ export interface KeyMetricsProps {
   loading?: boolean;
 }
 
+function trendLabel(
+  current: number | null,
+  previous: number | null,
+  suffix = ""
+): string | null {
+  if (current == null || previous == null || previous === 0) return null;
+  const pct = Math.round(((current - previous) / previous) * 100);
+  if (pct === 0) return `0%${suffix}`;
+  return `${pct > 0 ? "+" : ""}${pct}%${suffix}`;
+}
+
 export function KeyMetrics({ metrics, loading }: KeyMetricsProps) {
+  const maxHangTrend = trendLabel(
+    metrics?.maxHangLbs ?? null,
+    metrics?.previousMaxHangLbs ?? null
+  );
+  const campusTrend = trendLabel(
+    metrics?.campusReachRung ?? null,
+    metrics?.previousCampusReachRung ?? null
+  );
+
   const maxHangDisplay =
     metrics?.maxHangLbs != null
-      ? `${metrics.maxHangLbs} lbs${metrics.maxHangPercentBW != null ? ` (${Math.round(metrics.maxHangPercentBW)}% BW)` : ""}`
+      ? `${metrics.maxHangLbs} lbs${metrics.maxHangPercentBW != null ? ` (${Math.round(metrics.maxHangPercentBW)}% BW)` : ""}${maxHangTrend ? ` (${maxHangTrend})` : ""}`
       : "—";
   const sendRateDisplay =
     metrics?.sendRate != null
@@ -19,7 +39,7 @@ export function KeyMetrics({ metrics, loading }: KeyMetricsProps) {
       : "—";
   const campusDisplay =
     metrics?.campusReachRung != null
-      ? `Rung ${metrics.campusReachRung}`
+      ? `Rung ${metrics.campusReachRung}${campusTrend ? ` (${campusTrend})` : ""}`
       : "—";
 
   return (

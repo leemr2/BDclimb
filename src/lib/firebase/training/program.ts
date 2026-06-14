@@ -35,6 +35,8 @@ export interface ActiveProgram {
   currentMesocycle: 1 | 2 | 3;
   status: ProgramStatus;
   programVersion: string;
+  /** Education slugs the user has read or dismissed for this program. */
+  seenEducationSlugs?: string[];
 }
 
 const PROGRAM_VERSION = "bouldering-v1";
@@ -169,6 +171,26 @@ export function subscribeToActiveProgram(
     const data = snap.data();
     const program = data.activeProgram as ActiveProgram | undefined;
     onUpdate(program ?? null);
+  });
+}
+
+/**
+ * Mark an education slug as seen for the active program (deduped).
+ */
+export async function markEducationSlugSeen(
+  userId: string,
+  slug: string
+): Promise<void> {
+  const current = await getActiveProgram(userId);
+  if (!current) return;
+  const seen = current.seenEducationSlugs ?? [];
+  if (seen.includes(slug)) return;
+  const userRef = doc(db, "users", userId);
+  await updateDoc(userRef, {
+    activeProgram: {
+      ...current,
+      seenEducationSlugs: [...seen, slug],
+    },
   });
 }
 

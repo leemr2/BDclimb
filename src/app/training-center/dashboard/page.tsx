@@ -9,7 +9,7 @@ import { useActiveProgram } from "@/lib/hooks/training/useActiveProgram";
 import { usePlan } from "@/lib/hooks/training/usePlan";
 import { getWeekDefinition } from "@/lib/plans/bouldering/planEngine";
 import type { BoulderingFrequency } from "@/lib/plans/bouldering/planEngine";
-import { cancelProgram } from "@/lib/firebase/training/program";
+import { cancelProgram, getProgramId } from "@/lib/firebase/training/program";
 import { getCompletedWorkouts } from "@/lib/firebase/training/bouldering-workouts";
 import { getAssessmentsForProgram } from "@/lib/firebase/training/bouldering-assessments";
 import { getKeyMetrics } from "@/lib/calculations/metrics";
@@ -18,11 +18,13 @@ import {
   evaluateMaxHangProgression,
   type ProgressionSuggestion,
 } from "@/lib/calculations/progression";
+import { useMilestoneEducation } from "@/lib/hooks/training/useMilestoneEducation";
 import { DashboardHeader } from "@/components/training/dashboard/DashboardHeader";
 import { TodayWorkoutCard } from "@/components/training/dashboard/TodayWorkoutCard";
 import { WeekSchedule } from "@/components/training/dashboard/WeekSchedule";
 import { KeyMetrics } from "@/components/training/dashboard/KeyMetrics";
 import { ProgressionCard } from "@/components/training/dashboard/ProgressionCard";
+import { MilestoneModal } from "@/components/training/education/MilestoneModal";
 
 export default function DashboardPage() {
   const { user, loading: authLoading } = useAuth();
@@ -36,6 +38,13 @@ export default function DashboardPage() {
   const [progressionLoading, setProgressionLoading] = useState(false);
   const [keyMetrics, setKeyMetrics] = useState<ReturnType<typeof getKeyMetrics> | null>(null);
   const [keyMetricsLoading, setKeyMetricsLoading] = useState(false);
+  const [week12SessionLabels, setWeek12SessionLabels] = useState<string[]>([]);
+
+  const milestone = useMilestoneEducation({
+    program,
+    userId: user?.uid,
+    completedSessionLabelsForWeek12: week12SessionLabels,
+  });
 
   async function handleCancelProgram() {
     if (!user || isCancelling) return;
@@ -100,6 +109,24 @@ export default function DashboardPage() {
       .finally(() => setKeyMetricsLoading(false));
   }, [user?.uid, program?.startDate, program?.goalType]);
 
+  useEffect(() => {
+    if (!user?.uid || !program || program.currentWeek < 12) {
+      setWeek12SessionLabels([]);
+      return;
+    }
+    const programId = getProgramId(program);
+    getCompletedWorkouts(user.uid, programId, 100)
+      .then((workouts) => {
+        const labels = [
+          ...new Set(
+            workouts.filter((w) => w.week === 12).map((w) => w.sessionLabel)
+          ),
+        ];
+        setWeek12SessionLabels(labels);
+      })
+      .catch(() => setWeek12SessionLabels([]));
+  }, [user?.uid, program?.startDate, program?.currentWeek, program?.goalType]);
+
   if (authLoading || programLoading) {
     return (
       <div className="loading-container">
@@ -138,6 +165,9 @@ export default function DashboardPage() {
         ← Training Home
       </Link>
       <div className="training-dashboard-top-links">
+        <Link href="/training-center/progress" className="training-dashboard-education-link">
+          View progress
+        </Link>
         <Link href="/training-center/education" className="training-dashboard-education-link">
           Education library
         </Link>
@@ -232,6 +262,15 @@ export default function DashboardPage() {
           </div>
         </div>,
         document.body
+      )}
+
+      {milestone.meta && (
+        <MilestoneModal
+          meta={milestone.meta}
+          open={milestone.isVisible}
+          onDismiss={milestone.dismissForLater}
+          onMarkRead={milestone.markRead}
+        />
       )}
     </div>
   );

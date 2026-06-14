@@ -10,10 +10,14 @@ import { useTodaysCheckin } from "@/lib/hooks/training/useCheckin";
 import { useRecentCheckinsForSafety } from "@/lib/hooks/training/useCheckin";
 import {
   getCompletedWorkoutsAll,
+  getCompletedWorkouts,
   type BoulderingWorkout,
 } from "@/lib/firebase/training/bouldering-workouts";
 import { getAssessmentsForProgram } from "@/lib/firebase/training/bouldering-assessments";
+import { getProgramId } from "@/lib/firebase/training/program";
+import { useMilestoneEducation } from "@/lib/hooks/training/useMilestoneEducation";
 import { ProfileCard } from "@/components/training/dashboard/ProfileCard";
+import { MilestoneModal } from "@/components/training/education/MilestoneModal";
 import type { BoulderingAssessment } from "@/lib/plans/bouldering/types";
 import type { Timestamp } from "firebase/firestore";
 
@@ -107,6 +111,13 @@ export default function TrainingCenterPage() {
   const recentCheckins = useRecentCheckinsForSafety(14);
   const { flags: safetyFlags, loading: safetyLoading } = useSafety(recentCheckins);
   const { checkin: todaysCheckin, loading: checkinLoading } = useTodaysCheckin();
+  const [week12SessionLabels, setWeek12SessionLabels] = useState<string[]>([]);
+
+  const milestone = useMilestoneEducation({
+    program,
+    userId: user?.uid,
+    completedSessionLabelsForWeek12: week12SessionLabels,
+  });
 
   useEffect(() => {
     if (!authLoading && !user) {
@@ -135,6 +146,24 @@ export default function TrainingCenterPage() {
       .then((list) => setLatestAssessment(list[list.length - 1] ?? null))
       .catch(() => setLatestAssessment(null));
   }, [user?.uid, program?.currentWeek, program?.startDate, program?.goalType]);
+
+  useEffect(() => {
+    if (!user?.uid || !program || program.currentWeek < 12) {
+      setWeek12SessionLabels([]);
+      return;
+    }
+    const programId = getProgramId(program);
+    getCompletedWorkouts(user.uid, programId, 100)
+      .then((workouts) => {
+        const labels = [
+          ...new Set(
+            workouts.filter((w) => w.week === 12).map((w) => w.sessionLabel)
+          ),
+        ];
+        setWeek12SessionLabels(labels);
+      })
+      .catch(() => setWeek12SessionLabels([]));
+  }, [user?.uid, program?.startDate, program?.currentWeek, program?.goalType]);
 
   if (authLoading || programLoading) {
     return (
@@ -360,25 +389,31 @@ export default function TrainingCenterPage() {
           )}
         </section>
 
-        {/* Progress Charts — Phase 4 */}
+        {/* Progress Charts */}
         <section className="tc-section tc-section--progress">
           <div className="tc-section-header">
             <h3 className="tc-section-title">Progress Charts</h3>
-            <span className="tc-phase-badge">Phase 4</span>
+            {!isWeekZero && (
+              <Link href="/training-center/progress" className="tc-section-link">
+                View charts →
+              </Link>
+            )}
           </div>
-          <div className="tc-placeholder">
-            <div className="tc-placeholder-bars" aria-hidden="true">
-              <div className="tc-placeholder-bar" style={{ height: "40%" }} />
-              <div className="tc-placeholder-bar" style={{ height: "60%" }} />
-              <div className="tc-placeholder-bar" style={{ height: "50%" }} />
-              <div className="tc-placeholder-bar" style={{ height: "75%" }} />
-              <div className="tc-placeholder-bar" style={{ height: "65%" }} />
-              <div className="tc-placeholder-bar" style={{ height: "85%" }} />
-            </div>
+          <div className="tc-progress-cta">
             <p className="tc-placeholder-text">
-              Visual progress: max hang strength, load progression, and boulder
-              send rates charted across all 12 weeks.
+              Max hang strength, weekly training load (sRPE), and boulder send
+              rates charted across all 12 weeks — plus assessment radar
+              comparison.
             </p>
+            {!isWeekZero ? (
+              <Link href="/training-center/progress" className="training-center-cta">
+                Open progress page
+              </Link>
+            ) : (
+              <p className="tc-section-empty">
+                Complete your baseline assessment to unlock progress charts.
+              </p>
+            )}
           </div>
         </section>
 
@@ -506,6 +541,15 @@ export default function TrainingCenterPage() {
           </Link>
         </section>
       </div>
+
+      {milestone.meta && (
+        <MilestoneModal
+          meta={milestone.meta}
+          open={milestone.isVisible}
+          onDismiss={milestone.dismissForLater}
+          onMarkRead={milestone.markRead}
+        />
+      )}
     </div>
   );
 }

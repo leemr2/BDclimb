@@ -8,6 +8,7 @@ import { useActiveProgram } from "@/lib/hooks/training/useActiveProgram";
 import { useTrainingProfile } from "@/lib/hooks/training/useTrainingProfile";
 import { AssessmentFlow } from "@/components/training/assessment/AssessmentFlow";
 import { AssessmentResultsView } from "@/components/training/assessment/AssessmentResultsView";
+import { AssessmentComparisonSection } from "@/components/training/progress/AssessmentComparisonSection";
 import {
   createAssessment,
   getAssessmentsForProgram,
@@ -132,10 +133,16 @@ export default function AssessmentPage() {
               No assessment data found for this program.
             </p>
           ) : (
-            <AssessmentResultsView
-              assessments={assessments}
-              weightUnit={weightUnit}
-            />
+            <>
+              <AssessmentResultsView
+                assessments={assessments}
+                weightUnit={weightUnit}
+              />
+              <AssessmentComparisonSection
+                assessments={assessments}
+                weightUnit={weightUnit}
+              />
+            </>
           )}
         </div>
 
