@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { RepeaterTimer } from "@/components/training/workout/RepeaterTimer";
 import type {
   IntermittentEnduranceAssessment,
   IHEStoppingReason,
@@ -21,43 +22,54 @@ const STOPPING_REASONS: { value: IHEStoppingReason; label: string }[] = [
   { value: "time_limit", label: "Time limit" },
 ];
 
+type Protocol = IntermittentEnduranceAssessment["protocol"];
+
+interface CompletedSet {
+  repsCompleted: number;
+  stoppingReason: IHEStoppingReason;
+  forceQuality: number;
+}
+
+function protocolToRestSeconds(protocol: Protocol): 2 | 3 {
+  return protocol === "7on_2off" ? 2 : 3;
+}
+
 export function IntermittentEnduranceTest({
   workingLoad,
   weightUnit,
   onComplete,
   onBack,
 }: IntermittentEnduranceTestProps) {
-  const [step, setStep] = useState<"intro" | "sets">("intro");
-  const [protocol, setProtocol] = useState<"7on_3off" | "7on_2off">("7on_3off");
-  const [sets, setSets] = useState<
-    Array<{
-      repsCompleted: number;
-      stoppingReason: IHEStoppingReason;
-      forceQuality: number;
-    }>
-  >([{ repsCompleted: 0, stoppingReason: "force_drop", forceQuality: 7 }]);
+  const [step, setStep] = useState<"intro" | "testing">("intro");
+  const [timerState, setTimerState] = useState<"ready" | "log">("ready");
+  const [protocol, setProtocol] = useState<Protocol>("7on_3off");
+  const [completedSets, setCompletedSets] = useState<CompletedSet[]>([]);
+  const [pendingReps, setPendingReps] = useState(0);
+  const [stoppingReason, setStoppingReason] = useState<IHEStoppingReason>("force_drop");
+  const [forceQuality, setForceQuality] = useState(7);
+  const [timerKey, setTimerKey] = useState(0);
 
-  const addSet = () => {
-    setSets((prev) => [
-      ...prev,
-      { repsCompleted: 0, stoppingReason: "force_drop", forceQuality: 7 },
-    ]);
+  const handleTimerStop = (reps: number) => {
+    setPendingReps(reps);
+    setStoppingReason("force_drop");
+    setForceQuality(7);
+    setTimerState("log");
   };
 
-  const updateSet = (
-    index: number,
-    field: "repsCompleted" | "stoppingReason" | "forceQuality",
-    value: number | IHEStoppingReason
-  ) => {
-    setSets((prev) =>
-      prev.map((s, i) => (i === index ? { ...s, [field]: value } : s))
-    );
+  const handleLogSet = () => {
+    if (pendingReps <= 0) return;
+    setCompletedSets((prev) => [
+      ...prev,
+      { repsCompleted: pendingReps, stoppingReason, forceQuality },
+    ]);
+    setTimerState("ready");
+    setPendingReps(0);
+    setTimerKey((k) => k + 1);
   };
 
   const handleComplete = () => {
-    const validSets = sets.filter((s) => s.repsCompleted > 0);
-    if (validSets.length === 0) return;
-    onComplete(buildIntermittentEnduranceAssessment(workingLoad, protocol, validSets));
+    if (completedSets.length === 0) return;
+    onComplete(buildIntermittentEnduranceAssessment(workingLoad, protocol, completedSets));
   };
 
   if (step === "intro") {
@@ -69,19 +81,22 @@ export function IntermittentEnduranceTest({
             Hang at 60% of your max hang load until form breaks or force drops.
           </p>
         </div>
+
         <div className="training-assessment-content">
           <div className="training-assessment-instructions">
             <p>
               <strong>Working load:</strong> {workingLoad} {weightUnit} (60% of max hang)
             </p>
+            <h3>What you&apos;ll do:</h3>
             <ol>
-              <li>7 seconds on / 3 seconds off (or 2 seconds off)</li>
-              <li>Continue until force drops or form fails</li>
-              <li>Log reps completed and stopping reason for each set</li>
-              <li>Rest 3 minutes between sets if doing multiple sets</li>
+              <li>Choose 7 seconds on / 3 seconds off, or 7 on / 2 off</li>
+              <li>Start the timer — a countdown leads into repeating hang/rest cycles</li>
+              <li>Press Stop when force drops or form fails</li>
+              <li>Log why you stopped; rest 3 minutes before another set if desired</li>
             </ol>
           </div>
         </div>
+
         <div className="training-assessment-actions">
           {onBack && (
             <button
@@ -94,7 +109,7 @@ export function IntermittentEnduranceTest({
           )}
           <button
             type="button"
-            onClick={() => setStep("sets")}
+            onClick={() => setStep("testing")}
             className="training-center-cta"
           >
             Start test
@@ -104,112 +119,168 @@ export function IntermittentEnduranceTest({
     );
   }
 
-  const totalReps = sets.reduce((sum, s) => sum + s.repsCompleted, 0);
+  const totalReps = completedSets.reduce((sum, s) => sum + s.repsCompleted, 0);
 
   return (
     <div className="training-assessment-screen">
       <div className="training-assessment-header">
-        <h2 className="training-assessment-title">Log IHE Sets</h2>
+        <h2 className="training-assessment-title">Intermittent Endurance Test</h2>
         <p className="training-assessment-subtitle">
-          Target load: {workingLoad} {weightUnit}
+          Set {completedSets.length + 1} · Target: {workingLoad} {weightUnit}
         </p>
       </div>
 
       <div className="training-assessment-content">
-        <label className="training-injury-input-group">
-          <span className="training-injury-input-label">Protocol:</span>
-          <select
-            value={protocol}
-            onChange={(e) =>
-              setProtocol(e.target.value as "7on_3off" | "7on_2off")
-            }
-            className="training-injury-input"
-          >
-            <option value="7on_3off">7s on / 3s off</option>
-            <option value="7on_2off">7s on / 2s off</option>
-          </select>
-        </label>
+        {timerState === "ready" && (
+          <>
+            <div className="training-assessment-section">
+              <label className="training-assessment-label">Protocol</label>
+              <div className="training-assessment-grip-options">
+                <button
+                  type="button"
+                  onClick={() => setProtocol("7on_3off")}
+                  className={`training-assessment-grip-btn ${
+                    protocol === "7on_3off" ? "active" : ""
+                  }`}
+                >
+                  7s on / 3s off
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setProtocol("7on_2off")}
+                  className={`training-assessment-grip-btn ${
+                    protocol === "7on_2off" ? "active" : ""
+                  }`}
+                >
+                  7s on / 2s off
+                </button>
+              </div>
+              <p className="training-assessment-hint">
+                Use the same protocol for all sets in this test.
+              </p>
+            </div>
 
-        {sets.map((set, index) => (
-          <div key={index} className="training-assessment-section">
-            <h3 className="training-assessment-section-title">Set {index + 1}</h3>
-            <div className="training-injury-simple-grid">
-              <label className="training-injury-input-group">
-                <span className="training-injury-input-label">Reps completed:</span>
+            <div className="training-hang-timer-container">
+              <RepeaterTimer
+                key={`${timerKey}-${protocol}`}
+                restSeconds={protocolToRestSeconds(protocol)}
+                showRestSelector={false}
+                showSummaryOnStop={false}
+                startLabel="Start timer"
+                onStop={(reps) => handleTimerStop(reps)}
+              />
+            </div>
+          </>
+        )}
+
+        {timerState === "log" && (
+          <div className="training-assessment-result">
+            <h3 className="training-assessment-result-title">Set complete</h3>
+            <p className="training-assessment-result-question">
+              {pendingReps} rep{pendingReps !== 1 ? "s" : ""} completed — why did you stop?
+            </p>
+
+            <div className="training-assessment-section">
+              <label className="training-assessment-label">
+                Reps completed
                 <input
                   type="number"
                   min="0"
-                  value={set.repsCompleted}
-                  onChange={(e) =>
-                    updateSet(index, "repsCompleted", parseInt(e.target.value) || 0)
-                  }
-                  className="training-injury-input"
+                  value={pendingReps}
+                  onChange={(e) => setPendingReps(parseInt(e.target.value) || 0)}
+                  className="training-assessment-input"
                 />
               </label>
-              <label className="training-injury-input-group">
-                <span className="training-injury-input-label">Stopping reason:</span>
-                <select
-                  value={set.stoppingReason}
-                  onChange={(e) =>
-                    updateSet(
-                      index,
-                      "stoppingReason",
-                      e.target.value as IHEStoppingReason
-                    )
-                  }
-                  className="training-injury-input"
-                >
-                  {STOPPING_REASONS.map((r) => (
-                    <option key={r.value} value={r.value}>
-                      {r.label}
-                    </option>
-                  ))}
-                </select>
-              </label>
-              <label className="training-injury-input-group">
-                <span className="training-injury-input-label">Force quality (1-10):</span>
+            </div>
+
+            <div className="training-assessment-section">
+              <label className="training-assessment-label">Stopping reason</label>
+              <div className="training-assessment-grip-options">
+                {STOPPING_REASONS.map((r) => (
+                  <button
+                    key={r.value}
+                    type="button"
+                    onClick={() => setStoppingReason(r.value)}
+                    className={`training-assessment-grip-btn ${
+                      stoppingReason === r.value ? "active" : ""
+                    }`}
+                  >
+                    {r.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div className="training-assessment-section">
+              <label className="training-assessment-label">
+                Force quality (1–10)
                 <input
                   type="number"
                   min="1"
                   max="10"
-                  value={set.forceQuality}
-                  onChange={(e) =>
-                    updateSet(index, "forceQuality", parseInt(e.target.value) || 1)
-                  }
-                  className="training-injury-input"
+                  value={forceQuality}
+                  onChange={(e) => setForceQuality(parseInt(e.target.value) || 1)}
+                  className="training-assessment-input"
                 />
               </label>
             </div>
+
+            <div className="training-assessment-result-actions">
+              <button
+                type="button"
+                onClick={() => {
+                  setTimerState("ready");
+                  setPendingReps(0);
+                  setTimerKey((k) => k + 1);
+                }}
+                className="training-center-cta training-btn-secondary"
+              >
+                Discard set
+              </button>
+              <button
+                type="button"
+                onClick={handleLogSet}
+                disabled={pendingReps <= 0}
+                className="training-center-cta"
+              >
+                Save set
+              </button>
+            </div>
           </div>
-        ))}
+        )}
 
-        <button type="button" onClick={addSet} className="training-center-cta training-btn-secondary">
-          + Add another set
-        </button>
-
-        {totalReps > 0 && (
-          <p className="training-assessment-section-hint" style={{ marginTop: "1rem" }}>
-            Total reps: {totalReps}
-          </p>
+        {completedSets.length > 0 && timerState === "ready" && (
+          <div className="training-assessment-attempts">
+            <h4 className="training-assessment-attempts-title">Completed sets:</h4>
+            <ul className="training-assessment-attempts-list">
+              {completedSets.map((set, i) => (
+                <li key={i} className="training-assessment-attempt success">
+                  Set {i + 1}: {set.repsCompleted} reps —{" "}
+                  {STOPPING_REASONS.find((r) => r.value === set.stoppingReason)?.label ??
+                    set.stoppingReason}
+                </li>
+              ))}
+            </ul>
+            <p className="training-assessment-hint">Total reps: {totalReps}</p>
+          </div>
         )}
       </div>
 
       <div className="training-assessment-actions">
-        <button
-          type="button"
-          onClick={() => setStep("intro")}
-          className="training-center-cta training-btn-secondary"
-        >
-          Back
-        </button>
-        <button
-          type="button"
-          onClick={handleComplete}
-          disabled={totalReps === 0}
-          className="training-center-cta"
-        >
-          Complete test
-        </button>
+        {onBack && timerState === "ready" && completedSets.length === 0 && (
+          <button
+            type="button"
+            onClick={onBack}
+            className="training-center-cta training-btn-secondary"
+          >
+            Back
+          </button>
+        )}
+        {completedSets.length > 0 && timerState === "ready" && (
+          <button type="button" onClick={handleComplete} className="training-center-cta">
+            Finish test ({totalReps} total reps)
+          </button>
+        )}
       </div>
     </div>
   );

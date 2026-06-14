@@ -20,12 +20,20 @@ export type RepeaterPhase =
 
 export interface RepeaterTimerProps {
   restSeconds?: 2 | 3;
+  /** When false, parent handles post-stop UI (e.g. assessment logging). */
+  showSummaryOnStop?: boolean;
+  /** Hide rest dropdown when parent controls protocol (e.g. IHE assessment). */
+  showRestSelector?: boolean;
+  startLabel?: string;
   useAudio?: boolean;
   onStop?: (totalReps: number, totalHangSeconds: number, restSeconds: number) => void;
 }
 
 export function RepeaterTimer({
   restSeconds: initialRest = 2,
+  showSummaryOnStop = true,
+  showRestSelector = true,
+  startLabel = "Start repeater",
   useAudio = true,
   onStop,
 }: RepeaterTimerProps) {
@@ -121,14 +129,21 @@ export function RepeaterTimer({
 
   const handleStop = useCallback(() => {
     clearAll();
-    const reps = phase === "hang" ? totalReps + 1 : totalReps;
+    // During hang, totalReps includes the in-progress rep — only count completed hangs.
+    const reps = phase === "hang" ? Math.max(0, totalReps - 1) : totalReps;
     const hangTotal = reps * HANG_SECONDS;
     setFinalReps(reps);
     setFinalHangSeconds(hangTotal);
     setPhase("complete");
-    setShowSummary(true);
+    if (showSummaryOnStop) {
+      setShowSummary(true);
+    }
     onStop?.(reps, hangTotal, restChoice);
-  }, [totalReps, phase, clearAll, onStop, restChoice]);
+  }, [totalReps, phase, clearAll, onStop, restChoice, showSummaryOnStop]);
+
+  useEffect(() => {
+    setRestChoice(initialRest);
+  }, [initialRest]);
 
   useEffect(() => () => clearAll(), [clearAll]);
 
@@ -155,27 +170,29 @@ export function RepeaterTimer({
       <div className="training-repeater-display">
         {phase === "idle" && (
           <>
-            <label className="training-repeater-rest-label">
-              Rest between hangs:
-              <select
-                className="training-repeater-rest-select"
-                value={restChoice}
-                onChange={(e) => setRestChoice(Number(e.target.value) as 2 | 3)}
-                disabled={phase !== "idle"}
-              >
-                {REST_OPTIONS.map((s) => (
-                  <option key={s} value={s}>
-                    {s} seconds
-                  </option>
-                ))}
-              </select>
-            </label>
+            {showRestSelector && (
+              <label className="training-repeater-rest-label">
+                Rest between hangs:
+                <select
+                  className="training-repeater-rest-select"
+                  value={restChoice}
+                  onChange={(e) => setRestChoice(Number(e.target.value) as 2 | 3)}
+                  disabled={phase !== "idle"}
+                >
+                  {REST_OPTIONS.map((s) => (
+                    <option key={s} value={s}>
+                      {s} seconds
+                    </option>
+                  ))}
+                </select>
+              </label>
+            )}
             <button
               type="button"
               className="training-repeater-start"
               onClick={handleStart}
             >
-              Start repeater
+              {startLabel}
             </button>
           </>
         )}
