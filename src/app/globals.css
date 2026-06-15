@@ -984,6 +984,18 @@ a {
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
 }
 
+.time-block-disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+  pointer-events: none;
+}
+
+.time-block-disabled:hover {
+  transform: none;
+  box-shadow: none;
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
 .time-block.empty {
   background-color: rgba(255, 255, 255, 0.04);
 }
@@ -1824,6 +1836,11 @@ a {
 .community-page.day-mode .time-block:hover {
   border-color: #999;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.community-page.day-mode .time-block-disabled:hover {
+  border-color: #eaeaea;
+  box-shadow: none;
 }
 
 .community-page.day-mode .time-block.empty {

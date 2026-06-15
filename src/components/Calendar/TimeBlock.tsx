@@ -6,6 +6,7 @@ interface TimeBlockProps {
   timeBlock: string;
   entries: CalendarEntry[];
   currentUserId: string;
+  disabled?: boolean;
   onToggle: (timeBlock: string) => void;
 }
 
@@ -13,6 +14,7 @@ export const TimeBlock = ({
   timeBlock,
   entries,
   currentUserId,
+  disabled = false,
   onToggle,
 }: TimeBlockProps) => {
   const userEntry = entries.find((entry) => entry.userId === currentUserId);
@@ -29,8 +31,17 @@ export const TimeBlock = ({
     return "time-block empty";
   };
 
+  const handleClick = () => {
+    if (disabled) return;
+    onToggle(timeBlock);
+  };
+
   return (
-    <div className={getBlockClass()} onClick={() => onToggle(timeBlock)}>
+    <div
+      className={`${getBlockClass()}${disabled ? " time-block-disabled" : ""}`}
+      onClick={handleClick}
+      aria-disabled={disabled}
+    >
       <div className="time-block-header">
         <span className="time-label">{formatTimeBlock(timeBlock)}</span>
         {userEntry && (

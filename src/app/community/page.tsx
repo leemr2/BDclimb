@@ -127,7 +127,7 @@ export default function CommunityPage() {
       <div className="community-content">
         <div className="community-left">
           <div className="calendar-section">
-            <CalendarDaySummary />
+            <CalendarDaySummary displayName={displayName} />
           </div>
           {user && displayName && (
             <EventsSection userId={user.uid} displayName={displayName} />

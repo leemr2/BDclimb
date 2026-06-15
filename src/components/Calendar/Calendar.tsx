@@ -14,9 +14,14 @@ import { TimeBlock } from "./TimeBlock";
 interface CalendarProps {
   /** When provided (e.g. from modal), use this as the initial selected date */
   defaultSelectedDate?: string;
+  /** Pre-loaded from parent; avoids redundant fetch and race on modal open */
+  displayName?: string | null;
 }
 
-export const Calendar = ({ defaultSelectedDate }: CalendarProps) => {
+export const Calendar = ({
+  defaultSelectedDate,
+  displayName: displayNameProp,
+}: CalendarProps) => {
   const { user } = useAuth();
   const [selectedDate, setSelectedDate] = useState<string>(() => {
     if (defaultSelectedDate) return defaultSelectedDate;
@@ -24,8 +29,14 @@ export const Calendar = ({ defaultSelectedDate }: CalendarProps) => {
     return today.toISOString().split("T")[0];
   });
   const [entries, setEntries] = useState<CalendarEntry[]>([]);
-  const [displayName, setDisplayName] = useState<string>("");
+  const [fetchedDisplayName, setFetchedDisplayName] = useState("");
+  const [profileLoading, setProfileLoading] = useState(false);
   const [loading, setLoading] = useState(true);
+
+  const skipProfileFetch = displayNameProp !== undefined;
+  const displayName = skipProfileFetch
+    ? (displayNameProp ?? "")
+    : fetchedDisplayName;
 
   // Sync with parent when defaultSelectedDate changes (e.g. modal opened with new date)
   useEffect(() => {
@@ -34,23 +45,31 @@ export const Calendar = ({ defaultSelectedDate }: CalendarProps) => {
     }
   }, [defaultSelectedDate]); // eslint-disable-line react-hooks/exhaustive-deps -- only sync when prop from parent changes
 
-  // Get user's display name
+  // Fallback profile fetch when parent does not pass displayName
   useEffect(() => {
-    const fetchDisplayName = async () => {
-      if (!user) return;
+    if (skipProfileFetch || !user) return;
 
+    let cancelled = false;
+    setProfileLoading(true);
+
+    const fetchDisplayName = async () => {
       try {
         const profile = await getUserProfile(user.uid);
-        if (profile) {
-          setDisplayName(profile.displayName);
+        if (!cancelled && profile?.displayName) {
+          setFetchedDisplayName(profile.displayName);
         }
       } catch (error) {
         console.error("Error fetching user profile:", error);
+      } finally {
+        if (!cancelled) setProfileLoading(false);
       }
     };
 
     fetchDisplayName();
-  }, [user]);
+    return () => {
+      cancelled = true;
+    };
+  }, [user, skipProfileFetch]);
 
   // Subscribe to calendar entries for selected date
   useEffect(() => {
@@ -95,6 +114,9 @@ export const Calendar = ({ defaultSelectedDate }: CalendarProps) => {
   };
 
   const timeBlocks = generateTimeBlocks();
+  const waitingForProfile = !skipProfileFetch && profileLoading;
+  const showLoading = loading || waitingForProfile;
+  const canToggle = !showLoading && !!user && !!displayName;
 
   return (
     <div className="calendar-container">
@@ -108,7 +130,7 @@ export const Calendar = ({ defaultSelectedDate }: CalendarProps) => {
           className="date-picker"
         />
       </div>
-      {loading ? (
+      {showLoading ? (
         <div className="calendar-loading">Loading...</div>
       ) : (
         <div className="calendar-grid">
@@ -122,6 +144,7 @@ export const Calendar = ({ defaultSelectedDate }: CalendarProps) => {
                 timeBlock={timeBlock}
                 entries={blockEntries}
                 currentUserId={user?.uid || ""}
+                disabled={!canToggle}
                 onToggle={handleToggleTimeBlock}
               />
             );

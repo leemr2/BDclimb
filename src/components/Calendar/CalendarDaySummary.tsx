@@ -9,7 +9,11 @@ import {
 } from "@/lib/firebase/calendar";
 import { Calendar } from "./Calendar";
 
-export const CalendarDaySummary = () => {
+interface CalendarDaySummaryProps {
+  displayName?: string | null;
+}
+
+export const CalendarDaySummary = ({ displayName }: CalendarDaySummaryProps) => {
   const [selectedDate, setSelectedDate] = useState<string>(() => {
     const today = new Date();
     return today.toISOString().split("T")[0];
@@ -174,7 +178,10 @@ export const CalendarDaySummary = () => {
               </button>
             </div>
             <div className="calendar-modal-body">
-              <Calendar defaultSelectedDate={selectedDate} />
+              <Calendar
+                defaultSelectedDate={selectedDate}
+                displayName={displayName}
+              />
             </div>
           </div>
         </div>
