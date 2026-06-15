@@ -275,6 +275,7 @@ export default function AssessmentPage() {
           profile={trainingProfile}
           week0Benchmark={week0Benchmark}
           onComplete={handlePEComplete}
+          onQuit={() => router.push("/training-center")}
         />
       ) : (
         <AssessmentFlow

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { createPortal } from "react-dom";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useAuth } from "@/lib/firebase/auth";
@@ -15,7 +16,7 @@ import {
 } from "@/lib/firebase/training/bouldering-workouts";
 import { getAssessmentsForProgram as getBoulderingAssessments } from "@/lib/firebase/training/bouldering-assessments";
 import { getAssessmentsForProgram as getPEAssessments } from "@/lib/firebase/training/power-endurance-assessments";
-import { getProgramId } from "@/lib/firebase/training/program";
+import { getProgramId, cancelProgram } from "@/lib/firebase/training/program";
 import { useMilestoneEducation } from "@/lib/hooks/training/useMilestoneEducation";
 import { ProfileCard } from "@/components/training/dashboard/ProfileCard";
 import { MilestoneModal } from "@/components/training/education/MilestoneModal";
@@ -123,6 +124,20 @@ export default function TrainingCenterPage() {
   const { flags: safetyFlags, loading: safetyLoading } = useSafety(recentCheckins);
   const { checkin: todaysCheckin, loading: checkinLoading } = useTodaysCheckin();
   const [week12SessionLabels, setWeek12SessionLabels] = useState<string[]>([]);
+  const [showCancelConfirm, setShowCancelConfirm] = useState(false);
+  const [isCancelling, setIsCancelling] = useState(false);
+
+  async function handleCancelProgram() {
+    if (!user || isCancelling) return;
+    setIsCancelling(true);
+    try {
+      await cancelProgram(user.uid);
+      router.replace("/training-center");
+    } finally {
+      setIsCancelling(false);
+      setShowCancelConfirm(false);
+    }
+  }
 
   const milestone = useMilestoneEducation({
     program,
@@ -293,6 +308,15 @@ export default function TrainingCenterPage() {
           >
             {isWeekZero ? "Continue Assessment →" : isPE ? "Open Dashboard →" : "Start Next Workout →"}
           </Link>
+          {isWeekZero && (
+            <button
+              type="button"
+              onClick={() => setShowCancelConfirm(true)}
+              className="tc-program-custom-btn"
+            >
+              Stop Training Cycle
+            </button>
+          )}
           {!isWeekZero && program.goalType === "bouldering" && (
             <Link
               href="/training-center/workout/custom"
@@ -592,6 +616,52 @@ export default function TrainingCenterPage() {
           </Link>
         </section>
       </div>
+
+      {showCancelConfirm &&
+        typeof window !== "undefined" &&
+        createPortal(
+          <div
+            className="training-cancel-overlay"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="cancel-dialog-title"
+            onClick={(e) => {
+              if (e.target === e.currentTarget && !isCancelling) {
+                setShowCancelConfirm(false);
+              }
+            }}
+          >
+            <div className="training-cancel-dialog">
+              <h3 id="cancel-dialog-title" className="training-cancel-dialog-title">
+                Stop Training Cycle?
+              </h3>
+              <p className="training-cancel-dialog-body">
+                Your progress through Week {program.currentWeek} will be saved to your
+                history, but your active program will end. You can start a new cycle
+                anytime.
+              </p>
+              <div className="training-cancel-dialog-actions">
+                <button
+                  type="button"
+                  onClick={() => setShowCancelConfirm(false)}
+                  disabled={isCancelling}
+                  className="training-cancel-dialog-keep"
+                >
+                  No, Keep Going
+                </button>
+                <button
+                  type="button"
+                  onClick={handleCancelProgram}
+                  disabled={isCancelling}
+                  className="training-cancel-dialog-confirm"
+                >
+                  {isCancelling ? "Stopping…" : "Yes, Stop"}
+                </button>
+              </div>
+            </div>
+          </div>,
+          document.body
+        )}
 
       {milestone.meta && (
         <MilestoneModal

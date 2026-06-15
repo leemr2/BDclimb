@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { createPortal } from "react-dom";
 import Link from "next/link";
 import { MaxHangTest } from "./MaxHangTest";
 import { IntermittentEnduranceTest } from "./IntermittentEnduranceTest";
@@ -100,6 +101,7 @@ interface PowerEnduranceAssessmentFlowProps {
   profile?: TrainingProfile | null;
   week0Benchmark?: CAFBenchmark | null;
   onComplete: (assessment: Omit<PowerEnduranceAssessment, "id" | "date">) => void;
+  onQuit?: () => void;
 }
 
 export function PowerEnduranceAssessmentFlow({
@@ -110,8 +112,10 @@ export function PowerEnduranceAssessmentFlow({
   profile,
   week0Benchmark,
   onComplete,
+  onQuit,
 }: PowerEnduranceAssessmentFlowProps) {
   const [activeTask, setActiveTask] = useState<TaskId | null>(null);
+  const [showQuitConfirm, setShowQuitConfirm] = useState(false);
   const [warmupDone, setWarmupDone] = useState(false);
   const [maxHangData, setMaxHangData] = useState<MaxHangAssessment | null>(null);
   const [iheData, setIheData] = useState<
@@ -147,6 +151,33 @@ export function PowerEnduranceAssessmentFlow({
 
   const completedCount = Object.values(completedMap).filter(Boolean).length;
   const iheWorkingLoad = maxHangData ? getIHEWorkingLoad(maxHangData.bestLoad) : 0;
+  const hasProgress = completedCount > 0;
+
+  const resetAssessment = () => {
+    setActiveTask(null);
+    setWarmupDone(false);
+    setMaxHangData(null);
+    setIheData(null);
+    setCafData(null);
+    setCampusData(null);
+    setPullingData(null);
+    setInjuryData(null);
+  };
+
+  const handleQuitRequest = () => {
+    if (hasProgress) {
+      setShowQuitConfirm(true);
+      return;
+    }
+    resetAssessment();
+    onQuit?.();
+  };
+
+  const handleQuitConfirm = () => {
+    setShowQuitConfirm(false);
+    resetAssessment();
+    onQuit?.();
+  };
 
   const handleFinish = () => {
     if (!requiredDone || !maxHangData || !iheData || !cafData || !injuryData) return;
@@ -407,6 +438,15 @@ export function PowerEnduranceAssessmentFlow({
       </div>
 
       <div className="training-assessment-actions">
+        {onQuit && (
+          <button
+            type="button"
+            onClick={handleQuitRequest}
+            className="training-center-cta training-btn-secondary"
+          >
+            Quit assessment
+          </button>
+        )}
         <button
           type="button"
           onClick={handleFinish}
@@ -424,6 +464,47 @@ export function PowerEnduranceAssessmentFlow({
             : `Complete required assessments (${Math.min(completedCount, 5)}/5)`}
         </button>
       </div>
+
+      {showQuitConfirm &&
+        typeof window !== "undefined" &&
+        createPortal(
+          <div
+            className="training-cancel-overlay"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="quit-assessment-dialog-title"
+            onClick={(e) => {
+              if (e.target === e.currentTarget) setShowQuitConfirm(false);
+            }}
+          >
+            <div className="training-cancel-dialog">
+              <h3 id="quit-assessment-dialog-title" className="training-cancel-dialog-title">
+                {week === 0 ? "Quit assessment?" : "Quit retest?"}
+              </h3>
+              <p className="training-cancel-dialog-body">
+                Your in-progress {week === 0 ? "baseline" : "retest"} data will be
+                discarded. You can start fresh when you return.
+              </p>
+              <div className="training-cancel-dialog-actions">
+                <button
+                  type="button"
+                  onClick={() => setShowQuitConfirm(false)}
+                  className="training-cancel-dialog-keep"
+                >
+                  Keep going
+                </button>
+                <button
+                  type="button"
+                  onClick={handleQuitConfirm}
+                  className="training-cancel-dialog-confirm"
+                >
+                  Quit & start over
+                </button>
+              </div>
+            </div>
+          </div>,
+          document.body
+        )}
     </div>
   );
 }
