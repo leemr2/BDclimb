@@ -61,8 +61,36 @@ export type PEDrillType =
   | "threshold_intervals"
   | "easy_climbing";
 
+/** ELS progression modifiers applied on top of Week 0 assessment benchmark. */
+export interface CAFELSProgression {
+  moveDelta: number;
+  gradeDelta: number;
+  cruxGradeDelta?: number;
+}
+
+export interface CAFDrillDefaults {
+  rounds: number;
+  restBetweenRoundsMinutes: number;
+  elsProgression: CAFELSProgression;
+}
+
+/** Resolved workout targets after applying benchmark + progression. */
+export interface CAFResolvedTargets {
+  entryGrade: string;
+  entryMoves: number;
+  targetELS: number;
+  cruxGrade: string;
+  cruxTotalMoves: number;
+  cruxDescription: string;
+  rounds: number;
+  restBetweenRoundsMinutes: number;
+}
+
 export interface PEDrillDefinition extends Omit<BoulderingDrillDefinition, "type"> {
   type: PEDrillType;
+  cafDefaults?: CAFDrillDefaults;
+  /** Populated by resolveCAFDrill when Week 0 benchmark is available. */
+  cafResolved?: CAFResolvedTargets;
 }
 
 /** Session with PE drills expanded from catalog. */
@@ -209,41 +237,70 @@ export type CriticalForceData = {
     | "reduce_to_2_blocks";
 };
 
-export type CruxAfterFatigueData = {
-  leadInDuration: number;
-  leadInTerrain: string;
+export type CAFLimitingFactor =
+  | "forearm_pump"
+  | "finger_strength"
+  | "power_explosiveness"
+  | "technical_execution"
+  | "mental_focus"
+  | "pacing_errors";
+
+export type CAFMentalState = "focused" | "distracted" | "anxious" | "confident";
+
+/** Shared round shape for assessment attempts and workout logs. */
+export interface CAFRoundBase {
+  entryMoves: number;
+  entryGrade: string;
+  entryGradeMultiplier: number;
+  els: number;
   cruxDescription: string;
   cruxGrade: string;
   cruxTotalMoves: number;
-  rounds: Array<{
-    leadInCompleted: boolean;
-    leadInRPE: number;
-    pumpBeforeCrux: number;
-    movesCompleted: number;
-    success: boolean;
-    executionQuality: number;
-    restAfterMinutes: number;
-    mentalState: "focused" | "distracted" | "anxious" | "confident";
-    notes: string;
-  }>;
+  cruxGradeMultiplier: number;
+  movesCompleted: number;
+  cds: number;
+  success: boolean;
+  roundScore: number;
+  leadInCompleted: boolean;
+  pumpBeforeCrux: number;
+  executionQuality: number;
+  mentalState?: CAFMentalState;
+  notes: string;
+}
+
+/** Workout entry anchor — established at Week 0 assessment. */
+export interface CAFBenchmark {
+  entryGrade: string;
+  entryMoves: number;
+  baselineELS: number;
+  cruxDescription: string;
+  cruxGrade: string;
+  cruxTotalMoves: number;
+}
+
+export type CruxAfterFatigueData = {
+  benchmark: CAFBenchmark;
+  rounds: Array<
+    CAFRoundBase & {
+      leadInRPE: number;
+      restAfterMinutes: number;
+    }
+  >;
   totalRounds: number;
+  sessionCAFScore: number;
+  avgRoundScore: number;
   successRate: number;
   avgMovesCompleted: number;
   avgPumpBeforeCrux: number;
   avgExecutionQuality: number;
   trendVsLastSession: {
+    lastSessionCAFScore: number;
     lastSuccessRate: number;
-    trend: "improving" | "stable" | "declining";
+    scoreTrend: "improving" | "stable" | "declining";
   } | null;
   leadInPacing: "too_fast" | "good" | "too_slow" | "inconsistent";
   shakeRestManagement: "excellent" | "good" | "fair" | "poor";
-  limitingFactor:
-    | "forearm_pump"
-    | "finger_strength"
-    | "power_explosiveness"
-    | "technical_execution"
-    | "mental_focus"
-    | "pacing_errors";
+  limitingFactor: CAFLimitingFactor;
 };
 
 export type RoutePracticeData = {
@@ -322,7 +379,8 @@ export interface IntermittentEnduranceAssessment {
   totalTimeSeconds: number;
 }
 
-export interface CruxAfterFatigueAttempt {
+/** @deprecated Use CAFRoundBase — kept for legacy normalizer. */
+export interface CruxAfterFatigueAttemptLegacy {
   leadInCompleted: boolean;
   pumpBeforeCrux: number;
   movesCompleted: number;
@@ -332,19 +390,18 @@ export interface CruxAfterFatigueAttempt {
 }
 
 export interface CruxAfterFatigueAssessment {
-  leadInDuration: number;
-  cruxDescription: string;
-  cruxTotalMoves: number;
-  attempts: CruxAfterFatigueAttempt[];
+  benchmark: CAFBenchmark;
+  attempts: CAFRoundBase[];
+  sessionCAFScore: number;
+  avgRoundScore: number;
+  avgELS: number;
+  avgCDS: number;
   successRate: number;
   avgMovesCompleted: number;
   avgPumpBeforeCrux: number;
-  limitingFactor?:
-    | "forearm_pump"
-    | "finger_strength"
-    | "technique"
-    | "mental"
-    | "power";
+  limitingFactor?: CAFLimitingFactor;
+  /** Set when document uses pre-CAF-scoring shape. */
+  isLegacy?: boolean;
 }
 
 export interface RoutePowerEnduranceTest {

@@ -23,7 +23,7 @@ const GOAL_LABELS: Record<string, string> = {
   route_power_endurance: "Route Power/Endurance",
 };
 
-const defaultProfile: TrainingProfileFormData = {
+const defaultBoulderingProfile: TrainingProfileFormData = {
   age: 0,
   weight: 0,
   weightUnit: "lbs",
@@ -31,15 +31,19 @@ const defaultProfile: TrainingProfileFormData = {
   currentLimitGrade: "V4",
 };
 
+const defaultPEProfile: TrainingProfileFormData = {
+  age: 0,
+  weight: 0,
+  weightUnit: "lbs",
+  experienceLevel: "intermediate",
+  currentRouteGrade: "5.10a",
+  goalRouteGrade: "5.11a",
+};
+
 export default function OnboardingPage() {
   const { user, loading: authLoading } = useAuth();
   const router = useRouter();
   const searchParams = useSearchParams();
-  const [step, setStep] = useState(STEP_PROFILE);
-  const [profile, setProfile] = useState<TrainingProfileFormData>(defaultProfile);
-  const [frequency, setFrequency] = useState<FrequencyOption | null>(null);
-  const [isSubmitting, setIsSubmitting] = useState(false);
-
   const goalParam = searchParams.get("goal");
   const goal = useMemo(
     () =>
@@ -48,6 +52,19 @@ export default function OnboardingPage() {
         : null,
     [goalParam]
   );
+
+  const [step, setStep] = useState(STEP_PROFILE);
+  const [profile, setProfile] = useState<TrainingProfileFormData>(defaultBoulderingProfile);
+  const [frequency, setFrequency] = useState<FrequencyOption | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  useEffect(() => {
+    if (goal === "route_power_endurance") {
+      setProfile(defaultPEProfile);
+    } else if (goal === "bouldering") {
+      setProfile(defaultBoulderingProfile);
+    }
+  }, [goal]);
 
   useEffect(() => {
     if (!authLoading && !user) {
@@ -70,7 +87,12 @@ export default function OnboardingPage() {
         weight: profile.weight,
         weightUnit: profile.weightUnit,
         experienceLevel: profile.experienceLevel,
-        currentLimitGrade: profile.currentLimitGrade,
+        ...(goal === "route_power_endurance"
+          ? {
+              currentRouteGrade: profile.currentRouteGrade ?? "5.10a",
+              goalRouteGrade: profile.goalRouteGrade ?? "5.11a",
+            }
+          : { currentLimitGrade: profile.currentLimitGrade ?? "V4" }),
       });
       await startProgram(user.uid, goal, frequency);
       router.replace("/training-center/assessment");
@@ -104,6 +126,7 @@ export default function OnboardingPage() {
               Your training profile
             </h2>
             <TrainingProfileForm
+              goalType={goal}
               data={profile}
               onChange={setProfile}
               onSubmit={() => setStep(STEP_FREQUENCY)}

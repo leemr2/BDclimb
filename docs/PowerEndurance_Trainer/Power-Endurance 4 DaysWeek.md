@@ -34,8 +34,8 @@ This plan targets routes that require sustained climbing for several minutes whi
 
 **3. Crux-After-Fatigue Simulation**
 
-- 2-3 min continuous moderate climbing → immediate crux boulder (6-12 moves); rest 10-15 min; repeat 2-3 times
-- **Record**: Success rate and moves completed
+- Entry section: a defined number of moves at a defined route grade → immediately attempt a crux boulder (6-12 moves); rest 10-15 min; repeat 2-3 times
+- **Record**: Entry moves + grade (→ ELS), crux grade + moves completed (→ CDS), round score (ELS + CDS), session total. Also record success rate and average pump before crux. This establishes your Week 0 CAF score baseline.
 
 **4. Session Baseline**: Duration × RPE = sRPE
 
@@ -196,12 +196,14 @@ Apply the silent feet rule during the last 5-10 minutes of warm-up. No extra tim
 **Structure**:
 
 - 5-6 rounds:
-  - Part A: 2-3 minutes continuous moderate climbing (don't fall, stay controlled)
+  - Part A (Entry): A defined number of moves at a defined route grade — don't fall, stay controlled
   - Part B (immediately): Attempt a 6-12 move crux sequence (RPE 9)
   - Rest: 10-12 minutes between rounds
-- **Week 1**: 5 rounds, 2-min lead-in | **Week 2**: 5 rounds, 2.5-min lead-in | **Week 3**: 6 rounds, 3-min lead-in
+- **Week 1**: 5 rounds, ~20 entry moves at 5.9 (ELS ≈ 20)
+- **Week 2**: 5 rounds, ~25 entry moves at 5.9, or same moves at 5.10a (ELS ≈ 25–27.5)
+- **Week 3**: 6 rounds, ~30 entry moves at 5.9, or ~25 at 5.10a (ELS ≈ 27.5–30)
 
-**Track**: Crux success rate (e.g., "4/6"), moves completed per attempt, quality rating (1-5), pump level before crux, pacing notes, mental state
+**Track per round**: Entry grade + moves → ELS; crux grade + moves completed → CDS; round score (ELS + CDS). Session total = sum of all round scores (5–6 rounds). Also log pump before crux (1–10), execution quality (1–5), pacing notes, mental state.
 
 **Total Session Duration**: 75-95 minutes
 
@@ -313,18 +315,18 @@ Alternate between these two. They target the same energy system from different a
 
 **Structure**:
 
-- 5-6 rounds; lead-in gets longer; crux gets harder
-- **Week 5**: 5 rounds, 3-min lead-in, harder crux (+1 grade)
-- **Week 6**: 5 rounds, 3.5-min lead-in, maintain crux difficulty
-- **Week 7**: 6 rounds, 4-min lead-in, maintain crux difficulty
+- 5-6 rounds; ELS increases; crux grade rises
+- **Week 5**: 5 rounds — increase ELS to ~35 (e.g., 30 moves at 5.9 or 25 at 5.10b); crux bumped +1 grade
+- **Week 6**: 5 rounds — maintain ELS from Week 5; maintain crux grade
+- **Week 7**: 6 rounds — increase ELS further (e.g., 35 moves at 5.9 or 25 at 5.10c); maintain crux grade
 
 **Additional Focus**:
-- Practice efficient shaking during the lead-in
+- Practice efficient shaking during the entry section
 - Experiment with pacing (faster vs. slower)
 - Try different rest positions
 - Mental rehearsal before each crux attempt
 
-**Track**: Success rate (compare to Mesocycle 1—should improve despite harder crux), moves completed, quality rating (1-5), pump management effectiveness, pacing notes, mental state
+**Track per round**: Entry grade + moves → ELS; crux grade + moves completed → CDS; round score. Session total. Session scores should climb vs. Mesocycle 1 despite harder entry and crux — this is the primary progress signal. Also track quality rating (1–5), pump management, pacing notes, mental state.
 
 **Total Session Duration**: 85-105 min
 
@@ -521,9 +523,9 @@ Never progress if success rate drops below 30% for 2 consecutive weeks.
 ### For Specific Work (Workout D)
 
 Change only one variable per week:
-1. Lead-in duration (2 → 3 → 4 min)
+1. ELS — add entry moves or raise entry grade (primary progression lever)
 2. Number of rounds (4 → 5 → 6)
-3. Crux difficulty (+1 grade when success rate >60%)
+3. Crux grade (+1 grade when session score plateaus and success rate >60%)
 4. Rest reduction (only in final mesocycle; max 10%)
 
 ------

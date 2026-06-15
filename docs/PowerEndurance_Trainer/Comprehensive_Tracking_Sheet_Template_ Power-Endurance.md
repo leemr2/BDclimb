@@ -44,20 +44,22 @@ Use this once at the beginning, then repeat at Weeks 4, 8, and 12.
 
 #### CRUX-AFTER-FATIGUE BENCHMARK TEST
 
-**Lead-in protocol:** __________ minutes continuous moderate climbing
-**Crux used:** ________________________________________________ (grade/description)
+**Scoring system**: ELS = entry moves × grade multiplier | CDS = crux moves completed × (V-grade + 1) | Round Score = ELS + CDS
 
-| Attempt | Lead-in completed? | Pump before crux (1-10) | Crux moves completed | Success? | Quality (1-5) | Notes |
-| ------- | ------------------ | ----------------------- | -------------------- | -------- | ------------- | ----- |
-| 1       | ☐ Yes  ☐ No        | _____ / 10              | _____ / _____        | ☐ Y  ☐ N | _____         |       |
-| 2       | ☐ Yes  ☐ No        | _____ / 10              | _____ / _____        | ☐ Y  ☐ N | _____         |       |
-| 3       | ☐ Yes  ☐ No        | _____ / 10              | _____ / _____        | ☐ Y  ☐ N | _____         |       |
+**Entry grade multipliers**: 5.9=1.0, 5.10a=1.1, 5.10b=1.2, 5.10c=1.3, 5.10d=1.4, 5.11a=1.5 (+0.1 per sub-grade)
+**Crux grade multipliers**: V0=1, V1=2, V2=3, V3=4, V4=5, V5=6, V6=7
 
-**Success rate:** _____ / 3 ( _____ %)  **Average moves completed:** _____ / _____  **Average pump level:** _____ / 10
+| Attempt | Entry grade | Entry moves | ELS | Crux description | Crux grade | Total moves | Moves completed | CDS | Round score | Pump (1-10) | Quality (1-5) |
+| ------- | ----------- | ----------- | --- | ---------------- | ---------- | ----------- | --------------- | --- | ----------- | ----------- | ------------- |
+| 1       | _____       | _____       | ___ |                  | _____      | _____       | _____           | ___ | _______     | _____ / 10  | _____         |
+| 2       | _____       | _____       | ___ |                  | _____      | _____       | _____           | ___ | _______     | _____ / 10  | _____         |
+| 3       | _____       | _____       | ___ |                  | _____      | _____       | _____           | ___ | _______     | _____ / 10  | _____         |
+
+**Session CAF Score (sum of round scores):** _______  **Success rate:** _____ / 3 ( _____ %)  **Average moves completed:** _____ / _____  **Average pump level:** _____ / 10
 
 **Key observations:**
 
-- Pacing during lead-in: ☐ Too fast  ☐ Good  ☐ Too slow
+- Pacing during entry: ☐ Too fast  ☐ Good  ☐ Too slow
 - Recovery between moves: ☐ Good  ☐ Moderate  ☐ Poor
 - Crux execution: ☐ Crisp  ☐ OK  ☐ Desperate  ☐ Failed
 - Limiting factor: ☐ Forearm pump  ☐ Finger strength  ☐ Technique  ☐ Mental  ☐ Power
@@ -214,7 +216,7 @@ Use this to track every session. Session-RPE is your primary load monitoring too
 
 #### WEEKLY PERFORMANCE NOTES
 
-**Crux-after-fatigue performance this week:** Success rate: _____ / _____ ( _____ %)  Trend: ☐ Better  ☐ Same  ☐ Worse
+**Crux-after-fatigue performance this week:** Session CAF Score: _______  Success rate: _____ / _____ ( _____ %)  Trend: ☐ Better  ☐ Same  ☐ Worse
 
 **4×4 performance (if session this week):** Rounds completed: _____  Grade used: _____  Trend: ☐ Better  ☐ Same  ☐ Worse
 
@@ -521,23 +523,21 @@ This section is completed every session that includes strength work (Workout A i
 
 **This is your primary performance metric — track it every session.**
 
-#### PROTOCOL DETAILS
+**Scoring**: ELS = entry moves × grade multiplier | CDS = crux moves completed × (V-grade + 1) | Round Score = ELS + CDS | Session Score = sum of all rounds
 
-**Lead-in duration:** __________ minutes  **Lead-in terrain:** ________________________________________________
-**Target lead-in intensity:** RPE _____ (should be 6-7, sustainable)
-
-**Crux used:** ________________________________________________  **Crux grade/difficulty:** __________  **Total crux moves:** _____
+**Entry grade multipliers**: 5.9=1.0, 5.10a=1.1, 5.10b=1.2, 5.10c=1.3, 5.10d=1.4, 5.11a=1.5 (+0.1 per sub-grade)
+**Crux multipliers (V-grade + 1)**: V0=1, V1=2, V2=3, V3=4, V4=5, V5=6, V6=7
 
 #### DRILL ROUNDS
 
-| Round | Lead-in completed? | Lead-in RPE | Pump before crux (1-10) | Crux moves completed | Success? | Execution quality (1-5) | Rest after | Notes |
-| ----- | ------------------ | ----------- | ----------------------- | -------------------- | -------- | ----------------------- | ---------- | ----- |
-| 1     | ☐ Yes  ☐ No        | _____       | _____ / 10              | _____ / _____        | ☐ Y  ☐ N | _____                   | _____ min  |       |
-| 2     | ☐ Yes  ☐ No        | _____       | _____ / 10              | _____ / _____        | ☐ Y  ☐ N | _____                   | _____ min  |       |
-| 3     | ☐ Yes  ☐ No        | _____       | _____ / 10              | _____ / _____        | ☐ Y  ☐ N | _____                   | _____ min  |       |
-| 4     | ☐ Yes  ☐ No        | _____       | _____ / 10              | _____ / _____        | ☐ Y  ☐ N | _____                   | _____ min  |       |
-| 5     | ☐ Yes  ☐ No        | _____       | _____ / 10              | _____ / _____        | ☐ Y  ☐ N | _____                   | _____ min  |       |
-| 6     | ☐ Yes  ☐ No        | _____       | _____ / 10              | _____ / _____        | ☐ Y  ☐ N | _____                   | _____ min  |       |
+| Round | Entry grade | Entry moves | ELS | Crux description | Crux grade | Total moves | Moves completed | CDS | Round score | Entry completed? | Entry RPE | Pump (1-10) | Quality (1-5) | Rest (min) | Notes |
+| ----- | ----------- | ----------- | --- | ---------------- | ---------- | ----------- | --------------- | --- | ----------- | ---------------- | --------- | ----------- | ------------- | ---------- | ----- |
+| 1     | _____       | _____       | ___ |                  | _____      | _____       | _____           | ___ | _______     | ☐ Y  ☐ N         | _____     | _____ / 10  | _____         | _____      |       |
+| 2     | _____       | _____       | ___ |                  | _____      | _____       | _____           | ___ | _______     | ☐ Y  ☐ N         | _____     | _____ / 10  | _____         | _____      |       |
+| 3     | _____       | _____       | ___ |                  | _____      | _____       | _____           | ___ | _______     | ☐ Y  ☐ N         | _____     | _____ / 10  | _____         | _____      |       |
+| 4     | _____       | _____       | ___ |                  | _____      | _____       | _____           | ___ | _______     | ☐ Y  ☐ N         | _____     | _____ / 10  | _____         | _____      |       |
+| 5     | _____       | _____       | ___ |                  | _____      | _____       | _____           | ___ | _______     | ☐ Y  ☐ N         | _____     | _____ / 10  | _____         | _____      |       |
+| 6     | _____       | _____       | ___ |                  | _____      | _____       | _____           | ___ | _______     | ☐ Y  ☐ N         | _____     | _____ / 10  | _____         | _____      |       |
 
 **Execution quality (1-5):** 1 = Failed immediately  2 = On moves, very sloppy  3 = Completed, inefficient  4 = Good, minor issues  5 = Crisp and controlled
 
@@ -545,10 +545,12 @@ This section is completed every session that includes strength work (Workout A i
 
 #### SESSION SUMMARY
 
-**Total rounds:** __________  **Crux success rate:** _____ / _____ ( _____ %)
-**Average moves completed:** _____ / _____  **Average pump before crux:** _____ / 10  **Average execution quality:** _____ / 5
+**Total rounds:** __________  **Session CAF Score (sum of round scores):** _______
+**Crux success rate:** _____ / _____ ( _____ %)  **Average moves completed:** _____ / _____
+**Average ELS per round:** _______  **Average CDS per round:** _______
+**Average pump before crux:** _____ / 10  **Average execution quality:** _____ / 5
 
-**Trend vs. last session:** Last session: _____ %  This session: _____ %  ☐ Improving  ☐ Stable  ☐ Declining
+**Trend vs. last session:** Last session score: _______  This session score: _______  ☐ Improving  ☐ Stable  ☐ Declining
 
 ------
 
@@ -801,18 +803,20 @@ Use this section to compare across each time this is performed (approximately ev
 
 #### CRUX-AFTER-FATIGUE RETEST
 
-**Benchmark (must be identical at all test points):** ________________________________________________
-**Lead-in:** _____ minutes  **Crux:** _____ total moves
+**Benchmark entry config (keep consistent at all test points):** Entry grade: _____  Entry moves: _____  ELS per round: _______
+**Crux:** _____ grade  _____ total moves  Crux multiplier: _____
 
 | Metric                   | Week 0    | Week 4    | Week 8    | Week 12   | Change |
 | ------------------------ | --------- | --------- | --------- | --------- | ------ |
+| **Session CAF Score**    | _______   | _______   | _______   | _______   | +_____ |
+| Avg round score          | _______   | _______   | _______   | _______   |        |
 | Success rate             | _____ %   | _____ %   | _____ %   | _____ %   |        |
 | Avg moves completed      | _____ / _ | _____ / _ | _____ / _ | _____ / _ |        |
 | Avg pump before crux     | _____ /10 | _____ /10 | _____ /10 | _____ /10 |        |
 | Avg execution quality    | _____ / 5 | _____ / 5 | _____ / 5 | _____ / 5 |        |
 | Felt difficulty          | _____     | _____     | _____     | _____     | Easier/Same/Harder |
 
-**This is your most important metric.**
+**Session CAF Score is your most important metric.** Hold ELS and crux grade identical at all test points so scores are directly comparable.
 
 ------
 
@@ -1004,13 +1008,13 @@ Use this section to compare across each time this is performed (approximately ev
 
 #### CRUX-AFTER-FATIGUE TREND
 
-| Week | Success rate | Avg execution quality | Trend |
-| ---- | ------------ | --------------------- | ----- |
-| 1    | _____ %      | _____ / 5             | Baseline |
-| 3    | _____ %      | _____ / 5             | ☐↑ ☐→ ☐↓ |
-| 6    | _____ %      | _____ / 5             | ☐↑ ☐→ ☐↓ |
-| 9    | _____ %      | _____ / 5             | ☐↑ ☐→ ☐↓ |
-| 12   | _____ %      | _____ / 5             | ☐↑ ☐→ ☐↓ |
+| Week | Session CAF Score | Avg ELS / round | Avg CDS / round | Success rate | Avg execution quality | Trend |
+| ---- | ----------------- | --------------- | --------------- | ------------ | --------------------- | ----- |
+| 1    | _______           | _______         | _______         | _____ %      | _____ / 5             | Baseline |
+| 3    | _______           | _______         | _______         | _____ %      | _____ / 5             | ☐↑ ☐→ ☐↓ |
+| 6    | _______           | _______         | _______         | _____ %      | _____ / 5             | ☐↑ ☐→ ☐↓ |
+| 9    | _______           | _______         | _______         | _____ %      | _____ / 5             | ☐↑ ☐→ ☐↓ |
+| 12   | _______           | _______         | _______         | _____ %      | _____ / 5             | ☐↑ ☐→ ☐↓ |
 
 ------
 

@@ -35,8 +35,8 @@ Before starting, establish baselines across several domains. These tests will be
 
 **3. Crux-After-Fatigue Simulation**
 
-- 2-3 minutes continuous moderate climbing → immediately attempt a fixed boulder (6-12 moves); rest 10-15 min; repeat 2-3 times
-- **Record**: Success rate (e.g., "1/3") and average moves completed
+- Entry section: a defined number of moves at a defined route grade → immediately attempt a crux boulder (6-12 moves); rest 10-15 min; repeat 2-3 times
+- **Record**: Entry moves + grade (→ ELS), crux grade + moves completed (→ CDS), round score (ELS + CDS), session total. Also record success rate and average pump before crux. This establishes your Week 0 CAF score baseline.
 
 **4. Session Baseline**
 
@@ -124,12 +124,14 @@ During the last 5-10 minutes of warm-up, impose the silent feet rule: every foot
 
 **Structure**:
 
-- Part A: 2-3 minutes continuous moderate climbing (don't fall)
+- Part A (Entry): A defined number of moves at a defined route grade — don't fall, stay controlled
 - Part B (immediately): Attempt a 6-12 move crux sequence (RPE 9)
 - Rest 10-12 minutes between rounds
-- **Week 1**: 3 rounds, 2-min lead-in | **Week 2**: 3 rounds, 2.5-min lead-in | **Week 3**: 3 rounds, 3-min lead-in
+- **Week 1**: 3 rounds, ~20 entry moves at 5.9 (ELS ≈ 20)
+- **Week 2**: 3 rounds, ~25 entry moves at 5.9, or same moves at 5.10a (ELS ≈ 25–27.5)
+- **Week 3**: 3 rounds, ~30 entry moves at 5.9, or ~25 at 5.10a (ELS ≈ 27.5–30)
 
-**Track**: Crux success rate (e.g., "2/3"), moves completed per attempt, quality of execution, pump level before crux (1-10), sRPE
+**Track per round**: Entry grade + moves → ELS; crux grade + moves completed → CDS; round score (ELS + CDS). Session total = sum of round scores. Also log success/fail, pump before crux (1–10), execution quality (1–5), sRPE.
 
 **Total Session Duration**: 90-110 minutes
 
@@ -212,12 +214,12 @@ Alternate between these two across the mesocycle. They target the same energy sy
 
 ### Workout B: Crux-After-Fatigue Progression (Friday)
 
-- Same format as Mesocycle 1, increasing difficulty:
-  - **Week 5**: 4 rounds, 3-min lead-in, harder crux (+1 grade)
-  - **Week 6**: 4 rounds, 3.5-min lead-in, maintain crux difficulty
-  - **Week 7**: 5 rounds, 4-min lead-in, maintain crux difficulty
+Same format as Mesocycle 1, increasing ELS and crux grade:
+- **Week 5**: 4 rounds — increase ELS to ~35 (e.g., 30 moves at 5.9 or 25 at 5.10b); crux bumped +1 grade
+- **Week 6**: 4 rounds — maintain ELS from Week 5; maintain crux grade
+- **Week 7**: 5 rounds — increase ELS further (e.g., 35 moves at 5.9 or 25 at 5.10c); maintain crux grade
 
-**Track**: Success rate (compare to Mesocycle 1), quality under fatigue, shake efficiency, sRPE
+**Track per round**: Entry grade + moves → ELS; crux grade + moves completed → CDS; round score. Session total. Compare session scores to Mesocycle 1 — scores should rise as both entry load increases and crux execution improves. Also track quality under fatigue, shake efficiency, sRPE.
 
 ------
 
@@ -328,7 +330,7 @@ Alternate between these two across the mesocycle. They target the same energy sy
 
 **For Intervals/Endurance**: Add time/reps (volume) first; then reduce rest slightly; then increase difficulty. Progress only ONE variable every 2 weeks.
 
-**For Crux-After-Fatigue**: First increase lead-in duration; then round count; then crux difficulty. Quality > quantity always.
+**For Crux-After-Fatigue**: First increase ELS (more entry moves or higher entry grade); then round count; then crux grade. Only raise crux grade when session score plateaus and success rate exceeds 60%. Change one variable per week. Quality > quantity always.
 
 ------
 

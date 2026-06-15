@@ -40,8 +40,19 @@ export function OnboardingConfirmation({
         </dd>
         <dt>Experience</dt>
         <dd className="capitalize">{profile.experienceLevel}</dd>
-        <dt>Limit grade</dt>
-        <dd>{profile.currentLimitGrade}</dd>
+        {goalType === "route_power_endurance" ? (
+          <>
+            <dt>Current route</dt>
+            <dd>{profile.currentRouteGrade}</dd>
+            <dt>Goal route</dt>
+            <dd>{profile.goalRouteGrade}</dd>
+          </>
+        ) : (
+          <>
+            <dt>Limit grade</dt>
+            <dd>{profile.currentLimitGrade}</dd>
+          </>
+        )}
         <dt>Training days per week</dt>
         <dd>{frequency}</dd>
       </dl>

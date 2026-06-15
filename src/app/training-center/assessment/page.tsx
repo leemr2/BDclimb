@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useAuth } from "@/lib/firebase/auth";
@@ -18,7 +18,10 @@ import {
 import {
   createAssessment as createPEAssessment,
   getAssessmentsForProgram as getPEAssessments,
+  getAssessmentForWeek,
+  isPETestWeek,
 } from "@/lib/firebase/training/power-endurance-assessments";
+import { getCAFWorkoutBaseline } from "@/lib/plans/power-endurance/calculations";
 import { getProgramId, updateActiveProgram } from "@/lib/firebase/training/program";
 import type { BoulderingAssessment } from "@/lib/plans/bouldering/types";
 import type { PowerEnduranceAssessment } from "@/lib/plans/power-endurance/types";
@@ -39,12 +42,19 @@ export default function AssessmentPage() {
     []
   );
   const [assessmentsLoading, setAssessmentsLoading] = useState(false);
+  const [retestPending, setRetestPending] = useState(false);
 
   const isPE = program?.goalType === "route_power_endurance";
   const isBouldering = program?.goalType === "bouldering";
   const isSupported =
     program &&
     SUPPORTED_GOALS.includes(program.goalType as (typeof SUPPORTED_GOALS)[number]);
+
+  const programId = program ? getProgramId(program) : "";
+  const week0Benchmark = useMemo(
+    () => getCAFWorkoutBaseline(peAssessments.find((a) => a.week === 0)),
+    [peAssessments]
+  );
 
   useEffect(() => {
     if (!authLoading && !user) {
@@ -59,8 +69,7 @@ export default function AssessmentPage() {
   }, [authLoading, programLoading, user, program, router]);
 
   useEffect(() => {
-    if (!user || !program || program.currentWeek === 0 || !isSupported) return;
-    const programId = getProgramId(program);
+    if (!user || !program || !isSupported) return;
     setAssessmentsLoading(true);
     const load = isPE
       ? getPEAssessments(user.uid, programId).then(setPeAssessments)
@@ -72,7 +81,34 @@ export default function AssessmentPage() {
         else setBoulderingAssessments([]);
       })
       .finally(() => setAssessmentsLoading(false));
-  }, [user?.uid, program, isPE, isSupported]);
+  }, [user?.uid, program, isPE, isSupported, programId]);
+
+  useEffect(() => {
+    if (!user || !program || !isPE) {
+      setRetestPending(false);
+      return;
+    }
+    if (program.currentWeek === 0 || program.status === "assessment") {
+      setRetestPending(false);
+      return;
+    }
+    if (!isPETestWeek(program.currentWeek)) {
+      setRetestPending(false);
+      return;
+    }
+    getAssessmentForWeek(user.uid, programId, program.currentWeek)
+      .then((existing) => setRetestPending(!existing))
+      .catch(() => setRetestPending(false));
+  }, [user?.uid, program, isPE, programId]);
+
+  const showAssessmentFlow =
+    program &&
+    (program.currentWeek === 0 ||
+      program.status === "assessment" ||
+      (isPE && retestPending));
+
+  const assessmentWeek =
+    program?.currentWeek === 0 ? 0 : program?.currentWeek ?? 0;
 
   const handleBoulderingComplete = async (
     assessmentData: Omit<BoulderingAssessment, "id" | "date">
@@ -98,9 +134,15 @@ export default function AssessmentPage() {
     setSaving(true);
     setError(null);
     try {
-      await createPEAssessment(user.uid, assessmentData);
+      await createPEAssessment(user.uid, {
+        ...assessmentData,
+        week: assessmentWeek,
+      });
       if (program.currentWeek === 0) {
         await updateActiveProgram(user.uid, { currentWeek: 1, status: "active" });
+      } else {
+        await updateActiveProgram(user.uid, { status: "active" });
+        setRetestPending(false);
       }
       router.push("/training-center/dashboard");
     } catch (e) {
@@ -137,9 +179,8 @@ export default function AssessmentPage() {
 
   const weightUnit = trainingProfile?.weightUnit ?? "lbs";
   const bodyweight = trainingProfile?.weight || 150;
-  const programId = getProgramId(program);
 
-  if (program.currentWeek > 0 && program.status !== "assessment") {
+  if (!showAssessmentFlow) {
     if (assessmentsLoading) {
       return (
         <div className="loading-container">
@@ -228,9 +269,11 @@ export default function AssessmentPage() {
       {isPE ? (
         <PowerEnduranceAssessmentFlow
           programId={programId}
-          week={program.currentWeek}
+          week={assessmentWeek}
           bodyweight={bodyweight}
           weightUnit={weightUnit}
+          profile={trainingProfile}
+          week0Benchmark={week0Benchmark}
           onComplete={handlePEComplete}
         />
       ) : (

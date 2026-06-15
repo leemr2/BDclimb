@@ -116,10 +116,12 @@ export function getCurrentWeekSchedule(
 }
 
 export function getSessionWithDrills(
-  session: SessionDefinition
+  session: SessionDefinition,
+  cafBenchmark?: import("./types").CAFBenchmark | null,
+  frequency?: PEFrequency
 ): PESessionWithDrills {
   const drillIds = session.drills.map((d) => d.id);
-  const drills = resolveDrills(drillIds);
+  const drills = resolveDrills(drillIds, cafBenchmark, frequency);
   return {
     ...session,
     drills,

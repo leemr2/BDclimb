@@ -9,6 +9,8 @@ import {
   type WeightUnit,
   type ExperienceLevel,
 } from "@/lib/firebase/training/profile";
+import type { GoalType } from "@/lib/firebase/training/program";
+import { YDS_ENTRY_GRADES } from "@/lib/plans/power-endurance/calculations";
 
 const V_GRADES = [
   "V0", "V1", "V2", "V3", "V4", "V5", "V6",
@@ -22,8 +24,8 @@ const EXPERIENCE_LABELS: Record<ExperienceLevel, string> = {
 };
 
 interface ProfileCardProps {
-  /** Training frequency from the active program */
   frequency: 2 | 3 | 4;
+  goalType?: GoalType;
 }
 
 interface DraftProfile {
@@ -31,10 +33,13 @@ interface DraftProfile {
   weight: number;
   weightUnit: WeightUnit;
   experienceLevel: ExperienceLevel;
-  currentLimitGrade: string;
+  currentLimitGrade?: string;
+  currentRouteGrade?: string;
+  goalRouteGrade?: string;
 }
 
-export function ProfileCard({ frequency }: ProfileCardProps) {
+export function ProfileCard({ frequency, goalType }: ProfileCardProps) {
+  const isPE = goalType === "route_power_endurance";
   const { user } = useAuth();
   const [profile, setProfile] = useState<TrainingProfile | null>(null);
   const [loading, setLoading] = useState(true);
@@ -60,6 +65,8 @@ export function ProfileCard({ frequency }: ProfileCardProps) {
       weightUnit: profile.weightUnit,
       experienceLevel: profile.experienceLevel,
       currentLimitGrade: profile.currentLimitGrade,
+      currentRouteGrade: profile.currentRouteGrade,
+      goalRouteGrade: profile.goalRouteGrade,
     });
     setSaveError(null);
     setEditing(true);
@@ -205,23 +212,68 @@ export function ProfileCard({ frequency }: ProfileCardProps) {
           </div>
 
           <div className="tc-profile-form-row">
-            <label className="tc-profile-form-label" htmlFor="prof-grade">
-              Limit Grade
-            </label>
-            <select
-              id="prof-grade"
-              className="tc-profile-form-input"
-              value={draft.currentLimitGrade}
-              onChange={(e) =>
-                setDraft({ ...draft, currentLimitGrade: e.target.value })
-              }
-            >
-              {V_GRADES.map((g) => (
-                <option key={g} value={g}>
-                  {g}
-                </option>
-              ))}
-            </select>
+            {isPE ? (
+              <>
+                <label className="tc-profile-form-label" htmlFor="prof-current-route">
+                  Current Route
+                </label>
+                <select
+                  id="prof-current-route"
+                  className="tc-profile-form-input"
+                  value={draft.currentRouteGrade ?? "5.10a"}
+                  onChange={(e) =>
+                    setDraft({ ...draft, currentRouteGrade: e.target.value })
+                  }
+                >
+                  {YDS_ENTRY_GRADES.map((g) => (
+                    <option key={g} value={g}>
+                      {g}
+                    </option>
+                  ))}
+                </select>
+                <label
+                  className="tc-profile-form-label"
+                  htmlFor="prof-goal-route"
+                  style={{ marginTop: "0.75rem" }}
+                >
+                  Goal Route
+                </label>
+                <select
+                  id="prof-goal-route"
+                  className="tc-profile-form-input"
+                  value={draft.goalRouteGrade ?? "5.11a"}
+                  onChange={(e) =>
+                    setDraft({ ...draft, goalRouteGrade: e.target.value })
+                  }
+                >
+                  {YDS_ENTRY_GRADES.map((g) => (
+                    <option key={g} value={g}>
+                      {g}
+                    </option>
+                  ))}
+                </select>
+              </>
+            ) : (
+              <>
+                <label className="tc-profile-form-label" htmlFor="prof-grade">
+                  Limit Grade
+                </label>
+                <select
+                  id="prof-grade"
+                  className="tc-profile-form-input"
+                  value={draft.currentLimitGrade ?? "V4"}
+                  onChange={(e) =>
+                    setDraft({ ...draft, currentLimitGrade: e.target.value })
+                  }
+                >
+                  {V_GRADES.map((g) => (
+                    <option key={g} value={g}>
+                      {g}
+                    </option>
+                  ))}
+                </select>
+              </>
+            )}
           </div>
 
           {saveError && (
@@ -264,10 +316,23 @@ export function ProfileCard({ frequency }: ProfileCardProps) {
               {EXPERIENCE_LABELS[profile.experienceLevel]}
             </dd>
           </div>
-          <div className="tc-profile-row">
-            <dt className="tc-profile-key">Limit Grade</dt>
-            <dd className="tc-profile-val">{profile.currentLimitGrade}</dd>
-          </div>
+          {isPE ? (
+            <>
+              <div className="tc-profile-row">
+                <dt className="tc-profile-key">Current Route</dt>
+                <dd className="tc-profile-val">{profile.currentRouteGrade ?? "—"}</dd>
+              </div>
+              <div className="tc-profile-row">
+                <dt className="tc-profile-key">Goal Route</dt>
+                <dd className="tc-profile-val">{profile.goalRouteGrade ?? "—"}</dd>
+              </div>
+            </>
+          ) : (
+            <div className="tc-profile-row">
+              <dt className="tc-profile-key">Limit Grade</dt>
+              <dd className="tc-profile-val">{profile.currentLimitGrade ?? "—"}</dd>
+            </div>
+          )}
           <div className="tc-profile-row">
             <dt className="tc-profile-key">Training Days</dt>
             <dd className="tc-profile-val">{frequency}× / week</dd>

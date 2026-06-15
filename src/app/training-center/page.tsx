@@ -480,10 +480,14 @@ export default function TrainingCenterPage() {
                 </span>
               </div>
               <div className="tc-assessment-bubble">
-                <span className="tc-assessment-bubble-label">Crux Success</span>
+                <span className="tc-assessment-bubble-label">CAF Score</span>
                 <span className="tc-assessment-bubble-value">
-                  {latestPEAssessment.cruxAfterFatigue.successRate}
-                  <span className="tc-assessment-bubble-unit">%</span>
+                  {latestPEAssessment.cruxAfterFatigue.sessionCAFScore ?? latestPEAssessment.cruxAfterFatigue.successRate}
+                </span>
+                <span className="tc-assessment-bubble-sub">
+                  {latestPEAssessment.cruxAfterFatigue.benchmark
+                    ? `${latestPEAssessment.cruxAfterFatigue.benchmark.entryMoves} @ ${latestPEAssessment.cruxAfterFatigue.benchmark.entryGrade}`
+                    : `${latestPEAssessment.cruxAfterFatigue.successRate}% success`}
                 </span>
               </div>
             </div>
@@ -572,7 +576,7 @@ export default function TrainingCenterPage() {
         </section>
 
         {/* Training Profile */}
-        <ProfileCard frequency={program.frequency} />
+        <ProfileCard frequency={program.frequency} goalType={program.goalType} />
 
         {/* Education */}
         <section className="tc-section tc-section--education">

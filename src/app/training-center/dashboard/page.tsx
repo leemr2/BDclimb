@@ -12,6 +12,10 @@ import { getWeekDefinition as getPEWeekDefinition } from "@/lib/plans/power-endu
 import type { BoulderingFrequency } from "@/lib/plans/bouldering/planEngine";
 import type { PEFrequency } from "@/lib/plans/power-endurance/planEngine";
 import { cancelProgram, getProgramId } from "@/lib/firebase/training/program";
+import {
+  getAssessmentForWeek,
+  isPETestWeek,
+} from "@/lib/firebase/training/power-endurance-assessments";
 import { getCompletedWorkouts } from "@/lib/firebase/training/bouldering-workouts";
 import { getAssessmentsForProgram } from "@/lib/firebase/training/bouldering-assessments";
 import { getKeyMetrics } from "@/lib/calculations/metrics";
@@ -32,7 +36,8 @@ export default function DashboardPage() {
   const { user, loading: authLoading } = useAuth();
   const router = useRouter();
   const { program, loading: programLoading } = useActiveProgram();
-  const { schedule, workoutsAvailable } = usePlan(program);
+  const { schedule, workoutsAvailable, cafBenchmark } = usePlan(program);
+  const [peRetestDue, setPeRetestDue] = useState(false);
   const [showCancelConfirm, setShowCancelConfirm] = useState(false);
   const [isCancelling, setIsCancelling] = useState(false);
   const [progressionSuggestion, setProgressionSuggestion] =
@@ -129,6 +134,21 @@ export default function DashboardPage() {
       .catch(() => setWeek12SessionLabels([]));
   }, [user?.uid, program?.startDate, program?.currentWeek, program?.goalType]);
 
+  useEffect(() => {
+    if (!user?.uid || !program || program.goalType !== "route_power_endurance") {
+      setPeRetestDue(false);
+      return;
+    }
+    if (!isPETestWeek(program.currentWeek)) {
+      setPeRetestDue(false);
+      return;
+    }
+    const programId = getProgramId(program);
+    getAssessmentForWeek(user.uid, programId, program.currentWeek)
+      .then((existing) => setPeRetestDue(!existing))
+      .catch(() => setPeRetestDue(false));
+  }, [user?.uid, program?.currentWeek, program?.goalType, program?.startDate]);
+
   if (authLoading || programLoading) {
     return (
       <div className="loading-container">
@@ -184,6 +204,21 @@ export default function DashboardPage() {
         </Link>
       </div>
       <DashboardHeader program={program} />
+      {isPE && peRetestDue && (
+        <div className="training-week-zero-cta">
+          <h3 className="training-week-zero-title">Week {program.currentWeek} Retest</h3>
+          <p className="training-week-zero-text">
+            Complete the assessment battery to measure progress. CAF retest uses your Week 0
+            benchmark for direct comparison.
+          </p>
+          <Link
+            href="/training-center/assessment"
+            className="training-center-cta training-week-zero-start"
+          >
+            Run Week {program.currentWeek} Retest
+          </Link>
+        </div>
+      )}
       {isWeekZero && (
         <div className="training-week-zero-cta">
           <h3 className="training-week-zero-title">Week 0: Baseline Assessment</h3>
@@ -233,6 +268,12 @@ export default function DashboardPage() {
         weekNumber={program.currentWeek}
         workoutsAvailable={workoutsAvailable}
       />
+      {isPE && cafBenchmark && nextSession && (
+        <p className="training-assessment-section-hint" style={{ margin: "0 0 1rem" }}>
+          CAF baseline from assessment: {cafBenchmark.entryMoves} moves @{" "}
+          {cafBenchmark.entryGrade} (ELS {cafBenchmark.baselineELS})
+        </p>
+      )}
       <WeekSchedule schedule={schedule} />
       {isBouldering && (
         <>

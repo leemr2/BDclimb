@@ -3,7 +3,12 @@
  * Content from docs/PowerEndurance_Trainer/ plan documents.
  */
 
-import type { PEDrillDefinition } from "./types";
+import type { CAFBenchmark, CAFDrillDefaults, CAFResolvedTargets, PEDrillDefinition } from "./types";
+import {
+  getEntryGradeMultiplier,
+  offsetVGrade,
+  offsetYDSGrade,
+} from "./calculations";
 
 const DRILLS: Record<string, Omit<PEDrillDefinition, "id">> = {
   warmup_progressive: {
@@ -447,93 +452,129 @@ const DRILLS: Record<string, Omit<PEDrillDefinition, "id">> = {
   caf_meso1_w1: {
     type: "crux_after_fatigue",
     name: "Crux-After-Fatigue Drill",
-    description: "5 rounds; 2-min lead-in; 6-12 move crux",
+    description: "5 rounds at your assessment baseline entry load",
     instructions: [
-      "Part A: 2 min continuous moderate climbing",
-      "Part B immediately: attempt crux at RPE 9",
+      "Part A (Entry): prescribed moves at prescribed route grade — stay controlled",
+      "Part B immediately: attempt your benchmark crux at RPE 9",
       "Rest 10-12 min between rounds",
-      "Log pump before crux, moves, success, quality",
+      "Log entry moves/grade, crux moves completed, pump, execution quality",
     ],
     sets: 5,
-    reps: "2-min lead-in + crux",
+    reps: "entry moves + crux",
     intensity: "RPE 9 crux",
     notes: [],
     isOptional: false,
     safetyWarnings: ["Primary KPI — log every round honestly"],
     progressionRules: [
-      "Increase lead-in duration first",
+      "Increase ELS first (more entry moves or higher entry grade)",
       "Then add rounds when success rate >60%",
     ],
+    cafDefaults: {
+      rounds: 5,
+      restBetweenRoundsMinutes: 11,
+      elsProgression: { moveDelta: 0, gradeDelta: 0 },
+    },
   },
 
   caf_meso1_w2: {
     type: "crux_after_fatigue",
     name: "Crux-After-Fatigue Drill",
-    description: "5 rounds; 2.5-min lead-in",
-    instructions: ["Extended lead-in; same crux difficulty"],
+    description: "5 rounds; +5 entry moves vs baseline",
+    instructions: [
+      "Increase entry load: +5 moves at same grade (or same moves at +1 sub-grade)",
+      "Same benchmark crux; compare session CAF score to last week",
+    ],
     sets: 5,
-    reps: "2.5-min lead-in + crux",
+    reps: "entry moves + crux",
     intensity: "RPE 9 crux",
     notes: [],
     isOptional: false,
     safetyWarnings: [],
     progressionRules: [],
+    cafDefaults: {
+      rounds: 5,
+      restBetweenRoundsMinutes: 11,
+      elsProgression: { moveDelta: 5, gradeDelta: 0 },
+    },
   },
 
   caf_meso1_w3: {
     type: "crux_after_fatigue",
     name: "Crux-After-Fatigue Drill",
-    description: "6 rounds; 3-min lead-in",
-    instructions: ["Sixth round added; 3-min lead-in"],
+    description: "6 rounds; +10 entry moves vs baseline",
+    instructions: ["Sixth round added; entry load +10 moves vs assessment baseline"],
     sets: 6,
-    reps: "3-min lead-in + crux",
+    reps: "entry moves + crux",
     intensity: "RPE 9 crux",
     notes: [],
     isOptional: false,
     safetyWarnings: [],
     progressionRules: [],
+    cafDefaults: {
+      rounds: 6,
+      restBetweenRoundsMinutes: 11,
+      elsProgression: { moveDelta: 10, gradeDelta: 0 },
+    },
   },
 
   caf_meso2_w5: {
     type: "crux_after_fatigue",
     name: "Enhanced Crux-After-Fatigue",
-    description: "5 rounds; 3-min lead-in; harder crux (+1 grade)",
-    instructions: ["Practice efficient shaking during lead-in"],
+    description: "5 rounds; higher ELS + harder crux (+1 V-grade)",
+    instructions: [
+      "Entry load +10 moves vs baseline; crux bumped +1 grade",
+      "Practice efficient movement during entry section",
+    ],
     sets: 5,
-    reps: "3-min lead-in + crux",
+    reps: "entry moves + crux",
     intensity: "RPE 9 crux",
     notes: [],
     isOptional: false,
     safetyWarnings: [],
     progressionRules: [],
+    cafDefaults: {
+      rounds: 5,
+      restBetweenRoundsMinutes: 11,
+      elsProgression: { moveDelta: 10, gradeDelta: 0, cruxGradeDelta: 1 },
+    },
   },
 
   caf_meso2_w6: {
     type: "crux_after_fatigue",
     name: "Enhanced Crux-After-Fatigue",
-    description: "5 rounds; 3.5-min lead-in",
-    instructions: ["Experiment with pacing and rest positions"],
+    description: "5 rounds; maintain Week 5 entry and crux load",
+    instructions: ["Maintain ELS and crux grade from Week 5; focus on session score"],
     sets: 5,
-    reps: "3.5-min lead-in + crux",
+    reps: "entry moves + crux",
     intensity: "RPE 9 crux",
     notes: [],
     isOptional: false,
     safetyWarnings: [],
     progressionRules: [],
+    cafDefaults: {
+      rounds: 5,
+      restBetweenRoundsMinutes: 11,
+      elsProgression: { moveDelta: 10, gradeDelta: 0, cruxGradeDelta: 1 },
+    },
   },
 
   caf_meso2_w7: {
     type: "crux_after_fatigue",
     name: "Enhanced Crux-After-Fatigue",
-    description: "6 rounds; 4-min lead-in",
-    instructions: ["Compare success rate to Mesocycle 1"],
+    description: "6 rounds; +15 entry moves vs baseline",
+    instructions: ["Sixth round; compare session CAF score to Mesocycle 1"],
     sets: 6,
-    reps: "4-min lead-in + crux",
+    reps: "entry moves + crux",
     intensity: "RPE 9 crux",
     notes: [],
     isOptional: false,
     safetyWarnings: [],
     progressionRules: [],
+    cafDefaults: {
+      rounds: 6,
+      restBetweenRoundsMinutes: 11,
+      elsProgression: { moveDelta: 15, gradeDelta: 0, cruxGradeDelta: 1 },
+    },
   },
 
   campus_pe: {
@@ -847,12 +888,97 @@ export const drillCatalog: Record<string, PEDrillDefinition> = Object.fromEntrie
   Object.entries(DRILLS).map(([id, d]) => [id, { ...d, id }])
 );
 
+const FREQUENCY_ROUND_OVERRIDES: Record<
+  string,
+  Partial<Record<2 | 3 | 4, number>>
+> = {
+  caf_meso1_w1: { 2: 3, 3: 3 },
+  caf_meso1_w2: { 2: 3, 3: 3 },
+  caf_meso1_w3: { 2: 3, 3: 3 },
+  caf_meso2_w5: { 2: 4, 3: 4 },
+  caf_meso2_w6: { 2: 4, 3: 4 },
+  caf_meso2_w7: { 2: 5, 3: 5 },
+};
+
+export function getCAFWeekTargets(
+  benchmark: CAFBenchmark,
+  drillId: string,
+  frequency: 2 | 3 | 4,
+  cafDefaults?: CAFDrillDefaults
+): CAFResolvedTargets | null {
+  const defaults = cafDefaults ?? drillCatalog[drillId]?.cafDefaults;
+  if (!defaults) return null;
+
+  const { elsProgression, restBetweenRoundsMinutes } = defaults;
+  const entryGrade = offsetYDSGrade(benchmark.entryGrade, elsProgression.gradeDelta);
+  const entryMoves = benchmark.entryMoves + elsProgression.moveDelta;
+  const targetELS =
+    Math.round(entryMoves * getEntryGradeMultiplier(entryGrade) * 10) / 10;
+  const cruxGrade = offsetVGrade(
+    benchmark.cruxGrade,
+    elsProgression.cruxGradeDelta ?? 0
+  );
+
+  const freqOverride = FREQUENCY_ROUND_OVERRIDES[drillId]?.[frequency];
+  const rounds = freqOverride ?? defaults.rounds;
+
+  return {
+    entryGrade,
+    entryMoves,
+    targetELS,
+    cruxGrade,
+    cruxTotalMoves: benchmark.cruxTotalMoves,
+    cruxDescription: benchmark.cruxDescription,
+    rounds,
+    restBetweenRoundsMinutes,
+  };
+}
+
 export function getDrill(id: string): PEDrillDefinition | undefined {
   return drillCatalog[id];
 }
 
-export function resolveDrills(ids: string[]): PEDrillDefinition[] {
+export function resolveCAFDrill(
+  drillId: string,
+  benchmark: CAFBenchmark | null | undefined,
+  frequency: 2 | 3 | 4
+): PEDrillDefinition | undefined {
+  const drill = drillCatalog[drillId];
+  if (!drill) return undefined;
+  if (drill.type !== "crux_after_fatigue" || !benchmark) {
+    return drill;
+  }
+  const resolved = getCAFWeekTargets(benchmark, drillId, frequency);
+  if (!resolved) return drill;
+
+  const targetLine = `${resolved.entryMoves} moves @ ${resolved.entryGrade} (ELS ≈ ${resolved.targetELS})`;
+  const baselineLine = `Baseline from assessment: ${benchmark.entryMoves} @ ${benchmark.entryGrade}`;
+
+  return {
+    ...drill,
+    description: `${resolved.rounds} rounds — ${targetLine}`,
+    instructions: [
+      baselineLine,
+      `This week: ${targetLine}; crux ${resolved.cruxGrade} (${resolved.cruxTotalMoves} moves)`,
+      ...drill.instructions,
+    ],
+    sets: resolved.rounds,
+    reps: `${resolved.entryMoves} moves @ ${resolved.entryGrade} + crux`,
+    cafResolved: resolved,
+  };
+}
+
+export function resolveDrills(
+  ids: string[],
+  cafBenchmark?: CAFBenchmark | null,
+  frequency?: 2 | 3 | 4
+): PEDrillDefinition[] {
   return ids
-    .map((id) => drillCatalog[id])
+    .map((id) => {
+      if (cafBenchmark && frequency && drillCatalog[id]?.type === "crux_after_fatigue") {
+        return resolveCAFDrill(id, cafBenchmark, frequency);
+      }
+      return drillCatalog[id];
+    })
     .filter((d): d is PEDrillDefinition => d != null);
 }

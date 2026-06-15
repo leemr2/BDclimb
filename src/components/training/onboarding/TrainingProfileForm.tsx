@@ -1,28 +1,38 @@
 "use client";
 
 import type { ExperienceLevel, WeightUnit } from "@/lib/firebase/training/profile";
+import type { GoalType } from "@/lib/firebase/training/program";
+import { YDS_ENTRY_GRADES } from "@/lib/plans/power-endurance/calculations";
 
 export interface TrainingProfileFormData {
   age: number;
   weight: number;
   weightUnit: WeightUnit;
   experienceLevel: ExperienceLevel;
-  currentLimitGrade: string;
+  currentLimitGrade?: string;
+  currentRouteGrade?: string;
+  goalRouteGrade?: string;
 }
 
 interface TrainingProfileFormProps {
+  goalType: GoalType;
   data: TrainingProfileFormData;
   onChange: (data: TrainingProfileFormData) => void;
   onSubmit: () => void;
 }
 
-const V_GRADES = ["V0", "V1", "V2", "V3", "V4", "V5", "V6", "V7", "V8", "V9", "V10", "V11", "V12"];
+const V_GRADES = [
+  "V0", "V1", "V2", "V3", "V4", "V5", "V6", "V7", "V8", "V9", "V10", "V11", "V12",
+];
 
 export function TrainingProfileForm({
+  goalType,
   data,
   onChange,
   onSubmit,
 }: TrainingProfileFormProps) {
+  const isPE = goalType === "route_power_endurance";
+
   return (
     <form
       className="training-onboarding-form"
@@ -94,23 +104,64 @@ export function TrainingProfileForm({
           <option value="advanced">Advanced</option>
         </select>
       </div>
-      <div className="training-form-group">
-        <label htmlFor="training-grade">Current limit grade (V-grade)</label>
-        <select
-          id="training-grade"
-          value={data.currentLimitGrade}
-          onChange={(e) =>
-            onChange({ ...data, currentLimitGrade: e.target.value })
-          }
-          required
-        >
-          {V_GRADES.map((g) => (
-            <option key={g} value={g}>
-              {g}
-            </option>
-          ))}
-        </select>
-      </div>
+
+      {isPE ? (
+        <>
+          <div className="training-form-group">
+            <label htmlFor="training-current-route">Current route grade (YDS)</label>
+            <select
+              id="training-current-route"
+              value={data.currentRouteGrade ?? "5.10a"}
+              onChange={(e) =>
+                onChange({ ...data, currentRouteGrade: e.target.value })
+              }
+              required
+            >
+              {YDS_ENTRY_GRADES.map((g) => (
+                <option key={g} value={g}>
+                  {g}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div className="training-form-group">
+            <label htmlFor="training-goal-route">Goal route grade (YDS)</label>
+            <select
+              id="training-goal-route"
+              value={data.goalRouteGrade ?? "5.11a"}
+              onChange={(e) =>
+                onChange({ ...data, goalRouteGrade: e.target.value })
+              }
+              required
+            >
+              {YDS_ENTRY_GRADES.map((g) => (
+                <option key={g} value={g}>
+                  {g}
+                </option>
+              ))}
+            </select>
+          </div>
+        </>
+      ) : (
+        <div className="training-form-group">
+          <label htmlFor="training-grade">Current limit grade (V-grade)</label>
+          <select
+            id="training-grade"
+            value={data.currentLimitGrade ?? "V4"}
+            onChange={(e) =>
+              onChange({ ...data, currentLimitGrade: e.target.value })
+            }
+            required
+          >
+            {V_GRADES.map((g) => (
+              <option key={g} value={g}>
+                {g}
+              </option>
+            ))}
+          </select>
+        </div>
+      )}
+
       <button type="submit" className="training-form-submit training-center-cta">
         Continue
       </button>

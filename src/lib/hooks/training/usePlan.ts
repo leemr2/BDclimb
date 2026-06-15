@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { useAuth } from "@/lib/firebase/auth";
 import type { ActiveProgram } from "@/lib/firebase/training/program";
 import type { PlanDefinition, WeekSchedule } from "@/lib/plans/bouldering/types";
+import type { CAFBenchmark } from "@/lib/plans/power-endurance/types";
 import {
   getPlanDefinition as getBoulderingPlanDefinition,
   getCurrentWeekSchedule as getBoulderingWeekSchedule,
@@ -12,9 +13,15 @@ import {
 import {
   getPlanDefinition as getPEPlanDefinition,
   getCurrentWeekSchedule as getPEWeekSchedule,
+  getSessionWithDrills,
   type PEFrequency,
 } from "@/lib/plans/power-endurance/planEngine";
+import { getCAFWorkoutBaseline } from "@/lib/plans/power-endurance/calculations";
 import { getCompletedSessionLabelsForWeek } from "@/lib/firebase/training/bouldering-workouts";
+import {
+  getAssessmentForWeek,
+  getAssessmentsForProgram,
+} from "@/lib/firebase/training/power-endurance-assessments";
 import { getProgramId } from "@/lib/firebase/training/program";
 
 /**
@@ -24,9 +31,11 @@ export function usePlan(activeProgram: ActiveProgram | null): {
   plan: PlanDefinition | null;
   schedule: WeekSchedule | null;
   workoutsAvailable: boolean;
+  cafBenchmark: CAFBenchmark | null;
 } {
   const { user } = useAuth();
   const [completedLabels, setCompletedLabels] = useState<string[]>([]);
+  const [cafBenchmark, setCafBenchmark] = useState<CAFBenchmark | null>(null);
 
   useEffect(() => {
     if (!user?.uid || !activeProgram || activeProgram.goalType !== "bouldering") {
@@ -42,8 +51,19 @@ export function usePlan(activeProgram: ActiveProgram | null): {
       .catch(() => setCompletedLabels([]));
   }, [user?.uid, activeProgram?.currentWeek, activeProgram?.goalType, activeProgram?.startDate]);
 
+  useEffect(() => {
+    if (!user?.uid || !activeProgram || activeProgram.goalType !== "route_power_endurance") {
+      setCafBenchmark(null);
+      return;
+    }
+    const programId = getProgramId(activeProgram);
+    getAssessmentForWeek(user.uid, programId, 0)
+      .then((week0) => setCafBenchmark(getCAFWorkoutBaseline(week0)))
+      .catch(() => setCafBenchmark(null));
+  }, [user?.uid, activeProgram?.goalType, activeProgram?.startDate]);
+
   if (!activeProgram) {
-    return { plan: null, schedule: null, workoutsAvailable: false };
+    return { plan: null, schedule: null, workoutsAvailable: false, cafBenchmark: null };
   }
 
   if (activeProgram.goalType === "route_power_endurance") {
@@ -53,11 +73,26 @@ export function usePlan(activeProgram: ActiveProgram | null): {
       activeProgram as Parameters<typeof getPEWeekSchedule>[0],
       completedLabels
     );
-    return { plan, schedule, workoutsAvailable: false };
+
+    if (schedule?.nextSession && cafBenchmark) {
+      const expanded = getSessionWithDrills(
+        schedule.nextSession,
+        cafBenchmark,
+        frequency
+      );
+      return {
+        plan,
+        schedule: { ...schedule, nextSession: expanded },
+        workoutsAvailable: false,
+        cafBenchmark,
+      };
+    }
+
+    return { plan, schedule, workoutsAvailable: false, cafBenchmark };
   }
 
   if (activeProgram.goalType !== "bouldering") {
-    return { plan: null, schedule: null, workoutsAvailable: false };
+    return { plan: null, schedule: null, workoutsAvailable: false, cafBenchmark: null };
   }
 
   const frequency = activeProgram.frequency as BoulderingFrequency;
@@ -67,5 +102,25 @@ export function usePlan(activeProgram: ActiveProgram | null): {
     completedLabels
   );
 
-  return { plan, schedule, workoutsAvailable: true };
+  return { plan, schedule, workoutsAvailable: true, cafBenchmark: null };
+}
+
+/** Load all PE assessments for progress/comparison views. */
+export function usePEAssessments(program: ActiveProgram | null) {
+  const { user } = useAuth();
+  const [assessments, setAssessments] = useState<
+    Awaited<ReturnType<typeof getAssessmentsForProgram>>
+  >([]);
+
+  useEffect(() => {
+    if (!user?.uid || !program || program.goalType !== "route_power_endurance") {
+      setAssessments([]);
+      return;
+    }
+    getAssessmentsForProgram(user.uid, getProgramId(program))
+      .then(setAssessments)
+      .catch(() => setAssessments([]));
+  }, [user?.uid, program?.goalType, program?.startDate]);
+
+  return assessments;
 }

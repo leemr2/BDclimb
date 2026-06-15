@@ -11,7 +11,12 @@ export interface TrainingProfile {
   weight: number;
   weightUnit: WeightUnit;
   experienceLevel: ExperienceLevel;
-  currentLimitGrade: string;
+  /** Bouldering limit grade (V-scale). */
+  currentLimitGrade?: string;
+  /** PE: current sustainable/redpoint route grade (YDS). */
+  currentRouteGrade?: string;
+  /** PE: 12-week target route grade (YDS). */
+  goalRouteGrade?: string;
   createdAt: Timestamp;
   updatedAt: Timestamp;
 }

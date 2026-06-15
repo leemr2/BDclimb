@@ -18,9 +18,41 @@ import { db } from "@/lib/firebase/client";
 import type {
   PowerEnduranceAssessment,
   MaxHangAssessment,
+  CruxAfterFatigueAssessment,
 } from "@/lib/plans/power-endurance/types";
+import {
+  buildCAFBenchmark,
+  normalizeCruxAfterFatigueAssessment,
+} from "@/lib/plans/power-endurance/calculations";
 
 const COLLECTION = "powerEnduranceAssessments";
+
+const EMPTY_CAF: CruxAfterFatigueAssessment = {
+  benchmark: buildCAFBenchmark({
+    entryGrade: "5.9",
+    entryMoves: 20,
+    cruxDescription: "",
+    cruxGrade: "V2",
+    cruxTotalMoves: 8,
+  }),
+  attempts: [],
+  sessionCAFScore: 0,
+  avgRoundScore: 0,
+  avgELS: 0,
+  avgCDS: 0,
+  successRate: 0,
+  avgMovesCompleted: 0,
+  avgPumpBeforeCrux: 0,
+};
+
+function normalizeAssessment(doc: PowerEnduranceAssessment): PowerEnduranceAssessment {
+  const raw = doc.cruxAfterFatigue as unknown as Record<string, unknown>;
+  if (!raw) return doc;
+  return {
+    ...doc,
+    cruxAfterFatigue: normalizeCruxAfterFatigueAssessment(raw),
+  };
+}
 
 export async function createAssessment(
   userId: string,
@@ -48,7 +80,10 @@ export async function getAssessment(
     return null;
   }
 
-  return { id: assessmentSnap.id, ...assessmentSnap.data() } as PowerEnduranceAssessment;
+  return normalizeAssessment({
+    id: assessmentSnap.id,
+    ...assessmentSnap.data(),
+  } as PowerEnduranceAssessment);
 }
 
 export async function getAssessmentsForProgram(
@@ -59,8 +94,8 @@ export async function getAssessmentsForProgram(
   const q = query(assessmentsRef, where("programId", "==", programId));
 
   const snapshot = await getDocs(q);
-  const assessments = snapshot.docs.map(
-    (d) => ({ id: d.id, ...d.data() } as PowerEnduranceAssessment)
+  const assessments = snapshot.docs.map((d) =>
+    normalizeAssessment({ id: d.id, ...d.data() } as PowerEnduranceAssessment)
   );
   return assessments.sort((a, b) => a.week - b.week);
 }
@@ -83,7 +118,10 @@ export async function getAssessmentForWeek(
   }
 
   const first = snapshot.docs[0];
-  return { id: first.id, ...first.data() } as PowerEnduranceAssessment;
+  return normalizeAssessment({
+    id: first.id,
+    ...first.data(),
+  } as PowerEnduranceAssessment);
 }
 
 export async function upsertAssessmentFingerMaxStrength(
@@ -112,15 +150,7 @@ export async function upsertAssessmentFingerMaxStrength(
       totalReps: 0,
       totalTimeSeconds: 0,
     },
-    cruxAfterFatigue: latest?.cruxAfterFatigue ?? {
-      leadInDuration: 2,
-      cruxDescription: "",
-      cruxTotalMoves: 0,
-      attempts: [],
-      successRate: 0,
-      avgMovesCompleted: 0,
-      avgPumpBeforeCrux: 0,
-    },
+    cruxAfterFatigue: latest?.cruxAfterFatigue ?? EMPTY_CAF,
     optionalTests: latest?.optionalTests ?? {
       weightedPullup: null,
       campusMaxReach: null,
@@ -143,4 +173,10 @@ export async function getLatestAssessment(
   const assessments = await getAssessmentsForProgram(userId, programId);
   if (assessments.length === 0) return null;
   return assessments[assessments.length - 1];
+}
+
+export const PE_TEST_WEEKS = [4, 8, 12] as const;
+
+export function isPETestWeek(week: number): boolean {
+  return (PE_TEST_WEEKS as readonly number[]).includes(week);
 }

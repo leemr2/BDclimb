@@ -1,89 +1,170 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
+import type { TrainingProfile } from "@/lib/firebase/training/profile";
 import type {
+  CAFBenchmark,
   CruxAfterFatigueAssessment,
-  CruxAfterFatigueAttempt,
+  CAFLimitingFactor,
 } from "@/lib/plans/power-endurance/types";
-import { buildCruxAfterFatigueAssessment } from "@/lib/plans/power-endurance/calculations";
+import {
+  buildCAFBenchmark,
+  buildCruxAfterFatigueAssessment,
+  getCAFAssessmentSuggestions,
+  computeSessionCAFScore,
+  CAF_CRUX_GRADES,
+  YDS_ENTRY_GRADES,
+} from "@/lib/plans/power-endurance/calculations";
+import {
+  CAFRoundLogger,
+  createEmptyCAFRoundDraft,
+  draftToCAFRound,
+  type CAFRoundDraft,
+} from "@/components/training/shared/CAFRoundLogger";
 
 interface CruxAfterFatigueTestProps {
+  profile?: TrainingProfile | null;
+  week: number;
+  lockedBenchmark?: CAFBenchmark | null;
   onComplete: (data: CruxAfterFatigueAssessment) => void;
   onBack?: () => void;
 }
 
-const EMPTY_ATTEMPT: CruxAfterFatigueAttempt = {
-  leadInCompleted: true,
-  pumpBeforeCrux: 5,
-  movesCompleted: 0,
-  success: false,
-  executionQuality: 3,
-  notes: "",
-};
+const ROUND_COUNT = 3;
 
-export function CruxAfterFatigueTest({ onComplete, onBack }: CruxAfterFatigueTestProps) {
-  const [step, setStep] = useState<"setup" | "attempts">("setup");
-  const [leadInDuration, setLeadInDuration] = useState(2);
-  const [cruxDescription, setCruxDescription] = useState("");
-  const [cruxTotalMoves, setCruxTotalMoves] = useState(8);
-  const [limitingFactor, setLimitingFactor] = useState<
-    CruxAfterFatigueAssessment["limitingFactor"]
-  >("forearm_pump");
-  const [attempts, setAttempts] = useState<CruxAfterFatigueAttempt[]>([
-    { ...EMPTY_ATTEMPT },
-    { ...EMPTY_ATTEMPT },
-    { ...EMPTY_ATTEMPT },
-  ]);
+export function CruxAfterFatigueTest({
+  profile,
+  week,
+  lockedBenchmark,
+  onComplete,
+  onBack,
+}: CruxAfterFatigueTestProps) {
+  const isRetest = week > 0;
+  const suggestions = useMemo(() => {
+    if (profile?.currentRouteGrade) {
+      return getCAFAssessmentSuggestions(profile);
+    }
+    return getCAFAssessmentSuggestions({
+      age: 0,
+      weight: 0,
+      weightUnit: "lbs",
+      experienceLevel: "intermediate",
+      currentRouteGrade: "5.10a",
+      goalRouteGrade: "5.11a",
+      createdAt: {} as TrainingProfile["createdAt"],
+      updatedAt: {} as TrainingProfile["updatedAt"],
+    });
+  }, [profile]);
 
-  const updateAttempt = (
-    index: number,
-    field: keyof CruxAfterFatigueAttempt,
-    value: CruxAfterFatigueAttempt[keyof CruxAfterFatigueAttempt]
-  ) => {
-    setAttempts((prev) =>
-      prev.map((a, i) => (i === index ? { ...a, [field]: value } : a))
+  const [step, setStep] = useState<"setup" | "attempts">(isRetest && lockedBenchmark ? "attempts" : "setup");
+  const [entryGrade, setEntryGrade] = useState(
+    lockedBenchmark?.entryGrade ?? suggestions.entryGrade
+  );
+  const [entryMoves, setEntryMoves] = useState(
+    lockedBenchmark?.entryMoves ?? suggestions.entryMoves
+  );
+  const [cruxDescription, setCruxDescription] = useState(
+    lockedBenchmark?.cruxDescription ?? ""
+  );
+  const [cruxGrade, setCruxGrade] = useState(
+    lockedBenchmark?.cruxGrade ?? suggestions.cruxGrade
+  );
+  const [cruxTotalMoves, setCruxTotalMoves] = useState(
+    lockedBenchmark?.cruxTotalMoves ?? suggestions.cruxTotalMoves
+  );
+  const [limitingFactor, setLimitingFactor] = useState<CAFLimitingFactor>("forearm_pump");
+
+  const benchmark = useMemo(
+    () =>
+      lockedBenchmark ??
+      buildCAFBenchmark({
+        entryGrade,
+        entryMoves,
+        cruxDescription: cruxDescription.trim(),
+        cruxGrade,
+        cruxTotalMoves,
+      }),
+    [lockedBenchmark, entryGrade, entryMoves, cruxDescription, cruxGrade, cruxTotalMoves]
+  );
+
+  const [rounds, setRounds] = useState<CAFRoundDraft[]>(() =>
+    Array.from({ length: ROUND_COUNT }, () => createEmptyCAFRoundDraft(benchmark))
+  );
+
+  const updateRound = (index: number, draft: CAFRoundDraft) => {
+    setRounds((prev) => prev.map((r, i) => (i === index ? draft : r)));
+  };
+
+  const sessionScore = computeSessionCAFScore(rounds.map(draftToCAFRound));
+
+  const handleStartAttempts = () => {
+    if (!isRetest && !cruxDescription.trim()) return;
+    const nextBenchmark = buildCAFBenchmark({
+      entryGrade,
+      entryMoves,
+      cruxDescription: cruxDescription.trim() || lockedBenchmark?.cruxDescription || "Benchmark crux",
+      cruxGrade,
+      cruxTotalMoves,
+    });
+    setRounds(
+      Array.from({ length: ROUND_COUNT }, () => createEmptyCAFRoundDraft(nextBenchmark))
     );
+    setStep("attempts");
   };
 
   const handleComplete = () => {
-    if (!cruxDescription.trim()) return;
-    onComplete(
-      buildCruxAfterFatigueAssessment(
-        leadInDuration,
-        cruxDescription.trim(),
-        cruxTotalMoves,
-        attempts,
-        limitingFactor
-      )
-    );
+    const attempts = rounds.map(draftToCAFRound);
+    onComplete(buildCruxAfterFatigueAssessment(benchmark, attempts, limitingFactor));
   };
 
-  if (step === "setup") {
+  if (step === "setup" && !isRetest) {
     return (
       <div className="training-assessment-screen">
         <div className="training-assessment-header">
           <h2 className="training-assessment-title">Crux-After-Fatigue Simulation</h2>
           <p className="training-assessment-subtitle">
-            Your primary KPI — success rate executing a hard crux when already fatigued.
+            Establish your workout baseline — session CAF score shows how you perform at this demand.
           </p>
         </div>
         <div className="training-assessment-content">
+          {profile?.currentRouteGrade && profile?.goalRouteGrade && (
+            <p className="training-assessment-section-hint">
+              Current route: {profile.currentRouteGrade} → Goal: {profile.goalRouteGrade}
+            </p>
+          )}
           <div className="training-assessment-instructions">
             <ol>
-              <li>2-3 min continuous moderate climbing (lead-in)</li>
-              <li>Immediately attempt your benchmark crux (6-12 moves)</li>
-              <li>Rest 10-15 min between attempts; repeat 2-3 times</li>
+              <li>Set your benchmark entry (moves + grade) and crux sequence</li>
+              <li>Perform 2-3 rounds: entry → immediate crux attempt</li>
+              <li>Rest 10-15 min between rounds</li>
             </ol>
+            <p style={{ marginTop: "0.75rem" }}>
+              This setup becomes your workout baseline for the 12-week program.
+            </p>
           </div>
           <div className="training-assessment-section">
             <label className="training-injury-input-group">
-              <span className="training-injury-input-label">Lead-in duration (minutes):</span>
+              <span className="training-injury-input-label">Entry grade:</span>
+              <select
+                value={entryGrade}
+                onChange={(e) => setEntryGrade(e.target.value)}
+                className="training-injury-input"
+              >
+                {YDS_ENTRY_GRADES.map((g) => (
+                  <option key={g} value={g}>
+                    {g}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <label className="training-injury-input-group" style={{ marginTop: "0.75rem" }}>
+              <span className="training-injury-input-label">Entry moves:</span>
               <input
                 type="number"
-                min="1"
-                max="5"
-                value={leadInDuration}
-                onChange={(e) => setLeadInDuration(parseInt(e.target.value) || 2)}
+                min={1}
+                max={80}
+                value={entryMoves}
+                onChange={(e) => setEntryMoves(parseInt(e.target.value, 10) || 20)}
                 className="training-injury-input"
               />
             </label>
@@ -98,13 +179,27 @@ export function CruxAfterFatigueTest({ onComplete, onBack }: CruxAfterFatigueTes
               />
             </label>
             <label className="training-injury-input-group" style={{ marginTop: "0.75rem" }}>
+              <span className="training-injury-input-label">Crux grade:</span>
+              <select
+                value={cruxGrade}
+                onChange={(e) => setCruxGrade(e.target.value)}
+                className="training-injury-input"
+              >
+                {CAF_CRUX_GRADES.map((g) => (
+                  <option key={g} value={g}>
+                    {g}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <label className="training-injury-input-group" style={{ marginTop: "0.75rem" }}>
               <span className="training-injury-input-label">Total crux moves:</span>
               <input
                 type="number"
-                min="1"
-                max="20"
+                min={1}
+                max={20}
                 value={cruxTotalMoves}
-                onChange={(e) => setCruxTotalMoves(parseInt(e.target.value) || 8)}
+                onChange={(e) => setCruxTotalMoves(parseInt(e.target.value, 10) || 8)}
                 className="training-injury-input"
               />
             </label>
@@ -122,7 +217,7 @@ export function CruxAfterFatigueTest({ onComplete, onBack }: CruxAfterFatigueTes
           )}
           <button
             type="button"
-            onClick={() => setStep("attempts")}
+            onClick={handleStartAttempts}
             disabled={!cruxDescription.trim()}
             className="training-center-cta"
           >
@@ -133,115 +228,81 @@ export function CruxAfterFatigueTest({ onComplete, onBack }: CruxAfterFatigueTes
     );
   }
 
-  const successRate = Math.round(
-    (attempts.filter((a) => a.success).length / attempts.length) * 100
-  );
-
   return (
     <div className="training-assessment-screen">
       <div className="training-assessment-header">
-        <h2 className="training-assessment-title">Crux Attempts</h2>
-        <p className="training-assessment-subtitle">{cruxDescription}</p>
+        <h2 className="training-assessment-title">
+          {isRetest ? `Week ${week} CAF Retest` : "Crux Attempts"}
+        </h2>
+        <p className="training-assessment-subtitle">
+          {benchmark.entryMoves} moves @ {benchmark.entryGrade} → {benchmark.cruxGrade} (
+          {benchmark.cruxTotalMoves} moves)
+          {isRetest ? " — locked to Week 0 benchmark" : ""}
+        </p>
       </div>
 
       <div className="training-assessment-content">
-        {attempts.map((attempt, index) => (
-          <div key={index} className="training-assessment-section">
-            <h3 className="training-assessment-section-title">Attempt {index + 1}</h3>
-            <div className="training-injury-simple-grid">
-              <label className="training-injury-input-group">
-                <input
-                  type="checkbox"
-                  checked={attempt.leadInCompleted}
-                  onChange={(e) =>
-                    updateAttempt(index, "leadInCompleted", e.target.checked)
-                  }
-                />
-                <span className="training-injury-input-label">Lead-in completed</span>
-              </label>
-              <label className="training-injury-input-group">
-                <span className="training-injury-input-label">Pump before crux (1-10):</span>
-                <input
-                  type="number"
-                  min="1"
-                  max="10"
-                  value={attempt.pumpBeforeCrux}
-                  onChange={(e) =>
-                    updateAttempt(index, "pumpBeforeCrux", parseInt(e.target.value) || 1)
-                  }
-                  className="training-injury-input"
-                />
-              </label>
-              <label className="training-injury-input-group">
-                <span className="training-injury-input-label">Moves completed:</span>
-                <input
-                  type="number"
-                  min="0"
-                  max={cruxTotalMoves}
-                  value={attempt.movesCompleted}
-                  onChange={(e) =>
-                    updateAttempt(index, "movesCompleted", parseInt(e.target.value) || 0)
-                  }
-                  className="training-injury-input"
-                />
-              </label>
-              <label className="training-injury-input-group">
-                <input
-                  type="checkbox"
-                  checked={attempt.success}
-                  onChange={(e) => updateAttempt(index, "success", e.target.checked)}
-                />
-                <span className="training-injury-input-label">Success (sent crux)</span>
-              </label>
-              <label className="training-injury-input-group">
-                <span className="training-injury-input-label">Execution quality (1-5):</span>
-                <input
-                  type="number"
-                  min="1"
-                  max="5"
-                  value={attempt.executionQuality}
-                  onChange={(e) =>
-                    updateAttempt(index, "executionQuality", parseInt(e.target.value) || 1)
-                  }
-                  className="training-injury-input"
-                />
-              </label>
-            </div>
-          </div>
+        {rounds.map((round, index) => (
+          <CAFRoundLogger
+            key={index}
+            roundIndex={index}
+            benchmark={benchmark}
+            value={round}
+            onChange={(draft) => updateRound(index, draft)}
+            lockEntry={isRetest}
+          />
         ))}
 
         <label className="training-injury-input-group">
           <span className="training-injury-input-label">Limiting factor:</span>
           <select
-            value={limitingFactor ?? "forearm_pump"}
-            onChange={(e) =>
-              setLimitingFactor(
-                e.target.value as CruxAfterFatigueAssessment["limitingFactor"]
-              )
-            }
+            value={limitingFactor}
+            onChange={(e) => setLimitingFactor(e.target.value as CAFLimitingFactor)}
             className="training-injury-input"
           >
             <option value="forearm_pump">Forearm pump</option>
             <option value="finger_strength">Finger strength</option>
-            <option value="technique">Technique</option>
-            <option value="mental">Mental</option>
-            <option value="power">Power</option>
+            <option value="technical_execution">Technical execution</option>
+            <option value="mental_focus">Mental focus</option>
+            <option value="power_explosiveness">Power / explosiveness</option>
+            <option value="pacing_errors">Pacing errors</option>
           </select>
         </label>
 
         <p className="training-assessment-section-hint" style={{ marginTop: "1rem" }}>
-          Success rate: {successRate}%
+          Session CAF score: <strong>{sessionScore}</strong> · Success rate:{" "}
+          {Math.round(
+            (rounds.map(draftToCAFRound).filter((r) => r.success).length / ROUND_COUNT) * 100
+          )}
+          %
+        </p>
+        <p className="training-assessment-section-hint">
+          {rounds.map((_, i) => {
+            const score = draftToCAFRound(rounds[i]).roundScore;
+            return `R${i + 1}: ${score}`;
+          }).join("  ")}
         </p>
       </div>
 
       <div className="training-assessment-actions">
-        <button
-          type="button"
-          onClick={() => setStep("setup")}
-          className="training-center-cta training-btn-secondary"
-        >
-          Back
-        </button>
+        {!isRetest && (
+          <button
+            type="button"
+            onClick={() => setStep("setup")}
+            className="training-center-cta training-btn-secondary"
+          >
+            Back
+          </button>
+        )}
+        {onBack && isRetest && (
+          <button
+            type="button"
+            onClick={onBack}
+            className="training-center-cta training-btn-secondary"
+          >
+            Back
+          </button>
+        )}
         <button type="button" onClick={handleComplete} className="training-center-cta">
           Complete test
         </button>

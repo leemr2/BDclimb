@@ -12,12 +12,14 @@ import type {
   PowerEnduranceAssessment,
   PEInjuryBaseline,
   PEOptionalTests,
+  CAFBenchmark,
 } from "@/lib/plans/power-endurance/types";
 import type {
   MaxHangAssessment,
   CampusBoardAssessment,
   PullingStrengthAssessment,
 } from "@/lib/plans/bouldering/types";
+import type { TrainingProfile } from "@/lib/firebase/training/profile";
 import { getIHEWorkingLoad } from "@/lib/plans/power-endurance/calculations";
 
 type TaskId =
@@ -62,7 +64,8 @@ const ASSESSMENT_TASKS: TaskMeta[] = [
   {
     id: "caf",
     title: "Crux-After-Fatigue Simulation",
-    description: "Lead-in climbing then crux attempts — your primary KPI baseline.",
+    description:
+      "Move-count entry + crux rounds — establishes your workout baseline and session CAF score.",
     time: "30–45 min",
     optional: false,
   },
@@ -94,6 +97,8 @@ interface PowerEnduranceAssessmentFlowProps {
   week: number;
   bodyweight: number;
   weightUnit: "lbs" | "kg";
+  profile?: TrainingProfile | null;
+  week0Benchmark?: CAFBenchmark | null;
   onComplete: (assessment: Omit<PowerEnduranceAssessment, "id" | "date">) => void;
 }
 
@@ -102,6 +107,8 @@ export function PowerEnduranceAssessmentFlow({
   week,
   bodyweight,
   weightUnit,
+  profile,
+  week0Benchmark,
   onComplete,
 }: PowerEnduranceAssessmentFlowProps) {
   const [activeTask, setActiveTask] = useState<TaskId | null>(null);
@@ -243,6 +250,9 @@ export function PowerEnduranceAssessmentFlow({
   if (activeTask === "caf") {
     return (
       <CruxAfterFatigueTest
+        profile={profile}
+        week={week}
+        lockedBenchmark={week > 0 ? week0Benchmark : null}
         onComplete={(data) => {
           setCafData(data);
           setActiveTask(null);
@@ -386,8 +396,11 @@ export function PowerEnduranceAssessmentFlow({
               <p className="training-assessment-summary-value">{iheData.totalReps}</p>
             </div>
             <div className="training-assessment-summary-card">
-              <h3 className="training-assessment-summary-label">Crux Success Rate</h3>
-              <p className="training-assessment-summary-value">{cafData.successRate}%</p>
+              <h3 className="training-assessment-summary-label">Session CAF Score</h3>
+              <p className="training-assessment-summary-value">{cafData.sessionCAFScore}</p>
+              <p className="training-assessment-summary-sub">
+                Success rate: {cafData.successRate}% · Benchmark ELS {cafData.benchmark.baselineELS}
+              </p>
             </div>
           </div>
         )}

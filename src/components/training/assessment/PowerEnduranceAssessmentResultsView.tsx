@@ -50,11 +50,13 @@ export function PowerEnduranceAssessmentResultsView({
   const latest = assessments[assessments.length - 1];
   const [selectedWeek, setSelectedWeek] = useState(latest?.week ?? 0);
   const a = assessments.find((x) => x.week === selectedWeek) ?? latest;
+  const week0 = assessments.find((x) => x.week === 0);
 
   if (!a) return null;
 
   const iheLoad = getIHEWorkingLoad(a.fingerMaxStrength.bestLoad);
   const maxPain = maxPainFromBaseline(a.injuryBaseline);
+  const caf = a.cruxAfterFatigue;
 
   return (
     <div className="training-assessment-results">
@@ -63,7 +65,7 @@ export function PowerEnduranceAssessmentResultsView({
         {assessments.length > 1 && (
           <select
             value={selectedWeek}
-            onChange={(e) => setSelectedWeek(parseInt(e.target.value))}
+            onChange={(e) => setSelectedWeek(parseInt(e.target.value, 10))}
             className="training-injury-input"
           >
             {assessments.map((ass) => (
@@ -74,6 +76,12 @@ export function PowerEnduranceAssessmentResultsView({
           </select>
         )}
       </div>
+
+      {caf.isLegacy && (
+        <p className="training-assessment-section-hint" style={{ marginBottom: "1rem" }}>
+          Legacy assessment format — retest recommended for accurate CAF scoring.
+        </p>
+      )}
 
       <div className="training-assessment-summary">
         <div className="training-assessment-summary-card">
@@ -97,10 +105,10 @@ export function PowerEnduranceAssessmentResultsView({
         </div>
 
         <div className="training-assessment-summary-card">
-          <h3 className="training-assessment-summary-label">Crux Success Rate</h3>
-          <p className="training-assessment-summary-value">{a.cruxAfterFatigue.successRate}%</p>
+          <h3 className="training-assessment-summary-label">Session CAF Score</h3>
+          <p className="training-assessment-summary-value">{caf.sessionCAFScore}</p>
           <p className="training-assessment-summary-sub">
-            Avg moves: {a.cruxAfterFatigue.avgMovesCompleted}
+            Success rate: {caf.successRate}% · Avg CDS: {caf.avgCDS}
           </p>
         </div>
 
@@ -116,6 +124,64 @@ export function PowerEnduranceAssessmentResultsView({
           )}
         </div>
       </div>
+
+      {caf.benchmark && (
+        <div className="training-assessment-section" style={{ marginTop: "1.25rem" }}>
+          <h3 className="training-assessment-section-title">CAF Benchmark</h3>
+          <p className="training-assessment-section-hint">
+            Entry: {caf.benchmark.entryMoves} moves @ {caf.benchmark.entryGrade} (ELS{" "}
+            {caf.benchmark.baselineELS}) · Crux: {caf.benchmark.cruxGrade} (
+            {caf.benchmark.cruxTotalMoves} moves)
+          </p>
+          {a.week === 0 && (
+            <p className="training-assessment-section-hint" style={{ marginTop: "0.5rem" }}>
+              Your Week 1 CAF workouts will start from this entry setup.
+            </p>
+          )}
+        </div>
+      )}
+
+      {assessments.length > 1 && week0 && (
+        <div className="training-assessment-section" style={{ marginTop: "1.25rem" }}>
+          <h3 className="training-assessment-section-title">CAF Progress Across Retests</h3>
+          <table className="training-assessment-comparison-table">
+            <thead>
+              <tr>
+                <th>Metric</th>
+                {assessments.map((ass) => (
+                  <th key={ass.week}>Week {ass.week}</th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Session CAF Score</td>
+                {assessments.map((ass) => (
+                  <td key={ass.week}>{ass.cruxAfterFatigue.sessionCAFScore}</td>
+                ))}
+              </tr>
+              <tr>
+                <td>Avg ELS / round</td>
+                {assessments.map((ass) => (
+                  <td key={ass.week}>{ass.cruxAfterFatigue.avgELS}</td>
+                ))}
+              </tr>
+              <tr>
+                <td>Avg CDS / round</td>
+                {assessments.map((ass) => (
+                  <td key={ass.week}>{ass.cruxAfterFatigue.avgCDS}</td>
+                ))}
+              </tr>
+              <tr>
+                <td>Success rate</td>
+                {assessments.map((ass) => (
+                  <td key={ass.week}>{ass.cruxAfterFatigue.successRate}%</td>
+                ))}
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      )}
     </div>
   );
 }
