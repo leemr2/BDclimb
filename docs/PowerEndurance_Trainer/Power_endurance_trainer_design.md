@@ -127,20 +127,37 @@ users/
         }
 
         cruxAfterFatigue: {
-          leadInDuration: number      // minutes
-          cruxDescription: string
-          cruxTotalMoves: number
           attempts: [{
+            // Entry (lead-in) inputs
+            entryMoves: number              // user input: number of entry moves
+            entryGrade: string              // user input: "5.9", "5.10b", etc.
+            entryGradeMultiplier: number    // auto: lookup from grade table
+            els: number                     // auto: entryMoves × entryGradeMultiplier
+
+            // Crux inputs
+            cruxDescription: string
+            cruxGrade: string               // "V0"–"V6+" etc.
+            cruxTotalMoves: number          // total moves in crux sequence
+            cruxGradeMultiplier: number     // auto: V_grade + 1 (V0=1, V1=2, V2=3 ...)
+            movesCompleted: number          // user input: moves completed before fall/top
+            cds: number                     // auto: movesCompleted × cruxGradeMultiplier
+            success: boolean                // auto: movesCompleted === cruxTotalMoves
+
+            // Round score
+            roundScore: number              // auto: els + cds
+
+            // Context
             leadInCompleted: boolean
-            pumpBeforeCrux: number    // 1-10
-            movesCompleted: number
-            success: boolean
-            executionQuality: number  // 1-5
+            pumpBeforeCrux: number          // 1-10
+            executionQuality: number        // 1-5
             notes: string
           }]
-          successRate: number         // auto: successes / attempts %
-          avgMovesCompleted: number   // auto
-          avgPumpBeforeCrux: number   // auto
+          // Auto-calculated session totals
+          sessionCAFScore: number           // auto: sum of all roundScores
+          avgRoundScore: number             // auto
+          successRate: number               // auto: successes / attempts %
+          avgMovesCompleted: number         // auto
+          avgPumpBeforeCrux: number         // auto
           limitingFactor: "forearm_pump" | "finger_strength" | "technique" | "mental" | "power"
         }
 
@@ -336,33 +353,64 @@ type CriticalForceData = {
 }
 
 // Crux-After-Fatigue Drill (CAF) — THE PRIMARY METRIC across all plans/mesocycles
+//
+// Scoring system:
+//   ELS (Entry Load Score)  = entryMoves × entryGradeMultiplier
+//   CDS (Crux Demand Score) = movesCompleted × cruxGradeMultiplier
+//   Round Score             = ELS + CDS
+//   Session CAF Score       = sum of all round scores (5 rounds standard)
+//
+// Entry grade multipliers (linear, +0.1 per sub-grade from 5.9 base):
+//   5.8=0.9, 5.9=1.0, 5.10a=1.1, 5.10b=1.2, 5.10c=1.3, 5.10d=1.4,
+//   5.11a=1.5, 5.11b=1.6, 5.11c=1.7, 5.11d=1.8, 5.12a=1.9, 5.12b=2.0 ...
+//
+// Crux grade multipliers (V_grade + 1):
+//   V0=1, V1=2, V2=3, V3=4, V4=5, V5=6, V6=7 ...
+
 type CruxAfterFatigueData = {
-  leadInDuration: number              // minutes (progresses week over week)
-  leadInTerrain: string
-  cruxDescription: string
-  cruxGrade: string
-  cruxTotalMoves: number
   rounds: [{
+    // Entry (lead-in) — user inputs
+    entryMoves: number              // number of moves in the entry section
+    entryGrade: string              // route grade: "5.9", "5.10b", "5.11a", etc.
+    entryGradeMultiplier: number    // auto: lookup from entry grade table
+    els: number                     // auto: entryMoves × entryGradeMultiplier
+
+    // Crux — user inputs
+    cruxDescription: string         // e.g. "Red V3 on the 45-degree wall, 8 moves"
+    cruxGrade: string               // "V0"–"V6+" etc.
+    cruxTotalMoves: number          // total moves in crux sequence
+    cruxGradeMultiplier: number     // auto: V_grade + 1
+    movesCompleted: number          // moves completed before fall/top
+    cds: number                     // auto: movesCompleted × cruxGradeMultiplier
+    success: boolean                // auto: movesCompleted === cruxTotalMoves
+
+    // Round score
+    roundScore: number              // auto: els + cds
+
+    // Context
     leadInCompleted: boolean
     leadInRPE: number
-    pumpBeforeCrux: number            // 1-10 — key readiness indicator
-    movesCompleted: number
-    success: boolean
-    executionQuality: number          // 1-5
+    pumpBeforeCrux: number          // 1-10 — key readiness indicator
+    executionQuality: number        // 1-5
     restAfterMinutes: number
     mentalState: "focused" | "distracted" | "anxious" | "confident"
     notes: string
   }]
-  // Auto-calculated
+
+  // Auto-calculated session totals
   totalRounds: number
-  successRate: number                 // % (sent / rounds)
+  sessionCAFScore: number           // sum of all roundScores — primary tracking number
+  avgRoundScore: number             // auto
+  successRate: number               // % (sent / rounds)
   avgMovesCompleted: number
   avgPumpBeforeCrux: number
-  avgExecutionQuality: number         // 1-5
+  avgExecutionQuality: number       // 1-5
   trendVsLastSession: {
+    lastSessionCAFScore: number
     lastSuccessRate: number
-    trend: "improving" | "stable" | "declining"
+    scoreTrend: "improving" | "stable" | "declining"
   } | null
+
   // Detailed analysis
   leadInPacing: "too_fast" | "good" | "too_slow" | "inconsistent"
   shakeRestManagement: "excellent" | "good" | "fair" | "poor"
@@ -567,15 +615,68 @@ function getIHEWorkingLoad(userId: string): number {
   return Math.round(latest.fingerMaxStrength.bestLoad * 0.60)
 }
 
-// Crux success rate trend — the primary progress indicator
-function getCruxSuccessRateTrend(userId: string, lastN: number = 3): CruxTrend {
+// --- CAF Scoring Tables ---
+
+// Entry grade multipliers: linear +0.1 per sub-grade, anchored at 5.9 = 1.0
+const ENTRY_GRADE_MULTIPLIERS: Record<string, number> = {
+  "5.6":   0.7,
+  "5.7":   0.8,
+  "5.8":   0.9,
+  "5.9":   1.0,
+  "5.10a": 1.1,
+  "5.10b": 1.2,
+  "5.10c": 1.3,
+  "5.10d": 1.4,
+  "5.11a": 1.5,
+  "5.11b": 1.6,
+  "5.11c": 1.7,
+  "5.11d": 1.8,
+  "5.12a": 1.9,
+  "5.12b": 2.0,
+  "5.12c": 2.1,
+  "5.12d": 2.2,
+  "5.13a": 2.3,
+  "5.13b": 2.4,
+  "5.13c": 2.5,
+  "5.13d": 2.6,
+  "5.14a": 2.7,
+}
+
+// Crux grade multipliers: V_grade + 1
+function getCruxGradeMultiplier(vGrade: string): number {
+  const match = vGrade.match(/V(\d+)/)
+  if (!match) return 1
+  return parseInt(match[1]) + 1
+}
+
+// Per-round scoring
+function calcRoundScore(round: {
+  entryMoves: number
+  entryGrade: string
+  movesCompleted: number
+  cruxGrade: string
+}): { els: number; cds: number; roundScore: number } {
+  const els = round.entryMoves * (ENTRY_GRADE_MULTIPLIERS[round.entryGrade] ?? 1.0)
+  const cds = round.movesCompleted * getCruxGradeMultiplier(round.cruxGrade)
+  return { els, cds, roundScore: els + cds }
+}
+
+// Session CAF Score — primary tracking number
+function calcSessionCAFScore(rounds: ReturnType<typeof calcRoundScore>[]): number {
+  return rounds.reduce((sum, r) => sum + r.roundScore, 0)
+}
+
+// Crux session score trend — the primary progress indicator
+function getCruxSessionScoreTrend(userId: string, lastN: number = 3): CruxTrend {
   const recentCAF = getRecentCruxSessions(userId, lastN)
+  const scores = recentCAF.map(s => s.data.sessionCAFScore)
   const rates = recentCAF.map(s => s.data.successRate)
   return {
+    scores,
     rates,
-    trend: isIncreasingTrend(rates) ? "improving" : isDecreasingTrend(rates) ? "declining" : "stable",
-    latest: rates[rates.length - 1],
-    average: rates.reduce((a, b) => a + b, 0) / rates.length
+    trend: isIncreasingTrend(scores) ? "improving" : isDecreasingTrend(scores) ? "declining" : "stable",
+    latestScore: scores[scores.length - 1],
+    avgScore: scores.reduce((a, b) => a + b, 0) / scores.length
   }
 }
 
@@ -769,27 +870,33 @@ The workout flow shell (`WorkoutFlow.tsx`, `WorkoutProvider.tsx`, `DrillCard.tsx
 ┌─────────────────────────────────────────────────────┐
 │  Crux-After-Fatigue — Round 2 of 5                 │
 │                                                     │
-│  ── PART A: LEAD-IN ───────────────────────────    │
-│  [ ⏱ 00:00 ]  Target: 2:00 continuous moderate    │
-│  [ Start Lead-In ]  → auto-timer runs               │
+│  ── PART A: ENTRY ─────────────────────────────    │
+│  Entry grade: [ 5.9 ▾ ]   Entry moves: [ 20 ]     │
+│  ELS: 20 × 1.0 = 20.0  (auto)                      │
 │                                                     │
-│  ── PART B: CRUX (immediately after lead-in) ──    │
-│  Crux: Red V5, 8 moves                              │
+│  [ ⏱ 00:00 ]  [ Start Entry ]  → auto-timer runs  │
+│  Lead-in completed? [ ✓ Yes ]  [ ✗ No ]            │
+│                                                     │
+│  ── PART B: CRUX (immediately after entry) ────    │
+│  Crux grade: [ V2 ▾ ]   Total moves: [ 8 ]        │
+│  Description: [ Red V2, 8 moves, 45° wall ]        │
 │                                                     │
 │  Pump before crux: [ 1 ][ 2 ][ 3 ][ 4 ][ 5 ][ 6 ][ 7 ][ 8 ][ 9 ][ 10 ]
 │                                                     │
-│  Crux result:                                       │
-│  [ ✓ SEND ]   [ Moves completed: 3 / 8 ]           │
+│  Moves completed: [ 0 ][ 1 ][ 2 ][ 3 ][ 4 ][ 5 ][ 6 ][ 7 ][ 8 ]
+│  CDS: 5 × 3.0 = 15.0  (auto)                       │
+│                                                     │
+│  ── ROUND SCORE ───────────────────────────────    │
+│  ELS 20.0 + CDS 15.0 = 35.0  ✓ logged             │
 │                                                     │
 │  Execution quality: [ 1 ][ 2 ][ 3 ][ 4 ][ 5 ]     │
-│  (1=Failed immediately  5=Crisp and controlled)     │
-│                                                     │
 │  Mental state: [ Focused ][ Distracted ][ Anxious ][ Confident ]
 │                                                     │
 │  [ Rest 10-12 min → Timer ]                         │
 │                                                     │
-│  Session so far:  Round 1: ✓  Round 2: ✗           │
-│  Success rate: 1/2 = 50%                            │
+│  Session so far:                                    │
+│  R1: 38.0  R2: 35.0  R3: —  R4: —  R5: —          │
+│  Running score: 73.0                                │
 │                                                     │
 │  [ Start Round 3 ]                                  │
 └─────────────────────────────────────────────────────┘
@@ -843,7 +950,13 @@ In addition to the existing bouldering safety interrupts (pain > 2/10), PE adds:
 | Max hang % BW | `(totalLoad / bodyweight) × 100` | Assessment comparisons |
 | IHE working load | `latestMaxHang × 0.60` | Drill instructions (auto-filled) |
 | Target max hang load | `latestMaxHang × targetPercent` | Workout A instructions |
-| Crux success rate | `(successes / totalRounds) × 100` | Primary KPI dashboard |
+| Entry grade multiplier | Lookup: 5.9=1.0, 5.10a=1.1, +0.1/sub-grade | CAF round scoring |
+| Crux grade multiplier | `V_grade + 1` (V0=1, V1=2, V2=3 ...) | CAF round scoring |
+| ELS (Entry Load Score) | `entryMoves × entryGradeMultiplier` | Per CAF round |
+| CDS (Crux Demand Score) | `movesCompleted × cruxGradeMultiplier` | Per CAF round |
+| Round Score | `ELS + CDS` | Per CAF round |
+| Session CAF Score | `sum of all roundScores` | Primary CAF tracking number |
+| Crux success rate | `(successes / totalRounds) × 100` | Secondary KPI dashboard |
 | Avg moves completed | `sum(movesCompleted) / rounds` | CAF session summary |
 | Fluency stops per set | `totalStops / sets` | ARC session tracking |
 | Silent foot slips per session | Count logged during ARC | ARC session tracking |
