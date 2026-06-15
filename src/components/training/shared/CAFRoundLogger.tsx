@@ -1,11 +1,14 @@
 "use client";
 
+import type { ReactNode } from "react";
 import type { CAFBenchmark, CAFRoundBase } from "@/lib/plans/power-endurance/types";
 import {
   CAF_CRUX_GRADES,
   YDS_ENTRY_GRADES,
+  normalizeCAFCruxGrade,
   calcCAFRoundScore,
 } from "@/lib/plans/power-endurance/calculations";
+import { NumberSlider } from "@/components/training/ui/NumberSlider";
 
 export interface CAFRoundDraft {
   entryMoves: number;
@@ -28,21 +31,15 @@ interface CAFRoundLoggerProps {
   onChange: (value: CAFRoundDraft) => void;
   lockEntry?: boolean;
   readOnly?: boolean;
+  footer?: ReactNode;
 }
-
-const MENTAL_STATES: NonNullable<CAFRoundBase["mentalState"]>[] = [
-  "focused",
-  "distracted",
-  "anxious",
-  "confident",
-];
 
 export function createEmptyCAFRoundDraft(benchmark: CAFBenchmark): CAFRoundDraft {
   return {
     entryMoves: benchmark.entryMoves,
     entryGrade: benchmark.entryGrade,
     cruxDescription: benchmark.cruxDescription,
-    cruxGrade: benchmark.cruxGrade,
+    cruxGrade: normalizeCAFCruxGrade(benchmark.cruxGrade),
     cruxTotalMoves: benchmark.cruxTotalMoves,
     movesCompleted: 0,
     leadInCompleted: true,
@@ -70,11 +67,11 @@ export function draftToCAFRound(draft: CAFRoundDraft): CAFRoundBase {
 
 export function CAFRoundLogger({
   roundIndex,
-  benchmark,
   value,
   onChange,
   lockEntry = false,
   readOnly = false,
+  footer,
 }: CAFRoundLoggerProps) {
   const scored = draftToCAFRound(value);
 
@@ -84,20 +81,19 @@ export function CAFRoundLogger({
   };
 
   return (
-    <div className="training-assessment-section">
+    <div className="training-assessment-form">
       <h3 className="training-assessment-section-title">Round {roundIndex + 1}</h3>
 
-      <p className="training-assessment-section-hint" style={{ marginBottom: "0.75rem" }}>
-        Part A — Entry
-      </p>
-      <div className="training-injury-simple-grid">
-        <label className="training-injury-input-group">
-          <span className="training-injury-input-label">Entry grade:</span>
+      <p className="training-assessment-section-hint">Part A — Entry</p>
+
+      <div className="training-assessment-section">
+        <label className="training-assessment-label">
+          Entry grade
           <select
             value={value.entryGrade}
             disabled={lockEntry || readOnly}
             onChange={(e) => update("entryGrade", e.target.value)}
-            className="training-injury-input"
+            className="training-assessment-input"
           >
             {YDS_ENTRY_GRADES.map((g) => (
               <option key={g} value={g}>
@@ -106,43 +102,43 @@ export function CAFRoundLogger({
             ))}
           </select>
         </label>
-        <label className="training-injury-input-group">
-          <span className="training-injury-input-label">Entry moves:</span>
-          <input
-            type="number"
-            min={1}
-            max={80}
-            value={value.entryMoves}
-            disabled={lockEntry || readOnly}
-            onChange={(e) => update("entryMoves", parseInt(e.target.value, 10) || 0)}
-            className="training-injury-input"
-          />
-        </label>
-        <p className="training-assessment-section-hint">
-          ELS: {value.entryMoves} × {scored.entryGradeMultiplier} = {scored.els}
-        </p>
-        <label className="training-injury-input-group">
+      </div>
+
+      <div className="training-assessment-section">
+        <NumberSlider
+          label="Entry moves"
+          value={value.entryMoves}
+          onChange={(v) => update("entryMoves", v)}
+          min={1}
+          max={80}
+          unit="moves"
+          disabled={lockEntry || readOnly}
+          hint={`ELS: ${value.entryMoves} × ${scored.entryGradeMultiplier} = ${scored.els}`}
+        />
+      </div>
+
+      <div className="training-assessment-section">
+        <label className="training-assessment-checkbox-label">
           <input
             type="checkbox"
             checked={value.leadInCompleted}
             disabled={readOnly}
             onChange={(e) => update("leadInCompleted", e.target.checked)}
           />
-          <span className="training-injury-input-label">Entry completed</span>
+          Entry completed
         </label>
       </div>
 
-      <p className="training-assessment-section-hint" style={{ margin: "1rem 0 0.75rem" }}>
-        Part B — Crux (immediately after entry)
-      </p>
-      <div className="training-injury-simple-grid">
-        <label className="training-injury-input-group">
-          <span className="training-injury-input-label">Crux grade:</span>
+      <p className="training-assessment-section-hint">Part B — Crux (immediately after entry)</p>
+
+      <div className="training-assessment-section">
+        <label className="training-assessment-label">
+          Crux grade
           <select
             value={value.cruxGrade}
             disabled={lockEntry || readOnly}
             onChange={(e) => update("cruxGrade", e.target.value)}
-            className="training-injury-input"
+            className="training-assessment-input"
           >
             {CAF_CRUX_GRADES.map((g) => (
               <option key={g} value={g}>
@@ -151,98 +147,85 @@ export function CAFRoundLogger({
             ))}
           </select>
         </label>
-        <label className="training-injury-input-group">
-          <span className="training-injury-input-label">Total crux moves:</span>
-          <input
-            type="number"
-            min={1}
-            max={20}
-            value={value.cruxTotalMoves}
-            disabled={lockEntry || readOnly}
-            onChange={(e) =>
-              update("cruxTotalMoves", parseInt(e.target.value, 10) || benchmark.cruxTotalMoves)
-            }
-            className="training-injury-input"
-          />
-        </label>
-        {!lockEntry && (
-          <label className="training-injury-input-group" style={{ gridColumn: "1 / -1" }}>
-            <span className="training-injury-input-label">Crux description:</span>
+      </div>
+
+      <div className="training-assessment-section">
+        <NumberSlider
+          label="Total crux moves"
+          value={value.cruxTotalMoves}
+          onChange={(v) =>
+            onChange({
+              ...value,
+              cruxTotalMoves: v,
+              movesCompleted: Math.min(value.movesCompleted, v),
+            })
+          }
+          min={1}
+          max={20}
+          unit="moves"
+          disabled={lockEntry || readOnly}
+        />
+      </div>
+
+      {!lockEntry && (
+        <div className="training-assessment-section">
+          <label className="training-assessment-label">
+            Crux description
             <input
               type="text"
               value={value.cruxDescription}
               disabled={readOnly}
               onChange={(e) => update("cruxDescription", e.target.value)}
-              className="training-injury-input"
+              className="training-assessment-input"
             />
           </label>
-        )}
-        <label className="training-injury-input-group">
-          <span className="training-injury-input-label">Pump before crux (1-10):</span>
-          <input
-            type="number"
-            min={1}
-            max={10}
-            value={value.pumpBeforeCrux}
-            disabled={readOnly}
-            onChange={(e) => update("pumpBeforeCrux", parseInt(e.target.value, 10) || 1)}
-            className="training-injury-input"
-          />
-        </label>
-        <label className="training-injury-input-group">
-          <span className="training-injury-input-label">Moves completed:</span>
-          <input
-            type="number"
-            min={0}
-            max={value.cruxTotalMoves}
-            value={value.movesCompleted}
-            disabled={readOnly}
-            onChange={(e) => update("movesCompleted", parseInt(e.target.value, 10) || 0)}
-            className="training-injury-input"
-          />
-        </label>
-        <p className="training-assessment-section-hint">
-          CDS: {value.movesCompleted} × {scored.cruxGradeMultiplier} = {scored.cds}
-          {scored.success ? " ✓ SEND" : ""}
-        </p>
-        <label className="training-injury-input-group">
-          <span className="training-injury-input-label">Execution quality (1-5):</span>
-          <input
-            type="number"
-            min={1}
-            max={5}
-            value={value.executionQuality}
-            disabled={readOnly}
-            onChange={(e) => update("executionQuality", parseInt(e.target.value, 10) || 1)}
-            className="training-injury-input"
-          />
-        </label>
-        <div className="training-injury-input-group" style={{ gridColumn: "1 / -1" }}>
-          <span className="training-injury-input-label">Mental state:</span>
-          <div style={{ display: "flex", gap: "0.5rem", flexWrap: "wrap", marginTop: "0.35rem" }}>
-            {MENTAL_STATES.map((state) => (
-              <button
-                key={state}
-                type="button"
-                disabled={readOnly}
-                className={
-                  value.mentalState === state
-                    ? "training-center-cta"
-                    : "training-center-cta training-btn-secondary"
-                }
-                style={{ fontSize: "0.85rem", padding: "0.35rem 0.65rem" }}
-                onClick={() => update("mentalState", state)}
-              >
-                {state.charAt(0).toUpperCase() + state.slice(1)}
-              </button>
-            ))}
-          </div>
         </div>
+      )}
+
+      <div className="training-assessment-section">
+        <NumberSlider
+          label="Pump before crux"
+          value={value.pumpBeforeCrux}
+          onChange={(v) => update("pumpBeforeCrux", v)}
+          min={1}
+          max={10}
+          disabled={readOnly}
+          hint="Rate forearm pump right before the crux attempt (1 = fresh, 10 = maxed)"
+        />
       </div>
 
-      <p className="training-assessment-section-hint" style={{ marginTop: "0.75rem" }}>
+      <div className="training-assessment-section">
+        <NumberSlider
+          label="Moves completed"
+          value={value.movesCompleted}
+          onChange={(v) => update("movesCompleted", v)}
+          min={0}
+          max={value.cruxTotalMoves}
+          unit="moves"
+          disabled={readOnly}
+          hint={`CDS: ${value.movesCompleted} × ${scored.cruxGradeMultiplier} = ${scored.cds}${
+            scored.success ? " ✓ SEND" : ""
+          }`}
+        />
+      </div>
+
+      <div className="training-assessment-section">
+        <NumberSlider
+          label="Execution quality"
+          value={value.executionQuality}
+          onChange={(v) => update("executionQuality", v)}
+          min={1}
+          max={5}
+          disabled={readOnly}
+          hint="How cleanly did you execute the crux? (1 = sloppy, 5 = crisp)"
+        />
+      </div>
+
+      <p className="training-assessment-section-hint">
         Round score: ELS {scored.els} + CDS {scored.cds} = <strong>{scored.roundScore}</strong>
       </p>
+
+      {footer}
     </div>
   );
 }

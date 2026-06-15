@@ -10,6 +10,7 @@ interface NumberSliderProps {
   unit?: string;
   hint?: string;
   className?: string;
+  disabled?: boolean;
 }
 
 /** Mobile-friendly slider + ± buttons replacing tiny number inputs. */
@@ -23,6 +24,7 @@ export function NumberSlider({
   unit,
   hint,
   className,
+  disabled = false,
 }: NumberSliderProps) {
   const clamp = (v: number) => Math.min(max, Math.max(min, parseFloat(v.toFixed(10))));
 
@@ -47,7 +49,7 @@ export function NumberSlider({
         <button
           type="button"
           onClick={() => adjust(-step)}
-          disabled={value <= min}
+          disabled={disabled || value <= min}
           className="training-number-slider-btn"
           aria-label={`Decrease ${label}`}
         >
@@ -59,6 +61,7 @@ export function NumberSlider({
           max={max}
           step={step}
           value={value}
+          disabled={disabled}
           onChange={(e) => onChange(parseFloat(e.target.value))}
           className="training-number-slider-track"
           aria-label={label}
@@ -66,7 +69,7 @@ export function NumberSlider({
         <button
           type="button"
           onClick={() => adjust(step)}
-          disabled={value >= max}
+          disabled={disabled || value >= max}
           className="training-number-slider-btn"
           aria-label={`Increase ${label}`}
         >

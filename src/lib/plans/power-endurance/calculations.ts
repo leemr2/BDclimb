@@ -49,8 +49,18 @@ export const CAF_CRUX_GRADES = [
   "V4",
   "V5",
   "V6",
-  "V6+",
+  "V7",
+  "V8",
+  "V9",
+  "V10",
+  "V11",
+  "V12",
 ] as const;
+
+/** Map legacy catch-all grade to the expanded ladder. */
+export function normalizeCAFCruxGrade(grade: string): string {
+  return grade === "V6+" ? "V7" : grade;
+}
 
 /** Entry grade multipliers: linear +0.1 per sub-grade from 5.9 = 1.0 */
 export const ENTRY_GRADE_MULTIPLIERS: Record<string, number> = {
@@ -126,7 +136,7 @@ export function getEntryGradeMultiplier(grade: string): number {
 
 /** Crux grade multipliers: V_grade + 1 */
 export function getCruxGradeMultiplier(vGrade: string): number {
-  const match = vGrade.match(/V(\d+)/i);
+  const match = normalizeCAFCruxGrade(vGrade).match(/V(\d+)/i);
   if (!match) return 1;
   return parseInt(match[1], 10) + 1;
 }
@@ -139,7 +149,8 @@ export function offsetYDSGrade(grade: string, steps: number): string {
 }
 
 export function offsetVGrade(grade: string, steps: number): string {
-  const idx = CAF_CRUX_GRADES.indexOf(grade as (typeof CAF_CRUX_GRADES)[number]);
+  const normalized = normalizeCAFCruxGrade(grade);
+  const idx = CAF_CRUX_GRADES.indexOf(normalized as (typeof CAF_CRUX_GRADES)[number]);
   if (idx === -1) return grade;
   const next = Math.max(0, Math.min(CAF_CRUX_GRADES.length - 1, idx + steps));
   return CAF_CRUX_GRADES[next];

@@ -5855,6 +5855,17 @@ a {
   background: #fff;
   border-color: #e5e7eb;
 }
+.training-assessment-checkbox-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.9rem;
+  color: rgba(255, 255, 255, 0.9);
+  cursor: pointer;
+}
+.community-page.day-mode .training-assessment-checkbox-label {
+  color: #333;
+}
 
 /* Week Zero Dashboard Styles */
 .training-week-zero-cta {
