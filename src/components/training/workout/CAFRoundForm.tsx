@@ -49,6 +49,18 @@ export function createEmptyCAFRoundDraft(benchmark: CAFBenchmark): CAFRoundDraft
   };
 }
 
+/** Copy route/setup choices into a fresh round draft (resets performance fields). */
+export function carryCAFSetupForward(from: CAFRoundDraft, defaults: CAFBenchmark): CAFRoundDraft {
+  return {
+    ...createEmptyCAFRoundDraft(defaults),
+    entryGrade: from.entryGrade,
+    entryMoves: from.entryMoves,
+    cruxDescription: from.cruxDescription,
+    cruxGrade: from.cruxGrade,
+    cruxTotalMoves: from.cruxTotalMoves,
+  };
+}
+
 export function draftToCAFRound(draft: CAFRoundDraft): CAFRoundBase {
   return calcCAFRoundScore({
     entryMoves: draft.entryMoves,
@@ -67,17 +79,19 @@ export function draftToCAFRound(draft: CAFRoundDraft): CAFRoundBase {
 
 export function CAFRoundForm({
   roundIndex,
+  benchmark,
   value,
   onChange,
   lockEntry = false,
   readOnly = false,
   footer,
 }: CAFRoundFormProps) {
-  const scored = draftToCAFRound(value);
+  const draft = value ?? createEmptyCAFRoundDraft(benchmark);
+  const scored = draftToCAFRound(draft);
 
   const update = <K extends keyof CAFRoundDraft>(field: K, fieldValue: CAFRoundDraft[K]) => {
     if (readOnly) return;
-    onChange({ ...value, [field]: fieldValue });
+    onChange({ ...draft, [field]: fieldValue });
   };
 
   return (
@@ -90,7 +104,7 @@ export function CAFRoundForm({
         <label>
           Entry grade
           <select
-            value={value.entryGrade}
+            value={draft.entryGrade}
             disabled={lockEntry || readOnly}
             onChange={(e) => update("entryGrade", e.target.value)}
             className="training-form-group input"
@@ -106,20 +120,20 @@ export function CAFRoundForm({
 
       <NumberSlider
         label="Entry moves"
-        value={value.entryMoves}
+        value={draft.entryMoves}
         onChange={(v) => update("entryMoves", v)}
         min={1}
         max={80}
         unit="moves"
         disabled={lockEntry || readOnly}
-        hint={`ELS: ${value.entryMoves} × ${scored.entryGradeMultiplier} = ${scored.els}`}
+        hint={`ELS: ${draft.entryMoves} × ${scored.entryGradeMultiplier} = ${scored.els}`}
       />
 
       <div className="training-form-group">
         <label>
           <input
             type="checkbox"
-            checked={value.leadInCompleted}
+            checked={draft.leadInCompleted}
             disabled={readOnly}
             onChange={(e) => update("leadInCompleted", e.target.checked)}
           />
@@ -133,7 +147,7 @@ export function CAFRoundForm({
         <label>
           Crux grade
           <select
-            value={value.cruxGrade}
+            value={draft.cruxGrade}
             disabled={lockEntry || readOnly}
             onChange={(e) => update("cruxGrade", e.target.value)}
             className="training-form-group input"
@@ -149,12 +163,12 @@ export function CAFRoundForm({
 
       <NumberSlider
         label="Total crux moves"
-        value={value.cruxTotalMoves}
+        value={draft.cruxTotalMoves}
         onChange={(v) =>
           onChange({
-            ...value,
+            ...draft,
             cruxTotalMoves: v,
-            movesCompleted: Math.min(value.movesCompleted, v),
+            movesCompleted: Math.min(draft.movesCompleted, v),
           })
         }
         min={1}
@@ -169,7 +183,7 @@ export function CAFRoundForm({
             Crux description
             <input
               type="text"
-              value={value.cruxDescription}
+              value={draft.cruxDescription}
               disabled={readOnly}
               onChange={(e) => update("cruxDescription", e.target.value)}
               className="training-form-group input"
@@ -180,7 +194,7 @@ export function CAFRoundForm({
 
       <NumberSlider
         label="Pump before crux"
-        value={value.pumpBeforeCrux}
+        value={draft.pumpBeforeCrux}
         onChange={(v) => update("pumpBeforeCrux", v)}
         min={1}
         max={10}
@@ -190,20 +204,20 @@ export function CAFRoundForm({
 
       <NumberSlider
         label="Moves completed"
-        value={value.movesCompleted}
+        value={draft.movesCompleted}
         onChange={(v) => update("movesCompleted", v)}
         min={0}
-        max={value.cruxTotalMoves}
+        max={draft.cruxTotalMoves}
         unit="moves"
         disabled={readOnly}
-        hint={`CDS: ${value.movesCompleted} × ${scored.cruxGradeMultiplier} = ${scored.cds}${
+        hint={`CDS: ${draft.movesCompleted} × ${scored.cruxGradeMultiplier} = ${scored.cds}${
           scored.success ? " ✓ SEND" : ""
         }`}
       />
 
       <NumberSlider
         label="Execution quality"
-        value={value.executionQuality}
+        value={draft.executionQuality}
         onChange={(v) => update("executionQuality", v)}
         min={1}
         max={5}

@@ -4739,6 +4739,16 @@ a {
 .training-ihe-log-hint,
 .training-cfb-log-hint,
 .training-threshold-log-hint { margin: 0 0 1rem; font-size: 0.9rem; color: rgba(255, 255, 255, 0.7); }
+.training-caf-log-targets {
+  margin: 0 0 1rem;
+  padding: 0.75rem;
+  border-radius: 0.5rem;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+.training-caf-log-targets .training-caf-log-hint { margin: 0 0 0.35rem; }
+.training-caf-log-targets .training-caf-log-hint:last-child { margin-bottom: 0; }
+.training-caf-log-targets-note { font-style: italic; color: rgba(255, 255, 255, 0.6) !important; }
 .training-caf-log-stats,
 .training-arc-log-stats,
 .training-four-by-four-log-stats,
@@ -6891,6 +6901,11 @@ a {
 .community-page.day-mode .training-ihe-log-hint,
 .community-page.day-mode .training-cfb-log-hint,
 .community-page.day-mode .training-threshold-log-hint { color: #555; }
+.community-page.day-mode .training-caf-log-targets {
+  background: #f3f4f6;
+  border-color: #e5e7eb;
+}
+.community-page.day-mode .training-caf-log-targets-note { color: #666 !important; }
 .community-page.day-mode .training-caf-log-stats,
 .community-page.day-mode .training-arc-log-stats,
 .community-page.day-mode .training-four-by-four-log-stats,

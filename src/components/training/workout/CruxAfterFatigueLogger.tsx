@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback, useMemo } from "react";
+import { useState, useCallback, useMemo, useEffect } from "react";
 import { Timestamp } from "firebase/firestore";
 import { useWorkout } from "@/lib/hooks/training/useWorkout";
 import type { PEDrillDefinition, CruxAfterFatigueData, CAFLimitingFactor } from "@/lib/plans/power-endurance/types";
@@ -12,6 +12,7 @@ import {
 } from "@/lib/plans/power-endurance/calculations";
 import {
   CAFRoundForm,
+  carryCAFSetupForward,
   createEmptyCAFRoundDraft,
   draftToCAFRound,
   type CAFRoundDraft,
@@ -37,11 +38,11 @@ const LIMITING_FACTORS: { value: CAFLimitingFactor; label: string }[] = [
 export function CruxAfterFatigueLogger({ drill, onComplete }: CruxAfterFatigueLoggerProps) {
   const { dispatch, currentDrillIndex, persistDrills, drills, cafBenchmark } = useWorkout();
   const resolved = drill.cafResolved;
-  const roundCount = resolved?.rounds ?? drill.sets ?? 5;
+  const roundCount = Math.max(1, resolved?.rounds ?? drill.sets ?? 5);
   const restMinutes = resolved?.restBetweenRoundsMinutes ?? 10;
   const restSeconds = restMinutes * 60;
 
-  const benchmark = useMemo(
+  const assessmentBenchmark = useMemo(
     () =>
       cafBenchmark ??
       buildCAFBenchmark({
@@ -54,12 +55,40 @@ export function CruxAfterFatigueLogger({ drill, onComplete }: CruxAfterFatigueLo
     [cafBenchmark, resolved]
   );
 
+  // Week plan targets pre-fill each round; athlete can adjust for gym constraints.
+  const sessionDefaults = useMemo(
+    () =>
+      buildCAFBenchmark({
+        entryGrade: resolved?.entryGrade ?? assessmentBenchmark.entryGrade,
+        entryMoves: resolved?.entryMoves ?? assessmentBenchmark.entryMoves,
+        cruxDescription: assessmentBenchmark.cruxDescription,
+        cruxGrade: resolved?.cruxGrade ?? assessmentBenchmark.cruxGrade,
+        cruxTotalMoves: resolved?.cruxTotalMoves ?? assessmentBenchmark.cruxTotalMoves,
+      }),
+    [assessmentBenchmark, resolved]
+  );
+
   const [phase, setPhase] = useState<Phase>("logging");
   const [activeRoundIndex, setActiveRoundIndex] = useState(0);
   const [savedRoundCount, setSavedRoundCount] = useState(0);
   const [rounds, setRounds] = useState<CAFRoundDraft[]>(() =>
-    Array.from({ length: roundCount }, () => createEmptyCAFRoundDraft(benchmark))
+    Array.from({ length: roundCount }, () => createEmptyCAFRoundDraft(sessionDefaults))
   );
+
+  // Keep round drafts aligned if resolved targets load after mount or round count changes.
+  useEffect(() => {
+    setRounds((prev) => {
+      if (prev.length === roundCount) return prev;
+      const next = [...prev];
+      while (next.length < roundCount) {
+        next.push(createEmptyCAFRoundDraft(sessionDefaults));
+      }
+      return next.slice(0, roundCount);
+    });
+  }, [roundCount, sessionDefaults]);
+
+  const safeRoundIndex = Math.min(Math.max(0, activeRoundIndex), roundCount - 1);
+  const currentRoundDraft = rounds[safeRoundIndex] ?? createEmptyCAFRoundDraft(sessionDefaults);
   const [limitingFactor, setLimitingFactor] =
     useState<CAFLimitingFactor>("forearm_pump");
   const [leadInPacing, setLeadInPacing] =
@@ -67,7 +96,10 @@ export function CruxAfterFatigueLogger({ drill, onComplete }: CruxAfterFatigueLo
   const [shakeRestManagement, setShakeRestManagement] =
     useState<CruxAfterFatigueData["shakeRestManagement"]>("good");
 
-  const scoredRounds = rounds.slice(0, savedRoundCount).map(draftToCAFRound);
+  const scoredRounds = rounds
+    .slice(0, savedRoundCount)
+    .filter((draft): draft is CAFRoundDraft => draft != null)
+    .map(draftToCAFRound);
   const sessionScore = computeSessionCAFScore(scoredRounds);
   const progression = evaluateCAFProgression(
     savedRoundCount > 0
@@ -89,7 +121,7 @@ export function CruxAfterFatigueLogger({ drill, onComplete }: CruxAfterFatigueLo
   const finishDrill = useCallback(
     (finalRounds: CAFRoundDraft[]) => {
       const scored = finalRounds.map(draftToCAFRound);
-      const data = buildCruxAfterFatigueData(benchmark, scored, {
+      const data = buildCruxAfterFatigueData(assessmentBenchmark, scored, {
         limitingFactor,
         leadInPacing,
         shakeRestManagement,
@@ -109,7 +141,7 @@ export function CruxAfterFatigueLogger({ drill, onComplete }: CruxAfterFatigueLo
       onComplete(data);
     },
     [
-      benchmark,
+      assessmentBenchmark,
       limitingFactor,
       leadInPacing,
       shakeRestManagement,
@@ -122,13 +154,31 @@ export function CruxAfterFatigueLogger({ drill, onComplete }: CruxAfterFatigueLo
   );
 
   const handleSaveRound = () => {
+    const roundJustSaved = safeRoundIndex;
     const nextSaved = savedRoundCount + 1;
     setSavedRoundCount(nextSaved);
+
+    if (nextSaved < roundCount) {
+      const completedRound = rounds[roundJustSaved];
+      if (completedRound) {
+        setRounds((prev) =>
+          prev.map((round, i) =>
+            i === nextSaved ? carryCAFSetupForward(completedRound, sessionDefaults) : round
+          )
+        );
+      }
+    }
+
     if (nextSaved >= roundCount) {
       finishDrill(rounds);
       return;
     }
     setPhase("rest");
+  };
+
+  const advanceAfterRest = () => {
+    setActiveRoundIndex(savedRoundCount);
+    setPhase("logging");
   };
 
   if (phase === "rest") {
@@ -143,14 +193,8 @@ export function CruxAfterFatigueLogger({ drill, onComplete }: CruxAfterFatigueLo
         <RestTimer
           durationSeconds={restSeconds}
           nextUpLabel={`Round ${activeRoundIndex + 2}`}
-          onComplete={() => {
-            setActiveRoundIndex((i) => i + 1);
-            setPhase("logging");
-          }}
-          onSkip={() => {
-            setActiveRoundIndex((i) => i + 1);
-            setPhase("logging");
-          }}
+          onComplete={advanceAfterRest}
+          onSkip={advanceAfterRest}
         />
       </div>
     );
@@ -159,12 +203,27 @@ export function CruxAfterFatigueLogger({ drill, onComplete }: CruxAfterFatigueLo
   return (
     <div className="training-caf-log">
       <h4 className="training-caf-log-title">
-        {drill.name} — Round {activeRoundIndex + 1} of {roundCount}
+        {drill.name} — Round {safeRoundIndex + 1} of {roundCount}
       </h4>
-      {resolved && (
-        <p className="training-caf-log-hint">
-          Target ELS: {resolved.targetELS} · Entry {resolved.entryGrade} × {resolved.entryMoves} moves
-        </p>
+      {(cafBenchmark || resolved) && (
+        <div className="training-caf-log-targets">
+          {cafBenchmark && (
+            <p className="training-caf-log-hint">
+              Assessment baseline: {cafBenchmark.entryGrade} × {cafBenchmark.entryMoves} moves (ELS{" "}
+              {cafBenchmark.baselineELS}) · Crux {cafBenchmark.cruxGrade} (
+              {cafBenchmark.cruxTotalMoves} moves)
+            </p>
+          )}
+          {resolved && (
+            <p className="training-caf-log-hint">
+              This week&apos;s target: {resolved.entryGrade} × {resolved.entryMoves} moves (ELS{" "}
+              {resolved.targetELS}) · Crux {resolved.cruxGrade} ({resolved.cruxTotalMoves} moves)
+            </p>
+          )}
+          <p className="training-caf-log-hint training-caf-log-targets-note">
+            Adjust entry and crux below if gym routes differ from the prescription.
+          </p>
+        </div>
       )}
 
       {savedRoundCount > 0 && (
@@ -184,13 +243,12 @@ export function CruxAfterFatigueLogger({ drill, onComplete }: CruxAfterFatigueLo
       )}
 
       <CAFRoundForm
-        roundIndex={activeRoundIndex}
-        benchmark={benchmark}
-        value={rounds[activeRoundIndex]}
-        onChange={(draft) => updateRound(activeRoundIndex, draft)}
-        lockEntry
+        roundIndex={safeRoundIndex}
+        benchmark={sessionDefaults}
+        value={currentRoundDraft}
+        onChange={(draft) => updateRound(safeRoundIndex, draft)}
         footer={
-          activeRoundIndex === roundCount - 1 ? (
+          safeRoundIndex === roundCount - 1 ? (
             <div className="training-form-group">
               <label>
                 Limiting factor
@@ -244,7 +302,7 @@ export function CruxAfterFatigueLogger({ drill, onComplete }: CruxAfterFatigueLo
       />
 
       <button type="button" className="training-timer-btn" onClick={handleSaveRound}>
-        {activeRoundIndex >= roundCount - 1 ? "Complete drill" : "Save round & rest"}
+        {safeRoundIndex >= roundCount - 1 ? "Complete drill" : "Save round & rest"}
       </button>
     </div>
   );
