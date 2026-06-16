@@ -194,7 +194,8 @@ export function calcCAFRoundScore(inputs: CAFRoundInputs): CAFRoundBase {
     leadInCompleted: inputs.leadInCompleted ?? true,
     pumpBeforeCrux: inputs.pumpBeforeCrux ?? 5,
     executionQuality: inputs.executionQuality ?? 3,
-    mentalState: inputs.mentalState,
+    // Firestore rejects undefined; mentalState is optional and often unset in assessment UI.
+    ...(inputs.mentalState !== undefined ? { mentalState: inputs.mentalState } : {}),
     notes: inputs.notes ?? "",
   };
 }
@@ -273,7 +274,7 @@ export function buildCruxAfterFatigueAssessment(
     successRate: computeCruxSuccessRate(attempts),
     avgMovesCompleted: computeCruxAvgMoves(attempts),
     avgPumpBeforeCrux: computeCruxAvgPump(attempts),
-    limitingFactor,
+    ...(limitingFactor !== undefined ? { limitingFactor } : {}),
   };
 }
 

@@ -48,6 +48,7 @@ export function RepeaterTimer({
 
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const preCountdownRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const phaseSecondsLeftRef = useRef(0);
   const runHangPhaseRef = useRef<() => void>(() => {});
   const runRestPhaseRef = useRef<() => void>(() => {});
 
@@ -64,48 +65,49 @@ export function RepeaterTimer({
 
   const runRestPhase = useCallback(() => {
     setPhase("rest");
+    phaseSecondsLeftRef.current = restChoice;
     setPhaseSecondsLeft(restChoice);
     intervalRef.current = setInterval(() => {
-      setPhaseSecondsLeft((prev) => {
-        if (prev === 1 && useAudio) playRestWarningBeep();
-        if (prev <= 1) {
-          if (intervalRef.current) {
-            clearInterval(intervalRef.current);
-            intervalRef.current = null;
-          }
-          // One rep = full hang + rest; increment when the rest phase finishes.
-          setTotalReps((r) => r + 1);
-          setPhase("hang");
-          setPhaseSecondsLeft(HANG_SECONDS);
-          if (useAudio) playStartBeep();
-          intervalRef.current = setInterval(() => runHangPhaseRef.current(), 1000);
-          return HANG_SECONDS;
-        }
-        return prev - 1;
-      });
-    }, 1000);
-  }, [restChoice, useAudio]);
-
-  const runHangPhase = useCallback(() => {
-    setPhaseSecondsLeft((prev) => {
-      if (prev <= 1) {
+      if (phaseSecondsLeftRef.current === 1 && useAudio) playRestWarningBeep();
+      if (phaseSecondsLeftRef.current <= 1) {
         if (intervalRef.current) {
           clearInterval(intervalRef.current);
           intervalRef.current = null;
         }
-        if (useAudio) playStopBeep();
-        runRestPhaseRef.current();
-        return restChoice;
+        setPhase("hang");
+        phaseSecondsLeftRef.current = HANG_SECONDS;
+        setPhaseSecondsLeft(HANG_SECONDS);
+        if (useAudio) playStartBeep();
+        intervalRef.current = setInterval(() => runHangPhaseRef.current(), 1000);
+        return;
       }
-      return prev - 1;
-    });
+      phaseSecondsLeftRef.current -= 1;
+      setPhaseSecondsLeft(phaseSecondsLeftRef.current);
+    }, 1000);
   }, [restChoice, useAudio]);
+
+  const runHangPhase = useCallback(() => {
+    if (phaseSecondsLeftRef.current <= 1) {
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+        intervalRef.current = null;
+      }
+      // One rep = a completed 7s hang; rest is not counted.
+      setTotalReps((r) => r + 1);
+      if (useAudio) playStopBeep();
+      runRestPhaseRef.current();
+      return;
+    }
+    phaseSecondsLeftRef.current -= 1;
+    setPhaseSecondsLeft(phaseSecondsLeftRef.current);
+  }, [useAudio]);
 
   runHangPhaseRef.current = runHangPhase;
   runRestPhaseRef.current = runRestPhase;
 
   const startCycle = useCallback(() => {
     setPhase("hang");
+    phaseSecondsLeftRef.current = HANG_SECONDS;
     setPhaseSecondsLeft(HANG_SECONDS);
     setTotalReps(0);
     if (useAudio) playStartBeep();
@@ -135,7 +137,7 @@ export function RepeaterTimer({
 
   const handleStop = useCallback(() => {
     clearAll();
-    // Rep = hang + rest; in-progress hang or rest does not count.
+    // Rep = completed 7s hang only; an in-progress hang does not count.
     const reps = totalReps;
     const hangTotal = reps * HANG_SECONDS;
     setFinalReps(reps);

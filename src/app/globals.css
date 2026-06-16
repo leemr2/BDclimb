@@ -4617,9 +4617,10 @@ a {
 
 .training-repeater-reps { font-size: 1rem; color: rgba(255, 255, 255, 0.8); margin-bottom: 0.5rem; }
 .training-repeater-phase { display: block; font-size: 0.9rem; text-transform: uppercase; letter-spacing: 0.05em; color: rgba(255, 255, 255, 0.7); }
+.training-repeater-value { display: block; }
 .training-repeater-rest-label { display: block; margin-bottom: 0.75rem; }
 .training-repeater-rest-select { margin-left: 0.5rem; padding: 0.35rem; border-radius: 0.35rem; background: rgba(255, 255, 255, 0.1); color: #fff; border: 1px solid rgba(255, 255, 255, 0.2); }
-.training-repeater-stop { margin-top: 1rem; padding: 0.5rem 1rem; border: 1px solid rgba(239, 68, 68, 0.5); background: rgba(239, 68, 68, 0.2); color: #fff; border-radius: 0.5rem; cursor: pointer; }
+.training-repeater-stop { display: block; margin: 1rem auto 0; padding: 0.5rem 1rem; border: 1px solid rgba(239, 68, 68, 0.5); background: rgba(239, 68, 68, 0.2); color: #fff; border-radius: 0.5rem; cursor: pointer; }
 .training-repeater-summary { padding: 1.5rem; text-align: center; }
 .training-repeater-summary-title { margin: 0 0 0.5rem; color: #fff; }
 .training-repeater-summary-stats { margin: 0; color: rgba(255, 255, 255, 0.8); }
