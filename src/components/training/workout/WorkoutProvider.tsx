@@ -8,9 +8,14 @@ import {
 } from "react";
 import { Timestamp } from "firebase/firestore";
 import type { MaxHangAssessment, SessionWithDrills } from "@/lib/plans/bouldering/types";
+import type { CAFBenchmark, PESessionWithDrills } from "@/lib/plans/power-endurance/types";
 import type { CompletedDrill } from "@/lib/firebase/training/bouldering-workouts";
 import type { ProgressionSuggestion } from "@/lib/calculations/progression";
-import { updateWorkout } from "@/lib/firebase/training/bouldering-workouts";
+import { updateWorkout as updateBoulderingWorkout } from "@/lib/firebase/training/bouldering-workouts";
+import { updateWorkout as updatePEWorkout } from "@/lib/firebase/training/power-endurance-workouts";
+
+export type TrainingGoalType = "bouldering" | "route_power_endurance";
+export type WorkoutSession = SessionWithDrills | PESessionWithDrills;
 
 export type WorkoutPhase =
   | "pre-check"
@@ -32,11 +37,10 @@ export interface SafetyFlag {
 export interface WorkoutState {
   workoutId: string;
   userId: string;
-  session: SessionWithDrills;
-  /** Completed drill results (same order as session.drills). */
+  goalType: TrainingGoalType;
+  session: WorkoutSession;
   drills: CompletedDrill[];
   currentDrillIndex: number;
-  /** For multi-set drills (e.g. max_hang), current set index 0-based. */
   currentSetIndex: number | null;
   phase: WorkoutPhase;
   startTime: Date | null;
@@ -71,7 +75,7 @@ type WorkoutAction =
   | { type: "SHOW_DRILL_SUMMARY" }
   | { type: "SHOW_INSTRUCTIONS" };
 
-function buildInitialDrills(session: SessionWithDrills): CompletedDrill[] {
+function buildInitialDrills(session: WorkoutSession): CompletedDrill[] {
   const now = Timestamp.now();
   return session.drills.map((d, i) => ({
     drillId: d.id,
@@ -131,10 +135,9 @@ function workoutReducer(
       const drill = nextDrills[drillIndex];
       if (!drill) return state;
       const existingData = (drill.data as Record<string, unknown>) || {};
-      const mergedData = { ...existingData, ...data };
       nextDrills[drillIndex] = {
         ...drill,
-        data: mergedData,
+        data: { ...existingData, ...data },
       };
       return {
         ...state,
@@ -164,7 +167,6 @@ function workoutReducer(
         ...state,
         drills: nextDrills,
         currentSetIndex: null,
-        // Always return to the drill list so the user can pick the next drill
         phase: "drill-list",
       };
     }
@@ -203,36 +205,41 @@ function workoutReducer(
 
 export interface WorkoutContextValue extends WorkoutState {
   dispatch: React.Dispatch<WorkoutAction>;
-  currentDrill: SessionWithDrills["drills"][number] | null;
+  currentDrill: WorkoutSession["drills"][number] | null;
   persistDrills: (drills: CompletedDrill[]) => Promise<void>;
   progressionSuggestion: ProgressionSuggestion | null;
   targetLoadForMaxHang: number;
   programId: string;
   workoutWeek: number;
   baselineMaxHang: MaxHangAssessment | null;
+  cafBenchmark: CAFBenchmark | null;
+  iheWorkingLoad: number;
+  maxHangReference: number;
 }
 
 const WorkoutContext = createContext<WorkoutContextValue | null>(null);
 
 export interface WorkoutProviderProps {
   children: ReactNode;
-  session: SessionWithDrills;
+  goalType?: TrainingGoalType;
+  session: WorkoutSession;
   workoutId: string;
   userId: string;
   bodyweight?: number;
   weightUnit?: "lbs" | "kg";
-  /** Optional progression tip from recent max hang sessions (e.g. from dashboard). */
   progressionSuggestion?: ProgressionSuggestion | null;
-  /** Target load for max hang drill (from latest assessment × 0.87). */
   targetLoadForMaxHang?: number;
   programId?: string;
   workoutWeek?: number;
-  /** Prior max hang test data — used to pre-fill retest edge/grip defaults. */
   baselineMaxHang?: MaxHangAssessment | null;
+  cafBenchmark?: CAFBenchmark | null;
+  iheWorkingLoad?: number;
+  maxHangReference?: number;
 }
 
 export function WorkoutProvider({
   children,
+  goalType = "bouldering",
   session,
   workoutId,
   userId,
@@ -243,10 +250,14 @@ export function WorkoutProvider({
   programId = "",
   workoutWeek = 1,
   baselineMaxHang = null,
+  cafBenchmark = null,
+  iheWorkingLoad = 0,
+  maxHangReference = 0,
 }: WorkoutProviderProps) {
   const [state, dispatch] = useReducer(workoutReducer, {
     workoutId,
     userId,
+    goalType,
     session,
     drills: buildInitialDrills(session),
     currentDrillIndex: 0,
@@ -263,9 +274,13 @@ export function WorkoutProvider({
 
   const persistDrills = useCallback(
     async (drills: CompletedDrill[]) => {
-      await updateWorkout(state.userId, state.workoutId, { drills });
+      const update =
+        state.goalType === "route_power_endurance"
+          ? updatePEWorkout
+          : updateBoulderingWorkout;
+      await update(state.userId, state.workoutId, { drills });
     },
-    [state.userId, state.workoutId]
+    [state.userId, state.workoutId, state.goalType]
   );
 
   const value: WorkoutContextValue = {
@@ -278,6 +293,9 @@ export function WorkoutProvider({
     programId,
     workoutWeek,
     baselineMaxHang,
+    cafBenchmark,
+    iheWorkingLoad,
+    maxHangReference,
   };
 
   return (

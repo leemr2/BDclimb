@@ -13,6 +13,8 @@ import type {
   CruxAfterFatigueData,
   CAFLimitingFactor,
   PowerEnduranceAssessment,
+  ARCClimbingData,
+  IntermittentHangData,
 } from "./types";
 import type { IHEStoppingReason } from "./types";
 
@@ -388,4 +390,135 @@ export function normalizeCruxAfterFatigueAssessment(
   result.isLegacy = true;
   void leadInDuration;
   return result;
+}
+
+export function buildCruxAfterFatigueData(
+  benchmark: CAFBenchmark,
+  rounds: Array<
+    CAFRoundBase & { leadInRPE?: number; restAfterMinutes?: number }
+  >,
+  meta: {
+    leadInPacing?: CruxAfterFatigueData["leadInPacing"];
+    shakeRestManagement?: CruxAfterFatigueData["shakeRestManagement"];
+    limitingFactor?: CAFLimitingFactor;
+    trendVsLastSession?: CruxAfterFatigueData["trendVsLastSession"];
+  } = {}
+): CruxAfterFatigueData {
+  const sessionCAFScore = computeSessionCAFScore(rounds);
+  const avgRoundScore =
+    rounds.length > 0
+      ? Math.round((sessionCAFScore / rounds.length) * 10) / 10
+      : 0;
+  const avgExecutionQuality =
+    rounds.length > 0
+      ? Math.round(
+          (rounds.reduce((s, r) => s + r.executionQuality, 0) / rounds.length) * 10
+        ) / 10
+      : 0;
+
+  return {
+    benchmark,
+    rounds: rounds.map((r) => ({
+      ...r,
+      leadInRPE: r.leadInRPE ?? 5,
+      restAfterMinutes: r.restAfterMinutes ?? 10,
+    })),
+    totalRounds: rounds.length,
+    sessionCAFScore,
+    avgRoundScore,
+    successRate: computeCruxSuccessRate(rounds),
+    avgMovesCompleted: computeCruxAvgMoves(rounds),
+    avgPumpBeforeCrux: computeCruxAvgPump(rounds),
+    avgExecutionQuality,
+    trendVsLastSession: meta.trendVsLastSession ?? null,
+    leadInPacing: meta.leadInPacing ?? "good",
+    shakeRestManagement: meta.shakeRestManagement ?? "good",
+    limitingFactor: meta.limitingFactor ?? "forearm_pump",
+  };
+}
+
+export function buildARCClimbingData(
+  sets: ARCClimbingData["sets"],
+  constraintsActive: ARCClimbingData["constraintsActive"],
+  movementQuality: ARCClimbingData["movementQuality"]
+): ARCClimbingData {
+  const totalClimbingMinutes = sets.reduce((s, set) => s + set.durationMinutes, 0);
+  const sessionSilentFootSlipsTotal = sets.reduce(
+    (s, set) => s + set.silentFootSlips,
+    0
+  );
+  const sessionFluencyStopsTotal = sets.reduce(
+    (s, set) => s + set.fluencyStops,
+    0
+  );
+  const targetIntensityMet = sets.every(
+    (set) => set.actualRPE >= 4 && set.actualRPE <= 6
+  );
+
+  return {
+    sets,
+    constraintsActive,
+    totalClimbingMinutes,
+    sessionSilentFootSlipsTotal,
+    sessionFluencyStopsTotal,
+    movementQuality,
+    targetIntensityMet,
+  };
+}
+
+export function buildIntermittentHangData(
+  maxHangReference: number,
+  protocol: IntermittentHangData["protocol"],
+  sets: IntermittentHangData["sets"],
+  trendVsLastSession: IntermittentHangData["trendVsLastSession"] = null
+): IntermittentHangData {
+  const workingLoad = getIHEWorkingLoad(maxHangReference);
+  const totalReps = sets.reduce((s, set) => s + set.repsCompleted, 0);
+  const totalTimeUnderTensionSeconds = totalReps * 7;
+  const avgRepsPerSet =
+    sets.length > 0 ? Math.round((totalReps / sets.length) * 10) / 10 : 0;
+
+  return {
+    maxHangReference,
+    workingLoad,
+    protocol,
+    sets,
+    totalReps,
+    totalTimeUnderTensionSeconds,
+    avgRepsPerSet,
+    forceConsistency: "maintained",
+    trendVsLastSession,
+  };
+}
+
+export type FluencyTrendSuggestion = {
+  type: "improving" | "stable" | "worsening";
+  message: string;
+};
+
+export function evaluateFluencyTrend(
+  recentSessions: Array<Pick<ARCClimbingData, "sessionFluencyStopsTotal" | "sets">>
+): FluencyTrendSuggestion {
+  if (recentSessions.length < 2) {
+    return { type: "stable", message: "Log more ARC sessions to track fluency trends." };
+  }
+  const stopsPerSet = (session: (typeof recentSessions)[number]) => {
+    const setCount = session.sets.length || 1;
+    return session.sessionFluencyStopsTotal / setCount;
+  };
+  const prev = stopsPerSet(recentSessions[recentSessions.length - 2]);
+  const latest = stopsPerSet(recentSessions[recentSessions.length - 1]);
+  if (latest < prev * 0.85) {
+    return {
+      type: "improving",
+      message: `Fluency stops down from ${prev.toFixed(1)} to ${latest.toFixed(1)} per set.`,
+    };
+  }
+  if (latest > prev * 1.15) {
+    return {
+      type: "worsening",
+      message: `Fluency stops up from ${prev.toFixed(1)} to ${latest.toFixed(1)} per set — focus on continuous movement.`,
+    };
+  }
+  return { type: "stable", message: "Fluency stops holding steady." };
 }

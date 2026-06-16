@@ -5,22 +5,25 @@ import { useRouter } from "next/navigation";
 import { useWorkout } from "@/lib/hooks/training/useWorkout";
 import { useActiveProgram } from "@/lib/hooks/training/useActiveProgram";
 import {
-  completeWorkout,
-  getCompletedSessionLabelsForWeek,
+  completeWorkout as completeBoulderingWorkout,
+  getCompletedSessionLabelsForWeek as getBoulderingCompletedLabels,
   type CompleteWorkoutInput,
   type SkinCondition,
 } from "@/lib/firebase/training/bouldering-workouts";
+import {
+  completeWorkout as completePEWorkout,
+  getCompletedSessionLabelsForWeek as getPECompletedLabels,
+} from "@/lib/firebase/training/power-endurance-workouts";
 import { advanceProgramWeekIfComplete } from "@/lib/firebase/training/program";
 
 export interface WorkoutSummaryProps {
-  /** Duration in minutes (from workout start to now). */
   durationMinutes: number;
   onSaved?: () => void;
 }
 
 export function WorkoutSummary({ durationMinutes, onSaved }: WorkoutSummaryProps) {
   const router = useRouter();
-  const { workoutId, userId, programId, workoutWeek } = useWorkout();
+  const { workoutId, userId, programId, workoutWeek, goalType } = useWorkout();
   const { program } = useActiveProgram();
   const [rpe, setRpe] = useState(6);
   const [sessionQuality, setSessionQuality] = useState(3);
@@ -43,20 +46,16 @@ export function WorkoutSummary({ durationMinutes, onSaved }: WorkoutSummaryProps
         skinCondition,
         notes: notes || undefined,
       };
+      const completeWorkout =
+        goalType === "route_power_endurance" ? completePEWorkout : completeBoulderingWorkout;
+      const getCompletedLabels =
+        goalType === "route_power_endurance" ? getPECompletedLabels : getBoulderingCompletedLabels;
+
       await completeWorkout(userId, workoutId, summary);
 
       if (program && programId && workoutWeek > 0) {
-        const completedLabels = await getCompletedSessionLabelsForWeek(
-          userId,
-          programId,
-          workoutWeek
-        );
-        await advanceProgramWeekIfComplete(
-          userId,
-          program,
-          workoutWeek,
-          completedLabels
-        );
+        const completedLabels = await getCompletedLabels(userId, programId, workoutWeek);
+        await advanceProgramWeekIfComplete(userId, program, workoutWeek, completedLabels);
       }
 
       onSaved?.();
@@ -72,6 +71,7 @@ export function WorkoutSummary({ durationMinutes, onSaved }: WorkoutSummaryProps
     programId,
     workoutWeek,
     program,
+    goalType,
     rpe,
     sessionQuality,
     fingerPainDuring,

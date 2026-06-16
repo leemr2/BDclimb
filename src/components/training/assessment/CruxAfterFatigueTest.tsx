@@ -17,11 +17,11 @@ import {
   normalizeCAFCruxGrade,
 } from "@/lib/plans/power-endurance/calculations";
 import {
-  CAFRoundLogger,
+  CAFRoundForm,
   createEmptyCAFRoundDraft,
   draftToCAFRound,
   type CAFRoundDraft,
-} from "@/components/training/shared/CAFRoundLogger";
+} from "@/components/training/workout/CAFRoundForm";
 import { RestTimer } from "@/components/training/workout/RestTimer";
 import { NumberSlider } from "@/components/training/ui/NumberSlider";
 
@@ -292,7 +292,7 @@ export function CruxAfterFatigueTest({
         )}
 
         {attemptPhase === "logging" && !allRoundsSaved && (
-          <CAFRoundLogger
+          <CAFRoundForm
             roundIndex={activeRoundIndex}
             benchmark={benchmark}
             value={rounds[activeRoundIndex]}

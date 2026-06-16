@@ -17,7 +17,8 @@ import {
   type PEFrequency,
 } from "@/lib/plans/power-endurance/planEngine";
 import { getCAFWorkoutBaseline } from "@/lib/plans/power-endurance/calculations";
-import { getCompletedSessionLabelsForWeek } from "@/lib/firebase/training/bouldering-workouts";
+import { getCompletedSessionLabelsForWeek as getBoulderingCompletedLabels } from "@/lib/firebase/training/bouldering-workouts";
+import { getCompletedSessionLabelsForWeek as getPECompletedLabels } from "@/lib/firebase/training/power-endurance-workouts";
 import {
   getAssessmentForWeek,
   getAssessmentsForProgram,
@@ -38,15 +39,17 @@ export function usePlan(activeProgram: ActiveProgram | null): {
   const [cafBenchmark, setCafBenchmark] = useState<CAFBenchmark | null>(null);
 
   useEffect(() => {
-    if (!user?.uid || !activeProgram || activeProgram.goalType !== "bouldering") {
+    if (!user?.uid || !activeProgram) {
       setCompletedLabels([]);
       return;
     }
-    getCompletedSessionLabelsForWeek(
-      user.uid,
-      getProgramId(activeProgram),
-      activeProgram.currentWeek
-    )
+    const programId = getProgramId(activeProgram);
+    const loader =
+      activeProgram.goalType === "route_power_endurance"
+        ? getPECompletedLabels
+        : getBoulderingCompletedLabels;
+
+    loader(user.uid, programId, activeProgram.currentWeek)
       .then(setCompletedLabels)
       .catch(() => setCompletedLabels([]));
   }, [user?.uid, activeProgram?.currentWeek, activeProgram?.goalType, activeProgram?.startDate]);
@@ -73,6 +76,7 @@ export function usePlan(activeProgram: ActiveProgram | null): {
       activeProgram as Parameters<typeof getPEWeekSchedule>[0],
       completedLabels
     );
+    const workoutsAvailable = cafBenchmark != null;
 
     if (schedule?.nextSession && cafBenchmark) {
       const expanded = getSessionWithDrills(
@@ -83,12 +87,12 @@ export function usePlan(activeProgram: ActiveProgram | null): {
       return {
         plan,
         schedule: { ...schedule, nextSession: expanded },
-        workoutsAvailable: false,
+        workoutsAvailable,
         cafBenchmark,
       };
     }
 
-    return { plan, schedule, workoutsAvailable: false, cafBenchmark };
+    return { plan, schedule, workoutsAvailable, cafBenchmark };
   }
 
   if (activeProgram.goalType !== "bouldering") {
