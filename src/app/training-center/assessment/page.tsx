@@ -144,7 +144,7 @@ export default function AssessmentPage() {
         await updateActiveProgram(user.uid, { status: "active" });
         setRetestPending(false);
       }
-      router.push("/training-center/dashboard");
+      router.push("/training-center");
     } catch (e) {
       console.error("Failed to save assessment:", e);
       setError(e instanceof Error ? e.message : "Failed to save assessment");

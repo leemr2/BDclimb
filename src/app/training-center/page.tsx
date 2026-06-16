@@ -306,7 +306,7 @@ export default function TrainingCenterPage() {
             }
             className="tc-program-cta training-center-cta"
           >
-            {isWeekZero ? "Continue Assessment →" : isPE ? "Open Dashboard →" : "Start Next Workout →"}
+            {isWeekZero ? "Continue Assessment →" : isPE ? "Workout →" : "Start Next Workout →"}
           </Link>
           {isWeekZero && (
             <button

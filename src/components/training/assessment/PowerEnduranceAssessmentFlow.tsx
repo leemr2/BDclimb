@@ -459,7 +459,7 @@ export function PowerEnduranceAssessmentFlow({
         >
           {requiredDone
             ? week === 0
-              ? "Save & Start Week 1"
+              ? "Complete Assessment"
               : "Save Retest"
             : `Complete required assessments (${Math.min(completedCount, 5)}/5)`}
         </button>
