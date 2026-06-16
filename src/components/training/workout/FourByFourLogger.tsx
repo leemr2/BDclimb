@@ -229,11 +229,12 @@ export function FourByFourLogger({ drill, onComplete }: FourByFourLoggerProps) {
       {falls.map((f, i) => (
         <div key={i} className="training-form-group">
           <span>P{i + 1}: {problems[i]?.description || problems[i]?.grade}</span>
-          <div>
+          <div className="training-four-by-four-falls-btns" role="group" aria-label={`Falls for problem ${i + 1}`}>
             {[0, 1, 2, 3].map((n) => (
               <button
                 key={n}
                 type="button"
+                aria-pressed={falls[i] === n}
                 className={`training-timer-btn${falls[i] === n ? " training-timer-btn--active" : ""}`}
                 onClick={() => {
                   const next = [...falls] as [number, number, number, number];
