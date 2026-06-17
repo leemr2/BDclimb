@@ -42,6 +42,24 @@ export interface PEInjuryBaseline extends InjuryBaseline {
   shoulderSymptomScore?: number;
 }
 
+// Profile Score System public types (see profileScore.ts).
+export type {
+  Tier,
+  ClimbingAgeBand,
+  TrainingHistoryBand,
+  InjuryHistory,
+  ProgressionParams,
+  ProfileScore,
+  ProfileScoreInputs,
+  PerformanceAxis,
+  PerformanceAxisInputs,
+  StartingState,
+  FSSBand,
+  ESBand,
+  CAFSBand,
+  DeloadIntensityHandling,
+} from "./profileScore";
+
 export type PEDrillType =
   | "warmup"
   | "max_hang"

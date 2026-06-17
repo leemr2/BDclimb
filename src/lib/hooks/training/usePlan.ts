@@ -17,6 +17,10 @@ import {
   type PEFrequency,
 } from "@/lib/plans/power-endurance/planEngine";
 import { getCAFWorkoutBaseline } from "@/lib/plans/power-endurance/calculations";
+import {
+  getTrainingProfile,
+  type TrainingProfile,
+} from "@/lib/firebase/training/profile";
 import { getCompletedSessionLabelsForWeek as getBoulderingCompletedLabels } from "@/lib/firebase/training/bouldering-workouts";
 import { getCompletedSessionLabelsForWeek as getPECompletedLabels } from "@/lib/firebase/training/power-endurance-workouts";
 import {
@@ -37,6 +41,19 @@ export function usePlan(activeProgram: ActiveProgram | null): {
   const { user } = useAuth();
   const [completedLabels, setCompletedLabels] = useState<string[]>([]);
   const [cafBenchmark, setCafBenchmark] = useState<CAFBenchmark | null>(null);
+  const [trainingProfile, setTrainingProfile] = useState<TrainingProfile | null>(
+    null
+  );
+
+  useEffect(() => {
+    if (!user?.uid) {
+      setTrainingProfile(null);
+      return;
+    }
+    getTrainingProfile(user.uid)
+      .then(setTrainingProfile)
+      .catch(() => setTrainingProfile(null));
+  }, [user?.uid]);
 
   useEffect(() => {
     if (!user?.uid || !activeProgram) {
@@ -82,7 +99,12 @@ export function usePlan(activeProgram: ActiveProgram | null): {
       const expanded = getSessionWithDrills(
         schedule.nextSession,
         cafBenchmark,
-        frequency
+        frequency,
+        {
+          tier: trainingProfile?.profileScore?.tier ?? null,
+          progressionParams: trainingProfile?.progressionParams ?? null,
+          startingState: trainingProfile?.startingState ?? null,
+        }
       );
       return {
         plan,

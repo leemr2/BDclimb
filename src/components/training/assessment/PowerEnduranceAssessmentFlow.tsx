@@ -22,6 +22,15 @@ import type {
 } from "@/lib/plans/bouldering/types";
 import type { TrainingProfile } from "@/lib/firebase/training/profile";
 import { getIHEWorkingLoad } from "@/lib/plans/power-endurance/calculations";
+import { deriveProfilePerformance } from "@/lib/plans/power-endurance/profileScore";
+
+const FSS_BAND_LABELS: Record<string, string> = {
+  very_low: "Very low",
+  low: "Low",
+  moderate: "Moderate",
+  high: "High",
+  very_high: "Very high",
+};
 
 type TaskId =
   | "warmup"
@@ -152,6 +161,20 @@ export function PowerEnduranceAssessmentFlow({
   const completedCount = Object.values(completedMap).filter(Boolean).length;
   const iheWorkingLoad = maxHangData ? getIHEWorkingLoad(maxHangData.bestLoad) : 0;
   const hasProgress = completedCount > 0;
+
+  // Preview the derived starting state once the inputs are available (Week 0).
+  const startingPreview =
+    week === 0 && profile?.profileScore && maxHangData && iheData && cafData
+      ? deriveProfilePerformance(
+          { tier: profile.profileScore.tier },
+          {
+            maxHangPctBW: maxHangData.percentBodyweight,
+            enduranceReps: iheData.totalReps,
+            cafBaseline: cafData.sessionCAFScore,
+            baselineCruxGrade: cafData.benchmark.cruxGrade,
+          }
+        )
+      : null;
 
   const resetAssessment = () => {
     setActiveTask(null);
@@ -433,6 +456,23 @@ export function PowerEnduranceAssessmentFlow({
                 Success rate: {cafData.successRate}% · Benchmark ELS {cafData.benchmark.baselineELS}
               </p>
             </div>
+            {startingPreview && profile?.profileScore && (
+              <div className="training-assessment-summary-card">
+                <h3 className="training-assessment-summary-label">
+                  Starting Intensity
+                </h3>
+                <p className="training-assessment-summary-value">
+                  {Math.round(startingPreview.startingState.startingIntensityPct * 100)}% MVC
+                </p>
+                <p className="training-assessment-summary-sub">
+                  Tier {profile.profileScore.tier} ·{" "}
+                  {FSS_BAND_LABELS[startingPreview.performanceAxis.fssBand] ??
+                    startingPreview.performanceAxis.fssBand}{" "}
+                  finger strength · {startingPreview.startingState.repeaterStartSets}{" "}
+                  repeater sets
+                </p>
+              </div>
+            )}
           </div>
         )}
       </div>

@@ -22,6 +22,8 @@ import {
   isPETestWeek,
 } from "@/lib/firebase/training/power-endurance-assessments";
 import { getCAFWorkoutBaseline } from "@/lib/plans/power-endurance/calculations";
+import { deriveProfilePerformance } from "@/lib/plans/power-endurance/profileScore";
+import { saveStartingState } from "@/lib/firebase/training/profile";
 import { getProgramId, updateActiveProgram } from "@/lib/firebase/training/program";
 import type { BoulderingAssessment } from "@/lib/plans/bouldering/types";
 import type { PowerEnduranceAssessment } from "@/lib/plans/power-endurance/types";
@@ -138,6 +140,22 @@ export default function AssessmentPage() {
         ...assessmentData,
         week: assessmentWeek,
       });
+      // Week 0 establishes the Performance Axis -> starting state, bounded by the
+      // profile-score tier range (set at onboarding). Older programs without a
+      // profile score skip this gracefully.
+      if (assessmentWeek === 0 && trainingProfile?.profileScore) {
+        const { performanceAxis, startingState } = deriveProfilePerformance(
+          { tier: trainingProfile.profileScore.tier },
+          {
+            maxHangPctBW: assessmentData.fingerMaxStrength.percentBodyweight,
+            enduranceReps: assessmentData.intermittentEndurance.totalReps,
+            cafBaseline: assessmentData.cruxAfterFatigue.sessionCAFScore,
+            baselineCruxGrade:
+              assessmentData.cruxAfterFatigue.benchmark.cruxGrade,
+          }
+        );
+        await saveStartingState(user.uid, { performanceAxis, startingState });
+      }
       if (program.currentWeek === 0) {
         await updateActiveProgram(user.uid, { currentWeek: 1, status: "active" });
       } else {

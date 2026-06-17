@@ -7561,3 +7561,88 @@ a {
   color: #374151;
   border-color: #d1d5db;
 }
+
+/* --- Tier reference card (Profile Score System) --- */
+.training-tier-card {
+  margin-bottom: 2rem;
+  border-radius: 0.75rem;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  background: rgba(255, 255, 255, 0.06);
+  overflow: hidden;
+}
+.training-tier-card-header {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1rem 1.25rem;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  text-align: left;
+  color: #fff;
+}
+.training-tier-card-title {
+  font-size: 1.05rem;
+  font-weight: 600;
+}
+.training-tier-card-score {
+  margin-left: auto;
+  font-size: 0.85rem;
+  color: rgba(255, 255, 255, 0.6);
+}
+.training-tier-card-toggle {
+  font-size: 1.25rem;
+  line-height: 1;
+  color: rgba(255, 255, 255, 0.7);
+}
+.training-tier-card-note {
+  margin: 0 1.25rem 0.75rem;
+  font-size: 0.85rem;
+  color: rgba(255, 255, 255, 0.6);
+}
+.training-tier-card-list {
+  margin: 0;
+  padding: 0 1.25rem 1.25rem;
+}
+.training-tier-card-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.4rem 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+  font-size: 0.9rem;
+}
+.training-tier-card-row:last-child {
+  border-bottom: none;
+}
+.training-tier-card-row dt {
+  color: rgba(255, 255, 255, 0.7);
+}
+.training-tier-card-row dd {
+  margin: 0;
+  text-align: right;
+  color: #fff;
+  font-weight: 500;
+}
+.community-page.day-mode .training-tier-card {
+  background: #f8f9fa;
+  border-color: #eaeaea;
+}
+.community-page.day-mode .training-tier-card-header {
+  color: #1a1a1a;
+}
+.community-page.day-mode .training-tier-card-score,
+.community-page.day-mode .training-tier-card-note,
+.community-page.day-mode .training-tier-card-row dt {
+  color: #555;
+}
+.community-page.day-mode .training-tier-card-toggle {
+  color: #777;
+}
+.community-page.day-mode .training-tier-card-row {
+  border-color: #ececec;
+}
+.community-page.day-mode .training-tier-card-row dd {
+  color: #1a1a1a;
+}

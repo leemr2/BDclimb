@@ -161,12 +161,17 @@ export default function WorkoutPage({
       return getPESessionWithDrills(
         session,
         cafBenchmark,
-        program.frequency as PEFrequency
+        program.frequency as PEFrequency,
+        {
+          tier: trainingProfile?.profileScore?.tier ?? null,
+          progressionParams: trainingProfile?.progressionParams ?? null,
+          startingState: trainingProfile?.startingState ?? null,
+        }
       );
     }
 
     return null;
-  }, [program, parsedSession, cafBenchmark]);
+  }, [program, parsedSession, cafBenchmark, trainingProfile]);
 
   const handleStartWorkout = async () => {
     if (!user || !program || !sessionWithDrills || !parsedSession) return;

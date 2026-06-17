@@ -14,7 +14,7 @@ import type {
 import { plan2Day } from "./2day";
 import { plan3Day } from "./3day";
 import { plan4Day } from "./4day";
-import { resolveDrills } from "./drills";
+import { resolveDrills, type TierContext } from "./drills";
 
 const DAY_ORDER = [
   "Monday",
@@ -118,10 +118,11 @@ export function getCurrentWeekSchedule(
 export function getSessionWithDrills(
   session: SessionDefinition,
   cafBenchmark?: import("./types").CAFBenchmark | null,
-  frequency?: PEFrequency
+  frequency?: PEFrequency,
+  tierContext?: TierContext | null
 ): PESessionWithDrills {
   const drillIds = session.drills.map((d) => d.id);
-  const drills = resolveDrills(drillIds, cafBenchmark, frequency);
+  const drills = resolveDrills(drillIds, cafBenchmark, frequency, tierContext);
   return {
     ...session,
     drills,

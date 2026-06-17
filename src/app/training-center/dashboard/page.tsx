@@ -6,6 +6,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/lib/firebase/auth";
 import { useActiveProgram } from "@/lib/hooks/training/useActiveProgram";
+import { useTrainingProfile } from "@/lib/hooks/training/useTrainingProfile";
 import { usePlan } from "@/lib/hooks/training/usePlan";
 import { getWeekDefinition as getBoulderingWeekDefinition } from "@/lib/plans/bouldering/planEngine";
 import { getWeekDefinition as getPEWeekDefinition } from "@/lib/plans/power-endurance/planEngine";
@@ -30,12 +31,14 @@ import { TodayWorkoutCard } from "@/components/training/dashboard/TodayWorkoutCa
 import { WeekSchedule } from "@/components/training/dashboard/WeekSchedule";
 import { KeyMetrics } from "@/components/training/dashboard/KeyMetrics";
 import { ProgressionCard } from "@/components/training/dashboard/ProgressionCard";
+import { TierReferenceCard } from "@/components/training/dashboard/TierReferenceCard";
 import { MilestoneModal } from "@/components/training/education/MilestoneModal";
 
 export default function DashboardPage() {
   const { user, loading: authLoading } = useAuth();
   const router = useRouter();
   const { program, loading: programLoading } = useActiveProgram();
+  const { profile: trainingProfile } = useTrainingProfile();
   const { schedule, workoutsAvailable, cafBenchmark } = usePlan(program);
   const [peRetestDue, setPeRetestDue] = useState(false);
   const [showCancelConfirm, setShowCancelConfirm] = useState(false);
@@ -275,6 +278,14 @@ export default function DashboardPage() {
         </p>
       )}
       <WeekSchedule schedule={schedule} />
+      {isPE && trainingProfile?.profileScore && trainingProfile?.progressionParams && (
+        <TierReferenceCard
+          profileScore={trainingProfile.profileScore}
+          progressionParams={trainingProfile.progressionParams}
+          startingState={trainingProfile.startingState}
+          defaultCollapsed
+        />
+      )}
       {isBouldering && (
         <>
           <KeyMetrics metrics={keyMetrics} loading={keyMetricsLoading} />

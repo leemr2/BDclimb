@@ -80,7 +80,15 @@ Extends the same `users/{userId}` document. The existing fields (`trainingProfil
 users/
   {userId}/
     // Existing shared fields (unchanged)
-    trainingProfile: { age, weight, weightUnit, experienceLevel, currentLimitGrade, ... }
+    trainingProfile: {
+      age, weight, weightUnit, experienceLevel, currentLimitGrade, currentRouteGrade, goalRouteGrade,
+      // --- Profile Score System (CruxTracker) — PE foundation layer ---
+      profileScore: { c1ClimbingAge, c2AgeRecovery, c3TrainingStructure, rawScore, injuryCeiling, finalScore, tier, tierLabel, ... },
+      progressionParams: { loadIncrementPct, sessionsToConfirm, minWeeksPerStep, holdThresholdRPE, regressionThresholdRPE, volumeIncrementPct, restReductionSec, deloadVolumeReductionPct, deloadIntensityReductionPct, symptomDeloadTrigger, minRestDaysBetweenFingerSessions, weeklySRPECeiling, startingIntensityFloorPct, startingIntensityCeilingPct, ... },
+      performanceAxis: { maxHangPctBW, fssBand, fssPercentile, enduranceReps, esBand, repeaterStartSets, cafBaseline, cafsBand, initialELS, initialCruxGrade },
+      startingState: { startingIntensityPct, repeaterStartSets, initialELS, initialCruxGrade },
+      ...
+    }
     activeProgram: {
       goalType: "route_power_endurance"   // NEW value
       frequency: 2 | 3 | 4
@@ -228,6 +236,20 @@ users/
         skinCondition: "good" | "fair" | "poor"
         notes: string
 ```
+
+### Profile Score System integration (foundation layer)
+
+The CruxTracker Profile Score System (`docs/CruxTracker_Profile_Score_System.md`) is integrated into the PE module as a **foundation layer**:
+
+- **Onboarding** captures climbing age (C1), structured-training history (C3), and finger-injury history; C2 is derived from the existing `age`. `calcProfileScore` produces the tier and the `progressionParams` are stored once on `trainingProfile`.
+- **Week 0 assessment** derives the `performanceAxis` (FSS / ES / CAFS bands) and resolves the `startingState` (starting intensity bounded by the tier range, repeater start sets, initial ELS) — stored on `trainingProfile`.
+- **Drill targets** are tier-aware (display): starting intensity, percentage load increment, volume increment, and rest-reduction steps are read from `startingState` + `progressionParams` (see `src/lib/plans/power-endurance/profileScore.ts` and `drills.ts`). A read-only tier reference card surfaces the parameters on the dashboard.
+
+**Deferred to a later phase (not yet implemented):**
+
+- The Section 5.4 runtime autoregulation engine: per-session confirmation counters, hold-threshold/regression gates, increment proposal+confirm flow, and weekly sRPE-ceiling enforcement.
+- The Section 5.2 mid-program tier downgrade and Section 5.3 score-recalculation triggers.
+- Applying tiers to the bouldering module (PE-only for now).
 
 ### Drill Data Shapes — Power-Endurance Specific
 
