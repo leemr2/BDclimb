@@ -15,11 +15,17 @@ import type { PEFrequency } from "@/lib/plans/power-endurance/planEngine";
 import { cancelProgram, getProgramId } from "@/lib/firebase/training/program";
 import {
   getAssessmentForWeek,
+  getAssessmentsForProgram as getPEAssessmentsForProgram,
   isPETestWeek,
 } from "@/lib/firebase/training/power-endurance-assessments";
 import { getCompletedWorkouts } from "@/lib/firebase/training/bouldering-workouts";
+import { getCompletedWorkouts as getCompletedPEWorkouts } from "@/lib/firebase/training/power-endurance-workouts";
 import { getAssessmentsForProgram } from "@/lib/firebase/training/bouldering-assessments";
-import { getKeyMetrics } from "@/lib/calculations/metrics";
+import { getKeyMetrics, getPEKeyMetrics } from "@/lib/calculations/metrics";
+import {
+  getCruxSessionScoreTrend,
+  type CruxSessionTrend,
+} from "@/lib/plans/power-endurance/calculations";
 import {
   getRecentMaxHangSessions,
   evaluateMaxHangProgression,
@@ -30,6 +36,8 @@ import { DashboardHeader } from "@/components/training/dashboard/DashboardHeader
 import { TodayWorkoutCard } from "@/components/training/dashboard/TodayWorkoutCard";
 import { WeekSchedule } from "@/components/training/dashboard/WeekSchedule";
 import { KeyMetrics } from "@/components/training/dashboard/KeyMetrics";
+import { PEKeyMetrics } from "@/components/training/dashboard/PEKeyMetrics";
+import { CruxTrendCard } from "@/components/training/dashboard/CruxTrendCard";
 import { ProgressionCard } from "@/components/training/dashboard/ProgressionCard";
 import { TierReferenceCard } from "@/components/training/dashboard/TierReferenceCard";
 import { MilestoneModal } from "@/components/training/education/MilestoneModal";
@@ -48,6 +56,9 @@ export default function DashboardPage() {
   const [progressionLoading, setProgressionLoading] = useState(false);
   const [keyMetrics, setKeyMetrics] = useState<ReturnType<typeof getKeyMetrics> | null>(null);
   const [keyMetricsLoading, setKeyMetricsLoading] = useState(false);
+  const [peKeyMetrics, setPeKeyMetrics] = useState<ReturnType<typeof getPEKeyMetrics> | null>(null);
+  const [peKeyMetricsLoading, setPeKeyMetricsLoading] = useState(false);
+  const [cruxTrend, setCruxTrend] = useState<CruxSessionTrend | null>(null);
   const [week12SessionLabels, setWeek12SessionLabels] = useState<string[]>([]);
 
   const milestone = useMilestoneEducation({
@@ -117,6 +128,31 @@ export default function DashboardPage() {
       })
       .catch(() => setKeyMetrics(null))
       .finally(() => setKeyMetricsLoading(false));
+  }, [user?.uid, program?.startDate, program?.goalType]);
+
+  useEffect(() => {
+    if (!user?.uid || !program || program.goalType !== "route_power_endurance") {
+      setPeKeyMetrics(null);
+      setCruxTrend(null);
+      return;
+    }
+    const programId = (program.startDate as { toMillis?: () => number })?.toMillis
+      ? (program.startDate as { toMillis: () => number }).toMillis().toString()
+      : String(program.startDate);
+    setPeKeyMetricsLoading(true);
+    Promise.all([
+      getPEAssessmentsForProgram(user.uid, programId),
+      getCompletedPEWorkouts(user.uid, programId, 100),
+    ])
+      .then(([assessments, workouts]) => {
+        setPeKeyMetrics(getPEKeyMetrics(assessments, workouts));
+        setCruxTrend(getCruxSessionScoreTrend(workouts));
+      })
+      .catch(() => {
+        setPeKeyMetrics(null);
+        setCruxTrend(null);
+      })
+      .finally(() => setPeKeyMetricsLoading(false));
   }, [user?.uid, program?.startDate, program?.goalType]);
 
   useEffect(() => {
@@ -295,6 +331,13 @@ export default function DashboardPage() {
               loading={progressionLoading}
             />
           )}
+        </>
+      )}
+
+      {isPE && (
+        <>
+          <PEKeyMetrics metrics={peKeyMetrics} loading={peKeyMetricsLoading} />
+          <CruxTrendCard trend={cruxTrend} loading={peKeyMetricsLoading} />
         </>
       )}
 

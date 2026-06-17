@@ -4,6 +4,7 @@
  */
 
 import type { TrainingProfile } from "@/lib/firebase/training/profile";
+import type { PowerEnduranceWorkout } from "@/lib/firebase/training/power-endurance-workouts";
 import type {
   MaxHangAssessment,
   IntermittentEnduranceAssessment,
@@ -15,6 +16,8 @@ import type {
   PowerEnduranceAssessment,
   ARCClimbingData,
   IntermittentHangData,
+  FourByFourData,
+  CriticalForceData,
 } from "./types";
 import type { IHEStoppingReason } from "./types";
 
@@ -521,4 +524,139 @@ export function evaluateFluencyTrend(
     };
   }
   return { type: "stable", message: "Fluency stops holding steady." };
+}
+
+// --- Dashboard helpers: drill extraction, trends, safety inputs (Phase 3) ---
+
+function completedAtMillis(workout: PowerEnduranceWorkout): number {
+  const ts = workout.completedAt as { toMillis?: () => number } | null;
+  return typeof ts?.toMillis === "function" ? ts.toMillis() : 0;
+}
+
+/** Workouts sorted oldest-first by completedAt (input order is not guaranteed). */
+function sortWorkoutsChronological(
+  workouts: PowerEnduranceWorkout[]
+): PowerEnduranceWorkout[] {
+  return [...workouts].sort((a, b) => completedAtMillis(a) - completedAtMillis(b));
+}
+
+/** Read a typed drill's data blob from a workout by drill type (first match). */
+function extractDrillData<T>(
+  workout: PowerEnduranceWorkout,
+  drillType: string
+): T | null {
+  const drill = (workout.drills ?? []).find((d) => d.drillType === drillType);
+  return drill ? (drill.data as T) : null;
+}
+
+/** Chronological CAF session data across the given workouts (oldest-first). */
+export function getRecentCAFSessions(
+  workouts: PowerEnduranceWorkout[],
+  lastN?: number
+): CruxAfterFatigueData[] {
+  const sessions = sortWorkoutsChronological(workouts)
+    .map((w) => extractDrillData<CruxAfterFatigueData>(w, "crux_after_fatigue"))
+    .filter((d): d is CruxAfterFatigueData => d != null);
+  return lastN != null ? sessions.slice(-lastN) : sessions;
+}
+
+/** Chronological ARC session data across the given workouts (oldest-first). */
+export function getRecentARCSessions(
+  workouts: PowerEnduranceWorkout[],
+  lastN?: number
+): ARCClimbingData[] {
+  const sessions = sortWorkoutsChronological(workouts)
+    .map((w) => extractDrillData<ARCClimbingData>(w, "arc_climbing"))
+    .filter((d): d is ARCClimbingData => d != null);
+  return lastN != null ? sessions.slice(-lastN) : sessions;
+}
+
+export interface CruxSessionTrend {
+  /** Success rate (0–100) per CAF session, oldest-first. */
+  rates: number[];
+  /** Session CAF score per CAF session, oldest-first. */
+  scores: number[];
+  trend: "improving" | "stable" | "declining";
+  /** Most recent success rate, or null when no CAF sessions logged. */
+  latest: number | null;
+}
+
+/**
+ * Crux-after-fatigue success-rate trend for the dashboard mini-chart.
+ * Direction compares the most recent session to the first in the window.
+ */
+export function getCruxSessionScoreTrend(
+  workouts: PowerEnduranceWorkout[],
+  lastN = 5
+): CruxSessionTrend {
+  const sessions = getRecentCAFSessions(workouts, lastN);
+  const rates = sessions.map((s) => s.successRate);
+  const scores = sessions.map((s) => s.sessionCAFScore);
+  const latest = rates.length > 0 ? rates[rates.length - 1] : null;
+
+  let trend: CruxSessionTrend["trend"] = "stable";
+  if (rates.length >= 2) {
+    const first = rates[0];
+    const last = rates[rates.length - 1];
+    if (last > first) trend = "improving";
+    else if (last < first) trend = "declining";
+  }
+
+  return { rates, scores, trend, latest };
+}
+
+export interface PESafetyInput {
+  /** Shoulder symptom score of the most recent completed session. */
+  latestShoulderSymptomScore: number | null;
+  /** Shoulder symptom scores over recent sessions (oldest-first) for trend rules. */
+  recentShoulderScores: number[];
+  /** Max ARC pump level from the most recent ARC session (inline rule). */
+  latestARCPumpLevel?: number;
+  /** Round-1 total falls from the most recent 4×4 session (inline rule). */
+  fourByFourRound1Falls?: number;
+  /** Intensity calibration from the most recent CFB session. */
+  cfbIntensityCalibration?: CriticalForceData["intensityCalibration"];
+}
+
+/**
+ * Extract PE-specific safety inputs from completed workouts for runSafetyChecks.
+ */
+export function buildPESafetyInput(
+  workouts: PowerEnduranceWorkout[]
+): PESafetyInput {
+  const chronological = sortWorkoutsChronological(workouts);
+
+  const recentShoulderScores = chronological
+    .map((w) => w.shoulderSymptomScore)
+    .filter((s): s is number => typeof s === "number")
+    .slice(-6);
+  const latestShoulderSymptomScore =
+    recentShoulderScores.length > 0
+      ? recentShoulderScores[recentShoulderScores.length - 1]
+      : null;
+
+  const latestARC = getRecentARCSessions(workouts, 1)[0] ?? null;
+  const latestARCPumpLevel = latestARC
+    ? Math.max(...latestARC.sets.map((s) => s.pumpLevel), 0)
+    : undefined;
+
+  const latest4x4 = sortWorkoutsChronological(workouts)
+    .map((w) => extractDrillData<FourByFourData>(w, "four_by_four"))
+    .filter((d): d is FourByFourData => d != null)
+    .slice(-1)[0];
+  const fourByFourRound1Falls = latest4x4?.rounds?.[0]?.totalFalls;
+
+  const latestCFB = sortWorkoutsChronological(workouts)
+    .map((w) => extractDrillData<CriticalForceData>(w, "critical_force"))
+    .filter((d): d is CriticalForceData => d != null)
+    .slice(-1)[0];
+  const cfbIntensityCalibration = latestCFB?.intensityCalibration;
+
+  return {
+    latestShoulderSymptomScore,
+    recentShoulderScores,
+    ...(latestARCPumpLevel !== undefined ? { latestARCPumpLevel } : {}),
+    ...(fourByFourRound1Falls !== undefined ? { fourByFourRound1Falls } : {}),
+    ...(cfbIntensityCalibration !== undefined ? { cfbIntensityCalibration } : {}),
+  };
 }

@@ -69,6 +69,8 @@ export interface CompleteWorkoutInput {
   fingerPainDuring: number;
   skinCondition: SkinCondition;
   notes?: string;
+  /** Power-endurance only: 0–10 composite shoulder symptom score for the session. */
+  shoulderSymptomScore?: number;
 }
 
 /**

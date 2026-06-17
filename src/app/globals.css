@@ -4251,6 +4251,52 @@ a {
   color: rgba(255, 255, 255, 0.5);
 }
 
+.training-crux-trend {
+  background: rgba(0, 0, 0, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 0.75rem;
+  padding: 1.25rem;
+}
+
+.training-crux-trend-bars {
+  display: flex;
+  align-items: flex-end;
+  gap: 0.5rem;
+  height: 72px;
+  margin-bottom: 0.75rem;
+}
+
+.training-crux-trend-bar {
+  flex: 1 1 0;
+  min-height: 2px;
+  background: linear-gradient(180deg, #38bdf8, #0ea5e9);
+  border-radius: 0.25rem 0.25rem 0 0;
+}
+
+.training-crux-trend-sequence {
+  margin: 0 0 0.5rem;
+  font-size: 0.95rem;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.training-crux-trend-label {
+  margin: 0;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.training-crux-trend-label--improving {
+  color: #4ade80;
+}
+
+.training-crux-trend-label--stable {
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.training-crux-trend-label--declining {
+  color: #f87171;
+}
+
 .training-week-zero-cta {
   background: rgba(255, 255, 255, 0.08);
   border: 1px solid rgba(255, 255, 255, 0.2);
@@ -4399,10 +4445,19 @@ a {
 
 .community-page.day-mode .training-today-card,
 .community-page.day-mode .training-week-schedule,
-.community-page.day-mode .training-key-metrics {
+.community-page.day-mode .training-key-metrics,
+.community-page.day-mode .training-crux-trend {
   background: #fff;
   border-color: #eaeaea;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+.community-page.day-mode .training-crux-trend-sequence {
+  color: #1f2937;
+}
+
+.community-page.day-mode .training-crux-trend-label--stable {
+  color: #6b7280;
 }
 
 .community-page.day-mode .training-week-session-card {

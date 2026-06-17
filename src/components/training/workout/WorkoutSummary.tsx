@@ -28,8 +28,11 @@ export function WorkoutSummary({ durationMinutes, onSaved }: WorkoutSummaryProps
   const [rpe, setRpe] = useState(6);
   const [sessionQuality, setSessionQuality] = useState(3);
   const [fingerPainDuring, setFingerPainDuring] = useState(0);
+  const [shoulderSymptomScore, setShoulderSymptomScore] = useState(0);
   const [skinCondition, setSkinCondition] = useState<SkinCondition>("good");
   const [notes, setNotes] = useState("");
+
+  const isPE = goalType === "route_power_endurance";
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -45,11 +48,10 @@ export function WorkoutSummary({ durationMinutes, onSaved }: WorkoutSummaryProps
         fingerPainDuring,
         skinCondition,
         notes: notes || undefined,
+        ...(isPE ? { shoulderSymptomScore } : {}),
       };
-      const completeWorkout =
-        goalType === "route_power_endurance" ? completePEWorkout : completeBoulderingWorkout;
-      const getCompletedLabels =
-        goalType === "route_power_endurance" ? getPECompletedLabels : getBoulderingCompletedLabels;
+      const completeWorkout = isPE ? completePEWorkout : completeBoulderingWorkout;
+      const getCompletedLabels = isPE ? getPECompletedLabels : getBoulderingCompletedLabels;
 
       await completeWorkout(userId, workoutId, summary);
 
@@ -72,9 +74,11 @@ export function WorkoutSummary({ durationMinutes, onSaved }: WorkoutSummaryProps
     workoutWeek,
     program,
     goalType,
+    isPE,
     rpe,
     sessionQuality,
     fingerPainDuring,
+    shoulderSymptomScore,
     skinCondition,
     notes,
     router,
@@ -130,6 +134,23 @@ export function WorkoutSummary({ durationMinutes, onSaved }: WorkoutSummaryProps
             className="training-form-group range"
           />
         </label>
+
+        {isPE && (
+          <label className="training-form-group">
+            Shoulder symptom score (0–10)
+            <span className="training-workout-summary-value">
+              {shoulderSymptomScore}
+            </span>
+            <input
+              type="range"
+              min={0}
+              max={10}
+              value={shoulderSymptomScore}
+              onChange={(e) => setShoulderSymptomScore(Number(e.target.value))}
+              className="training-form-group range"
+            />
+          </label>
+        )}
 
         <label className="training-form-group">
           Skin condition

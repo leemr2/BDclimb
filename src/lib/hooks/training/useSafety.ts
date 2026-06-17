@@ -7,10 +7,16 @@ import {
   getCompletedWorkouts,
   getWorkoutsForWeek,
 } from "@/lib/firebase/training/bouldering-workouts";
+import {
+  getCompletedWorkouts as getCompletedPEWorkouts,
+  getWorkoutsForWeek as getPEWorkoutsForWeek,
+} from "@/lib/firebase/training/power-endurance-workouts";
 import { getWeeklySRPE } from "@/lib/calculations/srpe";
+import { buildPESafetyInput } from "@/lib/plans/power-endurance/calculations";
 import {
   runSafetyChecks,
   type SafetyFlagResult,
+  type SafetyUserData,
   type CheckinForSafety,
 } from "@/lib/calculations/safety";
 
@@ -35,37 +41,71 @@ export function useSafety(
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (!user?.uid || !program || program.goalType !== "bouldering") {
+    const goalType = program?.goalType;
+    const isPE = goalType === "route_power_endurance";
+    const isBouldering = goalType === "bouldering";
+    if (!user?.uid || !program || (!isBouldering && !isPE)) {
       setFlags([]);
       setLoading(false);
       return;
     }
 
+    const uid = user.uid;
     const programId = getProgramId(program);
     const currentWeek = program.currentWeek;
+    const checkins = recentCheckins ?? [];
 
     setLoading(true);
+
+    if (isPE) {
+      Promise.all([
+        getCompletedPEWorkouts(uid, programId, 20),
+        currentWeek >= 1 ? getPEWorkoutsForWeek(uid, programId, currentWeek) : [],
+        currentWeek >= 2
+          ? getPEWorkoutsForWeek(uid, programId, currentWeek - 1)
+          : [],
+      ])
+        .then(([recentWorkouts, thisWeekWorkouts, lastWeekWorkouts]) => {
+          const latestWorkout = recentWorkouts[0] ?? null;
+          const peInput = buildPESafetyInput(recentWorkouts);
+          const userData: SafetyUserData = {
+            latestWorkout: latestWorkout
+              ? {
+                  fingerPainDuring: latestWorkout.fingerPainDuring,
+                  shoulderSymptomScore:
+                    peInput.latestShoulderSymptomScore ?? undefined,
+                }
+              : null,
+            thisWeekSRPE: getWeeklySRPE(thisWeekWorkouts),
+            lastWeekSRPE: getWeeklySRPE(lastWeekWorkouts),
+            checkins,
+            recentShoulderScores: peInput.recentShoulderScores,
+            latestARCPumpLevel: peInput.latestARCPumpLevel,
+            fourByFourRound1Falls: peInput.fourByFourRound1Falls,
+            cfbIntensityCalibration: peInput.cfbIntensityCalibration,
+          };
+          setFlags(runSafetyChecks(userData));
+        })
+        .catch(() => setFlags([]))
+        .finally(() => setLoading(false));
+      return;
+    }
+
     Promise.all([
-      getCompletedWorkouts(user.uid, programId, 1),
-      currentWeek >= 1
-        ? getWorkoutsForWeek(user.uid, programId, currentWeek)
-        : [],
+      getCompletedWorkouts(uid, programId, 1),
+      currentWeek >= 1 ? getWorkoutsForWeek(uid, programId, currentWeek) : [],
       currentWeek >= 2
-        ? getWorkoutsForWeek(user.uid, programId, currentWeek - 1)
+        ? getWorkoutsForWeek(uid, programId, currentWeek - 1)
         : [],
     ])
       .then(([latestList, thisWeekWorkouts, lastWeekWorkouts]) => {
         const latestWorkout = latestList[0] ?? null;
-        const thisWeekSRPE = getWeeklySRPE(thisWeekWorkouts);
-        const lastWeekSRPE = getWeeklySRPE(lastWeekWorkouts);
-        const checkins = recentCheckins ?? [];
-
-        const userData = {
+        const userData: SafetyUserData = {
           latestWorkout: latestWorkout
             ? { fingerPainDuring: latestWorkout.fingerPainDuring }
             : null,
-          thisWeekSRPE,
-          lastWeekSRPE,
+          thisWeekSRPE: getWeeklySRPE(thisWeekWorkouts),
+          lastWeekSRPE: getWeeklySRPE(lastWeekWorkouts),
           checkins,
         };
         setFlags(runSafetyChecks(userData));

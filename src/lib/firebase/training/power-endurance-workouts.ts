@@ -41,6 +41,8 @@ export interface PowerEnduranceWorkout {
   notes: string;
   fingerPainDuring: number;
   skinCondition: SkinCondition;
+  /** 0–10 composite shoulder symptom score, tracked every PE session (design §3). */
+  shoulderSymptomScore: number;
 }
 
 export async function createWorkout(
@@ -67,6 +69,7 @@ export async function createWorkout(
     notes: "",
     fingerPainDuring: 0,
     skinCondition: "good" as SkinCondition,
+    shoulderSymptomScore: 0,
   };
   const snap = await addDoc(ref, docData);
   return snap.id;
@@ -106,6 +109,7 @@ export async function completeWorkout(
     fingerPainDuring: summary.fingerPainDuring,
     skinCondition: summary.skinCondition,
     notes: summary.notes ?? "",
+    shoulderSymptomScore: summary.shoulderSymptomScore ?? 0,
   });
 }
 

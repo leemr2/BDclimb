@@ -6,6 +6,9 @@
 import type { BoulderingAssessment } from "@/lib/plans/bouldering/types";
 import type { BoulderingWorkout } from "@/lib/firebase/training/bouldering-workouts";
 import type { LimitBoulderData } from "@/lib/plans/bouldering/types";
+import type { PowerEnduranceAssessment } from "@/lib/plans/power-endurance/types";
+import type { PowerEnduranceWorkout } from "@/lib/firebase/training/power-endurance-workouts";
+import { getRecentCAFSessions, getRecentARCSessions } from "@/lib/plans/power-endurance/calculations";
 
 /** Latest assessment plus optional previous for trend (e.g. % change). */
 export interface KeyMetricsResult {
@@ -95,5 +98,79 @@ export function getKeyMetrics(
       : null,
     campusReachRung,
     previousCampusReachRung,
+  };
+}
+
+// --- Power-endurance key metrics (Phase 3) ---
+
+/** PE dashboard headline metrics with previous values for trend display. */
+export interface PEKeyMetricsResult {
+  /** Crux-after-fatigue success rate 0–100 (latest CAF session, else latest assessment). */
+  cruxSuccessRate: number | null;
+  /** Previous crux success rate for trend. */
+  previousCruxSuccessRate: number | null;
+  /** Intermittent-endurance total reps (latest assessment). */
+  iheTotalReps: number | null;
+  /** Previous IHE total reps for trend. */
+  previousIheTotalReps: number | null;
+  /** Best max hang load in lbs (latest assessment). */
+  maxHangLbs: number | null;
+  /** Max hang as % bodyweight (latest assessment). */
+  maxHangPercentBW: number | null;
+  /** Fluency stops per set from the most recent ARC session (lower is better). */
+  fluencyStopsPerSet: number | null;
+  /** Silent-foot slips from the most recent ARC session (lower is better). */
+  silentFootSlipsPerSession: number | null;
+}
+
+/**
+ * Build PE key metrics. Assessments are expected sorted by week ascending.
+ * Crux success rate prefers logged CAF workout sessions and falls back to
+ * the latest assessment's crux-after-fatigue result.
+ */
+export function getPEKeyMetrics(
+  assessments: PowerEnduranceAssessment[],
+  workouts: PowerEnduranceWorkout[]
+): PEKeyMetricsResult {
+  const latest = assessments.length > 0 ? assessments[assessments.length - 1] : null;
+  const previous = assessments.length >= 2 ? assessments[assessments.length - 2] : null;
+
+  // Crux success rate: prefer the last two CAF workout sessions; fall back to assessments.
+  const cafSessions = getRecentCAFSessions(workouts, 2);
+  let cruxSuccessRate: number | null = null;
+  let previousCruxSuccessRate: number | null = null;
+  if (cafSessions.length > 0) {
+    cruxSuccessRate = cafSessions[cafSessions.length - 1].successRate;
+    previousCruxSuccessRate =
+      cafSessions.length >= 2 ? cafSessions[cafSessions.length - 2].successRate : null;
+  } else {
+    cruxSuccessRate = latest?.cruxAfterFatigue?.successRate ?? null;
+    previousCruxSuccessRate = previous?.cruxAfterFatigue?.successRate ?? null;
+  }
+
+  const iheTotalReps = latest?.intermittentEndurance?.totalReps ?? null;
+  const previousIheTotalReps = previous?.intermittentEndurance?.totalReps ?? null;
+
+  const maxHangLbs = latest?.fingerMaxStrength?.bestLoad ?? null;
+  const maxHangPercentBW = latest?.fingerMaxStrength?.percentBodyweight ?? null;
+
+  const latestARC = getRecentARCSessions(workouts, 1)[0] ?? null;
+  const fluencyStopsPerSet =
+    latestARC && latestARC.sets.length > 0
+      ? Math.round((latestARC.sessionFluencyStopsTotal / latestARC.sets.length) * 10) / 10
+      : null;
+  const silentFootSlipsPerSession = latestARC
+    ? latestARC.sessionSilentFootSlipsTotal
+    : null;
+
+  return {
+    cruxSuccessRate,
+    previousCruxSuccessRate,
+    iheTotalReps,
+    previousIheTotalReps,
+    maxHangLbs,
+    maxHangPercentBW,
+    fluencyStopsPerSet,
+    silentFootSlipsPerSession,
   };
 }
