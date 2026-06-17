@@ -14,6 +14,36 @@ The key difference: each session combines multiple training stimuli, and you'll 
 
 ------
 
+## Step 0: Profile Score Onboarding
+
+**Complete this before the Week 0 assessment.** The Profile Score determines *how fast* your program advances; the assessment battery determines *where it starts*.
+
+Complete the four onboarding inputs from the **CruxTracker Profile Score System** (`docs/CruxTracker_Profile_Score_System.md`):
+
+1. **Climbing age** (C1, max 45 pts): years of consistent climbing at ≥2 sessions/week for ≥8 months/year
+2. **Chronological age** (C2, max 25 pts): recovery capacity and collagen synthesis rate
+3. **Structured training history** (C3, max 30 pts): exposure to deliberate tendon-loading protocols
+4. **Injury ceiling**: finger injury history caps the Final Profile Score regardless of raw score
+
+```
+Raw Score = C1 + C2 + C3
+Final Profile Score (FPS) = min(Raw Score, Injury Ceiling)
+```
+
+| FPS | Tier | Label |
+|---|---|---|
+| 0–20 | 1 | Developing |
+| 21–40 | 2 | Building |
+| 41–60 | 3 | Established |
+| 61–80 | 4 | Experienced |
+| 81–100 | 5 | Seasoned |
+
+**Record your tier.** Every progression parameter in this plan is tier-keyed. Refer to the parameter tables in the Profile Score document, or use the quick reference at the bottom of this plan.
+
+> **40+ athletes**: Default to this 2-day plan as your primary frequency option. The C2 score reduction already accounts for extended inter-session recovery needs.
+
+---
+
 ## Pre-Plan Assessment (Week 0)
 
 Same assessment battery as the 3-day plan—this doesn't change based on training frequency.
@@ -348,10 +378,11 @@ Alternate between these two. They target the same energy system from different a
 |      | A or B  |                |            |      |             | 0-10        |       |
 
 **Weekly Review**:
-1. ≥2 full rest days between sessions?
-2. sRPE per session trending up dangerously?
-3. Finger pain increasing?
-4. Antagonist circuit completed on a rest day?
+1. ≥2 full rest days between sessions? (Tiers 1-2: ≥3 days required)
+2. Total weekly sRPE within your tier ceiling? (See quick reference table above)
+3. Week-over-week sRPE increase ≤25%? Larger jumps require an inserted easier session.
+4. Finger pain increasing? Any morning stiffness beyond your tier's early deload threshold?
+5. Antagonist circuit completed on a rest day?
 
 ------
 
@@ -375,21 +406,50 @@ Alternate between these two. They target the same energy system from different a
 
 ## Progression Rules
 
-**For Hangboard**: Add 2-3kg only when 2 consecutive sessions are perfect. With 2 days/week this means 2 weeks per progression step—appropriate for tissue adaptation.
+**For Hangboard**: Progression is governed by your **Profile Score tier** (see Step 0 and the quick reference at the bottom of this plan). The old "+2-3kg after 2 perfect sessions" rule is replaced:
 
-**For 4×4**: Progress round count (2 → 3) before raising problem difficulty. Only increase difficulty after 3 clean rounds for 2 sessions.
+- Add load at **your tier's load increment percentage** (e.g., Tier 3 = +3.5% of current load, rounded to nearest 0.25 kg), not a fixed kilogram value.
+- Wait for **your tier's sessions-to-confirm** consecutive clean sessions (Tiers 1-2: 3 sessions; Tiers 3-5: 2 sessions). With 2 days/week, this equals 2-3 weeks of calendar time naturally — appropriate for tissue adaptation.
+- **Hold gate**: if session RPE at the current load reaches or exceeds your tier's hold threshold, reset the confirmation counter. Do not advance.
+- **Regression gate**: if RPE exceeds your tier's regression threshold for 2 consecutive sessions, drop back one step.
+- The minimum time gate still applies: even if confirmation sessions are met, connective tissue remodeling is time-dependent. Tier 1-2 athletes should not advance faster than every 2-3 weeks even if the session count clears sooner.
 
-**For Critical-Force Blocks**: Increase target force once all blocks are stable. Cap at 2-3 blocks—do not add more.
+**For 4×4**: Progress round count (2 → 3) before raising problem difficulty. Only increase difficulty after completing target rounds with RPE ≤8 and no significant form breakdown for the required confirmation sessions.
 
-**For Crux-After-Fatigue**: Increase ELS first (more entry moves or higher entry grade), then round count, then crux grade. Only raise crux grade when session score is plateauing and success rate exceeds 60%. One variable changes per week. Quality always over quantity.
+**For Critical-Force Blocks**: Increase target force once all blocks are stable at RPE 8-9 consistently. Cap at 2-3 blocks—do not add more. Progress primarily by total work done (add duration within the block) before raising %MVC.
 
-**General Rule**: If in doubt, repeat the week. With only 2 days, injury setbacks are disproportionately costly.
+**For Crux-After-Fatigue**: Increase ELS first (more entry moves or higher entry grade), then round count, then crux grade. Only raise crux grade when session score is plateauing AND success rate exceeds 60%. One variable changes per step. Quality always over quantity. Progression rate here also respects your tier's volume increment (10-20%).
+
+**General Rule**: If in doubt, repeat the week. With only 2 days, injury setbacks are disproportionately costly — a 2-week setback erases an entire mesocycle.
+
+---
+
+### Quick Reference: Tier Progression Parameters
+
+| Parameter | Tier 1 | Tier 2 | Tier 3 | Tier 4 | Tier 5 |
+|---|---|---|---|---|---|
+| Load increment (hangboard) | 1.5% | 2.5% | 3.5% | 4.5% | 5.0% |
+| Sessions to confirm advance | 3 | 3 | 2 | 2 | 2 |
+| Min time per step | 3 wks | 2-3 wks | 2 wks | 2 wks | 1-2 wks |
+| Hold threshold (RPE ≥) | 7.5 | 8.0 | 8.0 | 8.5 | 8.5 |
+| Regression trigger (RPE >) | 8.0 × 2 | 8.5 × 2 | 9.0 × 2 | 9.0 × 2 | 9.5 × 2 |
+| Volume increment | 10% | 12% | 15% | 17% | 20% |
+| Weekly sRPE ceiling | 800 | 950 | 1,100 | 1,300 | 1,500 |
+| Deload volume cut | 55% | 50% | 45% | 40% | 35% |
 
 ------
 
 ## Safety Guidelines
 
 - **Sessions run 70-120 min**—stop if quality deteriorates significantly before hitting target volume.
-- **Red flags**: needing >48 hr to recover between sessions; persistent finger soreness 3+ days post-session; dreading sessions. All = immediate deload.
-- **Deloads (Weeks 4 & 8)**: 50-60% volume cut. With limited frequency, overuse can develop quietly.
+- **Red flags (all tiers — immediate session stop and clinical evaluation)**: sharp or sudden pain during climbing; audible or felt pop in a finger; visible swelling in a joint within 24 hours of training.
+- **Early deload triggers (tier-specific)**: These trigger an unscheduled deload regardless of calendar position:
+  - Tier 1: any A2 or pulley-region pain during or after climbing
+  - Tier 2: morning stiffness in finger joints on 2 or more consecutive days
+  - Tier 3: morning stiffness in finger joints on 3 or more consecutive days
+  - Tiers 4-5: standard red flags only (above)
+- **Weekly sRPE ceiling**: If your projected weekly sRPE approaches your tier ceiling (see quick reference table above), reduce the higher-RPE remaining session's volume. With 2 days/week, each session carries more load weight — be deliberate.
+- **Deloads (Weeks 4 & 8)**: Volume cut as per your tier (Tier 1: 55%; Tier 5: 35%). Intensity reduction applies to Tiers 1-2 only (Tier 1: −15% load; Tier 2: −10% load); Tiers 3-5 maintain working intensity during deloads.
 - **Warm-up mandatory**: 10+ min easy climbing before any finger intensity. Never start max efforts cold.
+- **Session gap (Tiers 1-2)**: Require a minimum 3-day gap between sessions containing max hangs or high-intensity repeaters. The Tuesday/Friday layout satisfies this; Tuesday/Saturday provides an additional margin.
+- **If a mid-cycle finger injury occurs**: Apply the injury ceiling from the Profile Score System to determine if your tier drops. The new tier's parameters take effect immediately at the next session.

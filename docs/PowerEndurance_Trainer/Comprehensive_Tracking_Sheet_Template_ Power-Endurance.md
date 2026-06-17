@@ -4,6 +4,71 @@ These templates work for 2-day, 3-day, and 4-day training plans. They're designe
 
 ------
 
+## Template 0: Profile Score Onboarding
+
+Complete this **once before Week 0**, then only update if a new injury occurs, or when starting a new 12-week cycle. See `docs/CruxTracker_Profile_Score_System.md` for full scoring tables and tier parameter tables.
+
+**Date completed:** ________________  **Cycle:** ☐ Initial  ☐ Repeat (new cycle)  ☐ Mid-cycle injury update
+
+### COMPONENT SCORES
+
+| Component | Input | Points |
+|---|---|---|
+| **C1 — Climbing age** (max 45) | ☐ <1 yr (0) ☐ 1-2 yr (8) ☐ 2-5 yr (18) ☐ 5-10 yr (30) ☐ 10-20 yr (38) ☐ 20+ yr (45) | ______ |
+| **C2 — Age / Recovery** (max 25) | ☐ Under 22 (15) ☐ 22-30 (25) ☐ 30-40 (20) ☐ 40-50 (13) ☐ 50+ (8) | ______ |
+| **C3 — Structured training history** (max 30) | ☐ No structured work (5) ☐ Occasional (12) ☐ Consistent 1+ yr (22) ☐ Multi-year systematic (30) | ______ |
+
+**Raw Score (C1 + C2 + C3):** ______
+
+### INJURY CEILING
+
+| Injury History | Ceiling |
+|---|---|
+| ☐ No significant finger injuries | 100 (no ceiling) |
+| ☐ Grade 1 pulley, fully healed | 85 |
+| ☐ Grade 2 pulley, fully healed | 70 |
+| ☐ Grade 3+ or surgery | 55 |
+| ☐ Current active finger issue | 35 |
+
+**Injury ceiling applied:** ______
+
+**Final Profile Score (FPS) = min(Raw Score, Ceiling):** ______
+
+### TIER ASSIGNMENT
+
+| FPS | Tier | Label |
+|---|---|---|
+| 0–20 | 1 | Developing |
+| 21–40 | 2 | Building |
+| 41–60 | 3 | Established |
+| 61–80 | 4 | Experienced |
+| 81–100 | 5 | Seasoned |
+
+**My Tier:** ______  **Label:** ______________________
+
+------
+
+### DERIVED PROGRESSION PARAMETERS (from tier — fill in once, reference every session)
+
+| Parameter | My Tier Value |
+|---|---|
+| Hangboard load increment | ______ % of current load |
+| Sessions to confirm advance | ______ consecutive sessions |
+| Minimum time per step | ______ weeks |
+| Hold threshold (do not advance if RPE ≥) | RPE ≥ ______ |
+| Regression trigger (drop one step if RPE > X for 2 sessions) | RPE > ______ |
+| Volume increment per step | ______ % |
+| Rest reduction per step | ______ seconds |
+| Deload volume reduction | ______ % |
+| Deload intensity handling | ☐ Reduce by ______% ☐ Maintain |
+| Early deload symptom trigger | ______________________ |
+| Min days between high-intensity finger sessions | ______ days |
+| Weekly sRPE ceiling | ______ |
+
+*Use the Appendix tables in the Profile Score document to fill in values for your tier.*
+
+------
+
 ## Template 1: Baseline Assessment Record (Week 0)
 
 Use this once at the beginning, then repeat at Weeks 4, 8, and 12.
@@ -11,6 +76,8 @@ Use this once at the beginning, then repeat at Weeks 4, 8, and 12.
 ### BASELINE ASSESSMENT - WEEK 0
 
 **Date:** ________________  **Training Plan:** ☐ 2-day  ☐ 3-day  ☐ 4-day
+
+**Profile Score (from Template 0):** FPS ______  Tier ______  Label: ______________________
 
 #### FINGER MAX STRENGTH TEST
 
@@ -159,6 +226,8 @@ Use this to track every session. Session-RPE is your primary load monitoring too
 
 ⚠️ **Warning if >20-25% increase week-to-week**
 
+**Tier sRPE ceiling check:** My ceiling (from Template 0): ______  This week total: ______  ☐ Within ceiling  ☐ At ceiling — reduce next session volume  ☐ Exceeded — deload signal
+
 **Antagonist circuit completed this week?** ☐ Yes  ☐ No (2-day: rest day; 3-day: Workout C; 4-day: Workout A)
 
 **Training frequency by type:**
@@ -200,10 +269,12 @@ Use this to track every session. Session-RPE is your primary load monitoring too
 
 **Red flags present this week:**
 
-- ☐ Sharp/sudden pain during session
+- ☐ Sharp/sudden pain or audible pop during session → **immediate stop + clinical evaluation (all tiers)**
+- ☐ Visible swelling in finger joint within 24 hrs of training → **immediate clinical evaluation (all tiers)**
 - ☐ Finger pain >3/10 during training
-- ☐ Next-morning stiffness increasing trend (3+ consecutive days)
-- ☐ Not recovering within 48 hours between sessions
+- ☐ Next-morning stiffness — check your tier's early deload trigger (from Template 0): ______________________
+- ☐ Not recovering within 48 hours between sessions (Tier 1-2: check for 72-hr gap)
+- ☐ Weekly sRPE approaching or exceeding tier ceiling
 - ☐ sRPE increasing without planned progression
 - ☐ Declining motivation 3+ consecutive sessions
 - ☐ Persistent fatigue despite adequate rest
@@ -271,7 +342,12 @@ Use this to track every session. Session-RPE is your primary load monitoring too
 
 **Total quality reps:** _____ / _____ (target)
 
-**Progression decision:** ☐ Increase load next session (+_____ lb)  ☐ Maintain load  ☐ Reduce load  ☐ Deload needed
+**Progression gate check (all must clear before advancing):**
+- Sessions at current load: _____ / _____ required (from Template 0)
+- Weeks since last load change: _____ / _____ minimum (from Template 0)
+- Most recent session RPE: _____ — below hold threshold (RPE < _____)? ☐ Yes ☐ No
+
+**Progression decision:** ☐ Advance (+_____ % = +_____ lb, rounded to nearest 0.25 kg)  ☐ Maintain load (gate not met)  ☐ Hold (RPE at threshold — reset counter)  ☐ Regress one step (RPE exceeded regression threshold for 2 sessions)  ☐ Deload needed
 
 ------
 
@@ -1040,8 +1116,11 @@ Use this section to compare across each time this is performed (approximately ev
 
 ### Template Selection by Plan
 
+**All plans — start here:**
+- **Template 0**: Profile Score onboarding — **complete before anything else**. Your tier governs every progression parameter. Fill in the derived parameters table and keep it accessible every session.
+
 **2-Day Plan:**
-- Templates 1, 2, 4, 5 (core)
+- Templates 0, 1, 2, 4, 5 (core)
 - Template 3A: Workout A strength sessions
 - Template 3B: Workout A aerobic portion (with silent feet + fluency columns)
 - Template 3D: Mesocycle 2 intermittent hang weeks
@@ -1051,7 +1130,7 @@ Use this section to compare across each time this is performed (approximately ev
 - Antagonist circuit tracked via Template 3A Part 3 (rest day self-directed)
 
 **3-Day Plan:**
-- Templates 1, 2, 4, 5 (core)
+- Templates 0, 1, 2, 4, 5 (core)
 - Template 3A: Workout C (hangs + antagonist circuit)
 - Template 3B: Workout A aerobic sessions
 - Template 3D: Workout A intermittent hang weeks (Meso 2)
@@ -1062,6 +1141,7 @@ Use this section to compare across each time this is performed (approximately ev
 
 **4-Day Plan:**
 - **All templates are recommended** due to higher volume
+- Template 0 is especially critical — the 4-day plan's sRPE target (1,000-1,400) only applies to Tiers 4-5
 - Template 3A: Workout A (hangs + campus + antagonist)
 - Template 3B: Workout B (ARC + silent feet + fluency — every session)
 - Template 3G: Workout C 4×4 portion (Meso 1) — new
@@ -1073,11 +1153,12 @@ Use this section to compare across each time this is performed (approximately ev
 
 ### Minimum Viable Tracking (if time-constrained)
 
-1. **Template 1**: Baseline assessment (Week 0 only)
-2. **Template 2**: Weekly session log — **NON-NEGOTIABLE every week**
-3. **Template 3E**: Crux-after-fatigue log — **NON-NEGOTIABLE every session**
-4. **Template 3G**: 4×4 log — required in Mesocycle 1 when 4×4 is programmed
-5. **Template 4**: Progress testing (Weeks 4, 8, 12)
+1. **Template 0**: Profile Score onboarding — **complete before starting** (one time)
+2. **Template 1**: Baseline assessment (Week 0 only)
+3. **Template 2**: Weekly session log — **NON-NEGOTIABLE every week**
+4. **Template 3E**: Crux-after-fatigue log — **NON-NEGOTIABLE every session**
+5. **Template 3G**: 4×4 log — required in Mesocycle 1 when 4×4 is programmed
+6. **Template 4**: Progress testing (Weeks 4, 8, 12)
 
 ------
 
