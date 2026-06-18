@@ -302,6 +302,8 @@ export default function TrainingCenterPage() {
             href={
               isWeekZero
                 ? "/training-center/assessment"
+                : !checkinLoading && !todaysCheckin
+                ? "/training-center/checkin?next=workout"
                 : "/training-center/dashboard"
             }
             className="tc-program-cta training-center-cta"
@@ -404,22 +406,56 @@ export default function TrainingCenterPage() {
         <section className="tc-section tc-section--checkin">
           <div className="tc-section-header">
             <h3 className="tc-section-title">Morning Check-in</h3>
+            {!checkinLoading && todaysCheckin && (
+              <Link href="/training-center/checkin" className="tc-section-link">
+                Update →
+              </Link>
+            )}
           </div>
           {checkinLoading ? (
             <p className="tc-section-empty">Loading…</p>
           ) : todaysCheckin ? (
-            <div className="tc-checkin-done">
-              <span className="tc-checkin-done-icon" aria-hidden>✓</span>
-              <p className="tc-placeholder-text">
-                Done for today. Fingers {todaysCheckin.fingerStiffness}/10
-                stiffness, {todaysCheckin.readinessForTraining}/5 readiness.
-              </p>
-              <Link
-                href="/training-center/checkin"
-                className="tc-placeholder-link"
-              >
-                Update check-in →
-              </Link>
+            <div className="tc-assessment-bubbles">
+              <div className="tc-assessment-bubble">
+                <span className="tc-assessment-bubble-label">Readiness</span>
+                <span className="tc-assessment-bubble-value">
+                  {todaysCheckin.readinessForTraining}
+                  <span className="tc-assessment-bubble-unit">/5</span>
+                </span>
+                <span className="tc-assessment-bubble-sub">
+                  Motivation {todaysCheckin.motivation}/5
+                </span>
+              </div>
+              <div className="tc-assessment-bubble">
+                <span className="tc-assessment-bubble-label">Energy</span>
+                <span className="tc-assessment-bubble-value">
+                  {todaysCheckin.energyLevel}
+                  <span className="tc-assessment-bubble-unit">/5</span>
+                </span>
+                <span className="tc-assessment-bubble-sub">Today&apos;s level</span>
+              </div>
+              <div className="tc-assessment-bubble">
+                <span className="tc-assessment-bubble-label">Sleep</span>
+                <span className="tc-assessment-bubble-value">
+                  {todaysCheckin.sleepHours}
+                  <span className="tc-assessment-bubble-unit">h</span>
+                </span>
+                <span className="tc-assessment-bubble-sub">
+                  Quality {todaysCheckin.sleepQuality}/5
+                </span>
+              </div>
+              <div className="tc-assessment-bubble">
+                <span className="tc-assessment-bubble-label">Fingers</span>
+                <span className="tc-assessment-bubble-value">
+                  {todaysCheckin.fingerStiffness}
+                  <span className="tc-assessment-bubble-unit">/10</span>
+                </span>
+                <span className="tc-assessment-bubble-sub">
+                  {todaysCheckin.sorenessLocations.length > 0
+                    ? `Sore: ${todaysCheckin.sorenessLocations.join(", ")}`
+                    : `Pain ${todaysCheckin.fingerPain}/10`}
+                </span>
+              </div>
             </div>
           ) : (
             <div className="tc-placeholder">

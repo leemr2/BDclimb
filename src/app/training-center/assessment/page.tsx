@@ -249,7 +249,7 @@ export default function AssessmentPage() {
         </div>
         <div className="training-assessment-actions">
           <Link href="/training-center/dashboard" className="training-center-cta">
-            Go to Dashboard
+            Start Workout
           </Link>
         </div>
       </div>
