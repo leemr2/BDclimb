@@ -71,6 +71,12 @@ export interface CompleteWorkoutInput {
   notes?: string;
   /** Power-endurance only: 0–10 composite shoulder symptom score for the session. */
   shoulderSymptomScore?: number;
+  /**
+   * User-adjusted session duration in minutes. When provided, this overrides the
+   * value computed from `startedAt` (handles split sessions, missed timer starts,
+   * or the app reloading and resetting the in-progress timer).
+   */
+  durationMinutes?: number;
 }
 
 /**
@@ -131,9 +137,13 @@ export async function completeWorkout(
   const data = snap.data();
   const startedAt = data.startedAt as Timestamp;
   const now = Timestamp.now();
-  const durationMinutes = Math.round(
+  const computedDuration = Math.round(
     (now.toMillis() - startedAt.toMillis()) / 60000
   );
+  const durationMinutes =
+    summary.durationMinutes != null && summary.durationMinutes >= 0
+      ? Math.round(summary.durationMinutes)
+      : computedDuration;
   const srpe = durationMinutes * summary.rpe;
   await updateDoc(ref, {
     status: "completed",

@@ -25,6 +25,7 @@ export function WorkoutSummary({ durationMinutes, onSaved }: WorkoutSummaryProps
   const router = useRouter();
   const { workoutId, userId, programId, workoutWeek, goalType } = useWorkout();
   const { program } = useActiveProgram();
+  const [duration, setDuration] = useState(durationMinutes);
   const [rpe, setRpe] = useState(6);
   const [sessionQuality, setSessionQuality] = useState(3);
   const [fingerPainDuring, setFingerPainDuring] = useState(0);
@@ -36,7 +37,7 @@ export function WorkoutSummary({ durationMinutes, onSaved }: WorkoutSummaryProps
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const srpe = durationMinutes * rpe;
+  const srpe = duration * rpe;
 
   const handleSave = useCallback(async () => {
     setSaving(true);
@@ -48,6 +49,7 @@ export function WorkoutSummary({ durationMinutes, onSaved }: WorkoutSummaryProps
         fingerPainDuring,
         skinCondition,
         notes: notes || undefined,
+        durationMinutes: Number.isNaN(duration) ? 0 : duration,
         ...(isPE ? { shoulderSymptomScore } : {}),
       };
       const completeWorkout = isPE ? completePEWorkout : completeBoulderingWorkout;
@@ -61,7 +63,7 @@ export function WorkoutSummary({ durationMinutes, onSaved }: WorkoutSummaryProps
       }
 
       onSaved?.();
-      router.push("/training-center/dashboard");
+      router.push("/training-center");
     } catch (e) {
       setError(e instanceof Error ? e.message : "Failed to save workout");
     } finally {
@@ -75,6 +77,7 @@ export function WorkoutSummary({ durationMinutes, onSaved }: WorkoutSummaryProps
     program,
     goalType,
     isPE,
+    duration,
     rpe,
     sessionQuality,
     fingerPainDuring,
@@ -89,10 +92,32 @@ export function WorkoutSummary({ durationMinutes, onSaved }: WorkoutSummaryProps
     <div className="training-workout-summary">
       <h3 className="training-workout-summary-title">Workout complete</h3>
       <p className="training-workout-summary-duration">
-        Duration: {durationMinutes} min · sRPE: {srpe} (duration × RPE)
+        sRPE: {srpe} (duration × RPE)
       </p>
 
       <form onSubmit={(e) => { e.preventDefault(); handleSave(); }} className="training-workout-summary-form">
+        <label className="training-form-group">
+          Duration (minutes)
+          <input
+            type="number"
+            min={0}
+            inputMode="numeric"
+            value={Number.isNaN(duration) ? "" : duration}
+            onChange={(e) => {
+              const next = e.target.value === "" ? NaN : Number(e.target.value);
+              setDuration(Number.isNaN(next) ? NaN : Math.max(0, Math.round(next)));
+            }}
+            onBlur={() => {
+              if (Number.isNaN(duration)) setDuration(0);
+            }}
+            className="training-form-group input"
+          />
+          <span className="training-form-hint">
+            Auto-filled from your session timer. Adjust if you split the session,
+            forgot to start the timer, or the app reloaded mid-workout.
+          </span>
+        </label>
+
         <label className="training-form-group">
           Session RPE – Rate of Perceived Exertion (0–10)
           <span className="training-workout-summary-value">{rpe}</span>

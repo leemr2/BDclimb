@@ -4873,6 +4873,7 @@ a {
 .training-workout-summary-title { margin: 0 0 1rem; color: #fff; }
 .training-workout-summary-duration { margin: 0 0 1.5rem; color: rgba(255, 255, 255, 0.8); }
 .training-workout-summary-form .training-form-group { display: block; margin-bottom: 1.25rem; }
+.training-form-hint { display: block; margin-top: 0.35rem; font-size: 0.8rem; line-height: 1.35; color: rgba(255, 255, 255, 0.55); font-weight: 400; }
 .training-workout-summary-value { margin-left: 0.5rem; font-variant-numeric: tabular-nums; font-weight: 600; }
 .training-workout-summary-quality { display: flex; gap: 0.5rem; margin-top: 0.35rem; }
 .training-workout-summary-quality-btn { width: 2.5rem; height: 2.5rem; border-radius: 0.5rem; border: 1px solid rgba(255, 255, 255, 0.25); background: rgba(255, 255, 255, 0.1); color: #fff; cursor: pointer; font-size: 1rem; }
@@ -7013,6 +7014,7 @@ a {
    ============================================================ */
 .community-page.day-mode .training-workout-summary-title { color: #1a1a1a; }
 .community-page.day-mode .training-workout-summary-duration { color: #555; }
+.community-page.day-mode .training-form-hint { color: #666; }
 .community-page.day-mode .training-workout-summary-quality-btn {
   background: #f3f4f6;
   border-color: #d1d5db;

@@ -95,9 +95,13 @@ export async function completeWorkout(
   const data = snap.data();
   const startedAt = data.startedAt as Timestamp;
   const now = Timestamp.now();
-  const durationMinutes = Math.round(
+  const computedDuration = Math.round(
     (now.toMillis() - startedAt.toMillis()) / 60000
   );
+  const durationMinutes =
+    summary.durationMinutes != null && summary.durationMinutes >= 0
+      ? Math.round(summary.durationMinutes)
+      : computedDuration;
   const srpe = durationMinutes * summary.rpe;
   await updateDoc(ref, {
     status: "completed",
