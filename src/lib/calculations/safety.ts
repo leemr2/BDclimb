@@ -14,14 +14,18 @@ export interface CheckinForSafety {
 
 /** Input for runSafetyChecks: latest workout, weekly sRPE, recent check-ins. */
 export interface SafetyUserData {
-  /** Most recent completed workout (for finger pain). */
-  latestWorkout: { fingerPainDuring: number } | null;
-  /** This week's total sRPE. */
+  latestWorkout: { fingerPainDuring: number; shoulderSymptomScore?: number } | null;
   thisWeekSRPE: number;
-  /** Last week's total sRPE (for spike detection). */
   lastWeekSRPE: number;
-  /** Recent check-ins, oldest first (for trend and averages). */
   checkins: CheckinForSafety[];
+  /** Recent shoulder scores from workouts (oldest first) for PE trend rules. */
+  recentShoulderScores?: number[];
+  /** Latest ARC set pump level from in-session logging (inline rule). */
+  latestARCPumpLevel?: number;
+  /** 4×4 round 1 total falls (inline rule). */
+  fourByFourRound1Falls?: number;
+  /** CFB intensity calibration selection. */
+  cfbIntensityCalibration?: "correct" | "too_easy" | "too_hard" | "inconsistent";
 }
 
 export interface SafetyFlagResult {
@@ -111,7 +115,9 @@ const safetyRules: Array<{
   {
     id: "recovery_poor",
     severity: "yellow",
-    condition: (d) => avgRecovery(d.checkins, 2) < 3,
+    // Requires 2 check-ins so a new user with no/partial data can't trigger it.
+    condition: (d) =>
+      d.checkins.length >= 2 && avgRecovery(d.checkins, 2) < 3,
     message: () =>
       "Recovery below 3/5 for two consecutive training days",
     action: "Insert extra rest day",
@@ -119,10 +125,49 @@ const safetyRules: Array<{
   {
     id: "energy_sustained_low",
     severity: "yellow",
-    condition: (d) => avgEnergy(d.checkins, 14) < 3,
+    // "2 consecutive weeks" needs sustained data; require ~2 weeks of check-ins
+    // so a new user with no/partial logging can't trigger a false positive.
+    condition: (d) =>
+      d.checkins.length >= 14 && avgEnergy(d.checkins, 14) < 3,
     message: () =>
       "Average energy below 3/5 for 2 consecutive weeks",
     action: "Reduce volume 20–30%",
+  },
+  {
+    id: "shoulder_score_rising",
+    severity: "yellow",
+    condition: (d) => {
+      const scores = d.recentShoulderScores ?? [];
+      if (scores.length < 2) return false;
+      const latest = scores[scores.length - 1];
+      const prev = scores[scores.length - 2];
+      return latest > prev + 1 && latest >= 4;
+    },
+    message: () => "Shoulder symptom score rising across recent sessions",
+    action:
+      "Review antagonist circuit completeness. Consider reducing campus/power volume.",
+  },
+  {
+    id: "arc_pump_spike",
+    severity: "yellow",
+    condition: (d) => (d.latestARCPumpLevel ?? 0) >= 7,
+    message: () =>
+      "Pump 7+/10 during ARC — too high for aerobic work (target RPE 4–6)",
+    action: "Back off intensity. This session's aerobic benefit depends on staying easy.",
+  },
+  {
+    id: "four_by_four_round1_high_falls",
+    severity: "yellow",
+    condition: (d) => (d.fourByFourRound1Falls ?? 0) >= 4,
+    message: () => "High falls in round 1 of 4×4 — problems likely too hard",
+    action: "Next session: drop problems 1 grade.",
+  },
+  {
+    id: "cfb_too_hard",
+    severity: "yellow",
+    condition: (d) => d.cfbIntensityCalibration === "too_hard",
+    message: () => "Critical-force blocks rated too hard",
+    action: "Reduce load 5–10%. CFB should feel RPE 8–9 sustainable, not maximal.",
   },
 ];
 

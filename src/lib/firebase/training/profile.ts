@@ -2,6 +2,12 @@
 
 import { doc, getDoc, setDoc, updateDoc, Timestamp } from "firebase/firestore";
 import { db } from "../client";
+import type {
+  ProfileScore,
+  ProgressionParams,
+  PerformanceAxis,
+  StartingState,
+} from "@/lib/plans/power-endurance/profileScore";
 
 export type WeightUnit = "lbs" | "kg";
 export type ExperienceLevel = "beginner" | "intermediate" | "advanced";
@@ -17,6 +23,16 @@ export interface TrainingProfile {
   currentRouteGrade?: string;
   /** PE: 12-week target route grade (YDS). */
   goalRouteGrade?: string;
+  /**
+   * PE Profile Score System (CruxTracker). Computed at onboarding; governs
+   * how fast the program progresses. See docs/CruxTracker_Profile_Score_System.md.
+   */
+  profileScore?: ProfileScore;
+  progressionParams?: ProgressionParams;
+  /** PE Performance Axis — derived from the Week 0 assessment. */
+  performanceAxis?: PerformanceAxis;
+  /** PE starting state — where training begins (bounded by the tier range). */
+  startingState?: StartingState;
   createdAt: Timestamp;
   updatedAt: Timestamp;
 }
@@ -82,4 +98,32 @@ export async function updateTrainingProfile(
         ...partial,
       };
   await updateDoc(userRef, { trainingProfile: updated });
+}
+
+/**
+ * Persist the computed Profile Score and its progression parameters
+ * (set once at onboarding).
+ */
+export async function saveProfileScore(
+  userId: string,
+  data: { profileScore: ProfileScore; progressionParams: ProgressionParams }
+): Promise<void> {
+  await updateTrainingProfile(userId, {
+    profileScore: data.profileScore,
+    progressionParams: data.progressionParams,
+  });
+}
+
+/**
+ * Persist the Performance Axis and derived starting state
+ * (set/refreshed at the Week 0 assessment).
+ */
+export async function saveStartingState(
+  userId: string,
+  data: { performanceAxis: PerformanceAxis; startingState: StartingState }
+): Promise<void> {
+  await updateTrainingProfile(userId, {
+    performanceAxis: data.performanceAxis,
+    startingState: data.startingState,
+  });
 }

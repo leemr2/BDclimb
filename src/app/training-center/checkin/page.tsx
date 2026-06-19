@@ -1,8 +1,8 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { Suspense, useState, useEffect } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useAuth } from "@/lib/firebase/auth";
 import { useActiveProgram } from "@/lib/hooks/training/useActiveProgram";
 import {
@@ -12,8 +12,24 @@ import {
 import { MorningCheckin } from "@/components/training/checkin/MorningCheckin";
 
 export default function CheckinPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="loading-container">
+          <div>Loading...</div>
+        </div>
+      }
+    >
+      <CheckinPageContent />
+    </Suspense>
+  );
+}
+
+function CheckinPageContent() {
   const { user, loading: authLoading } = useAuth();
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const isWorkoutFlow = searchParams.get("next") === "workout";
   const { program, loading: programLoading } = useActiveProgram();
   const [initial, setInitial] = useState<Partial<DailyCheckinInput> | null>(null);
   const [initialLoading, setInitialLoading] = useState(true);
@@ -85,7 +101,12 @@ export default function CheckinPage() {
         <MorningCheckin
           userId={user.uid}
           initial={initial ?? undefined}
-          onSuccess={() => router.replace("/training-center/dashboard")}
+          submitLabel={isWorkoutFlow ? "Start workout" : undefined}
+          onSuccess={() =>
+            router.replace(
+              isWorkoutFlow ? "/training-center/dashboard" : "/training-center"
+            )
+          }
         />
       )}
     </div>

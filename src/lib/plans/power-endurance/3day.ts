@@ -141,11 +141,18 @@ function meso3Week(weekNum: 9 | 10 | 11): SessionDefinition[] {
   ];
 }
 
+// Week 4 retest is folded into Session A: run the full assessment battery
+// (via the assessment flow), then the deload intervals back-to-back the same
+// day. Session A is marked complete once the retest assessment is saved.
 const DELOAD_W4: SessionDefinition[] = [
-  session("A", "Monday", "Deload Intervals", "Reduced volume", 40, [
-    "warmup_easy",
-    "long_intervals_w1",
-  ]),
+  session(
+    "A",
+    "Monday",
+    "Retest Assessment + Deload Intervals",
+    "Run the full retest battery, then light intervals back-to-back",
+    130,
+    ["warmup_easy", "long_intervals_w1"]
+  ),
   session("B", "Friday", "Deload 4×4 + Light CAF", "Reduced rounds", 60, [
     "warmup_silent_feet",
     "four_by_four_w1",
@@ -156,13 +163,18 @@ const DELOAD_W4: SessionDefinition[] = [
     "max_hang_deload",
     "antagonist_light",
   ]),
-  session("D", "Saturday", "Assessment Retest", "Full assessment battery", 90, [
-    "assessment_battery",
-  ]),
 ];
 
+// Week 8 retest is folded into Session A (see Week 4 note above).
 const DELOAD_W8: SessionDefinition[] = [
-  session("A", "Monday", "Deload ARC", "Easy aerobic", 35, ["warmup_easy", "arc_deload"]),
+  session(
+    "A",
+    "Monday",
+    "Retest Assessment + Deload ARC",
+    "Run the full retest battery, then easy aerobic back-to-back",
+    125,
+    ["warmup_easy", "arc_deload"]
+  ),
   session("B", "Friday", "Deload Crux Sim", "Light specificity", 55, [
     "warmup_silent_feet",
     "caf_meso1_w2",
@@ -171,9 +183,6 @@ const DELOAD_W8: SessionDefinition[] = [
     "warmup_progressive",
     "intermittent_hang_deload",
     "antagonist_light",
-  ]),
-  session("D", "Saturday", "Assessment Retest", "Full assessment battery", 90, [
-    "assessment_battery",
   ]),
 ];
 

@@ -14,7 +14,7 @@ import type {
 import { plan2Day } from "./2day";
 import { plan3Day } from "./3day";
 import { plan4Day } from "./4day";
-import { resolveDrills } from "./drills";
+import { resolveDrills, type TierContext } from "./drills";
 
 const DAY_ORDER = [
   "Monday",
@@ -57,6 +57,24 @@ export function getWeekDefinition(
 ): WeekDefinition | undefined {
   const plan = getPlanDefinition(frequency);
   return plan.weeks.find((w) => w.weekNumber === weekNumber);
+}
+
+/**
+ * On retest deload weeks (4, 8) the assessment battery is folded into a single
+ * session (currently Session A) whose title is prefixed with "Retest Assessment".
+ * That session is completed via the separate assessment flow rather than a logged
+ * workout, so completion tracking needs to know which session label it maps to.
+ * Returns null for weeks without a folded retest (e.g. the Week 12 performance day).
+ */
+export function getRetestSessionLabel(
+  frequency: PEFrequency,
+  weekNumber: number
+): string | null {
+  const weekDef = getWeekDefinition(frequency, weekNumber);
+  const retestSession = weekDef?.sessions.find((s) =>
+    s.title.startsWith("Retest Assessment")
+  );
+  return retestSession?.label ?? null;
 }
 
 export function getNextSession(
@@ -118,10 +136,11 @@ export function getCurrentWeekSchedule(
 export function getSessionWithDrills(
   session: SessionDefinition,
   cafBenchmark?: import("./types").CAFBenchmark | null,
-  frequency?: PEFrequency
+  frequency?: PEFrequency,
+  tierContext?: TierContext | null
 ): PESessionWithDrills {
   const drillIds = session.drills.map((d) => d.id);
-  const drills = resolveDrills(drillIds, cafBenchmark, frequency);
+  const drills = resolveDrills(drillIds, cafBenchmark, frequency, tierContext);
   return {
     ...session,
     drills,

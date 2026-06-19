@@ -1,18 +1,28 @@
 "use client";
 
 import type { DrillDefinition } from "@/lib/plans/bouldering/types";
+import type { PEDrillDefinition } from "@/lib/plans/power-endurance/types";
 
 export interface DrillCardProps {
-  drill: DrillDefinition;
+  drill: DrillDefinition | PEDrillDefinition;
   onBegin: () => void;
 }
 
 export function DrillCard({ drill, onBegin }: DrillCardProps) {
+  const peDrill = drill as PEDrillDefinition;
+  const cafResolved = peDrill.cafResolved;
+
   return (
     <div className="training-drill-card">
       <h3 className="training-drill-card-title">{drill.name}</h3>
       <p className="training-drill-card-description">{drill.description}</p>
-      {drill.sets != null && (
+      {cafResolved && (
+        <p className="training-drill-card-meta">
+          CAF targets: {cafResolved.entryGrade} × {cafResolved.entryMoves} moves (ELS{" "}
+          {cafResolved.targetELS}) · {cafResolved.rounds} rounds · Crux {cafResolved.cruxGrade}
+        </p>
+      )}
+      {drill.sets != null && !cafResolved && (
         <p className="training-drill-card-meta">
           {drill.sets} sets
           {drill.reps != null && ` · ${drill.reps}`}

@@ -6,6 +6,8 @@ import Link from "next/link";
 import { useAuth } from "@/lib/firebase/auth";
 import { useActiveProgram } from "@/lib/hooks/training/useActiveProgram";
 import { useTrainingProfile } from "@/lib/hooks/training/useTrainingProfile";
+import { useMilestoneEducation } from "@/lib/hooks/training/useMilestoneEducation";
+import { MilestoneModal } from "@/components/training/education/MilestoneModal";
 import { AssessmentFlow } from "@/components/training/assessment/AssessmentFlow";
 import { AssessmentResultsView } from "@/components/training/assessment/AssessmentResultsView";
 import { PowerEnduranceAssessmentFlow } from "@/components/training/assessment/PowerEnduranceAssessmentFlow";
@@ -22,7 +24,14 @@ import {
   isPETestWeek,
 } from "@/lib/firebase/training/power-endurance-assessments";
 import { getCAFWorkoutBaseline } from "@/lib/plans/power-endurance/calculations";
-import { getProgramId, updateActiveProgram } from "@/lib/firebase/training/program";
+import { deriveProfilePerformance } from "@/lib/plans/power-endurance/profileScore";
+import { saveStartingState } from "@/lib/firebase/training/profile";
+import {
+  getProgramId,
+  updateActiveProgram,
+  advanceProgramWeekIfComplete,
+} from "@/lib/firebase/training/program";
+import { getCompletedSessionLabelsForWeek as getPECompletedLabels } from "@/lib/firebase/training/power-endurance-workouts";
 import type { BoulderingAssessment } from "@/lib/plans/bouldering/types";
 import type { PowerEnduranceAssessment } from "@/lib/plans/power-endurance/types";
 
@@ -43,6 +52,12 @@ export default function AssessmentPage() {
   );
   const [assessmentsLoading, setAssessmentsLoading] = useState(false);
   const [retestPending, setRetestPending] = useState(false);
+
+  const milestone = useMilestoneEducation({
+    program,
+    userId: user?.uid,
+    surface: "assessment",
+  });
 
   const isPE = program?.goalType === "route_power_endurance";
   const isBouldering = program?.goalType === "bouldering";
@@ -138,13 +153,46 @@ export default function AssessmentPage() {
         ...assessmentData,
         week: assessmentWeek,
       });
+      // Week 0 establishes the Performance Axis -> starting state, bounded by the
+      // profile-score tier range (set at onboarding). Older programs without a
+      // profile score skip this gracefully.
+      if (assessmentWeek === 0 && trainingProfile?.profileScore) {
+        const { performanceAxis, startingState } = deriveProfilePerformance(
+          { tier: trainingProfile.profileScore.tier },
+          {
+            maxHangPctBW: assessmentData.fingerMaxStrength.percentBodyweight,
+            enduranceReps: assessmentData.intermittentEndurance.totalReps,
+            cafBaseline: assessmentData.cruxAfterFatigue.sessionCAFScore,
+            baselineCruxGrade:
+              assessmentData.cruxAfterFatigue.benchmark.cruxGrade,
+          }
+        );
+        await saveStartingState(user.uid, { performanceAxis, startingState });
+      }
       if (program.currentWeek === 0) {
         await updateActiveProgram(user.uid, { currentWeek: 1, status: "active" });
       } else {
         await updateActiveProgram(user.uid, { status: "active" });
         setRetestPending(false);
+        // The retest completes its folded Session A. If the remaining deload
+        // sessions for the week are already logged, advance to the next week.
+        try {
+          const labels = await getPECompletedLabels(
+            user.uid,
+            programId,
+            program.currentWeek
+          );
+          await advanceProgramWeekIfComplete(
+            user.uid,
+            program,
+            program.currentWeek,
+            labels
+          );
+        } catch (e) {
+          console.error("Failed to advance week after retest", e);
+        }
       }
-      router.push("/training-center/dashboard");
+      router.push("/training-center");
     } catch (e) {
       console.error("Failed to save assessment:", e);
       setError(e instanceof Error ? e.message : "Failed to save assessment");
@@ -231,7 +279,7 @@ export default function AssessmentPage() {
         </div>
         <div className="training-assessment-actions">
           <Link href="/training-center/dashboard" className="training-center-cta">
-            Go to Dashboard
+            Start Workout
           </Link>
         </div>
       </div>
@@ -283,6 +331,14 @@ export default function AssessmentPage() {
           bodyweight={bodyweight}
           weightUnit={weightUnit}
           onComplete={handleBoulderingComplete}
+        />
+      )}
+      {milestone.meta && (
+        <MilestoneModal
+          meta={milestone.meta}
+          open={milestone.isVisible}
+          onDismiss={milestone.dismissForLater}
+          onMarkRead={milestone.markRead}
         />
       )}
     </div>

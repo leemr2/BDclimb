@@ -18,12 +18,15 @@ export interface MorningCheckinProps {
   onSuccess?: () => void;
   /** Pre-fill from existing check-in (e.g. when editing today's). */
   initial?: Partial<DailyCheckinInput>;
+  /** Label for the submit button (e.g. "Start workout" when check-in gates a workout). */
+  submitLabel?: string;
 }
 
 export function MorningCheckin({
   userId,
   onSuccess,
   initial,
+  submitLabel = "Save check-in",
 }: MorningCheckinProps) {
   const [fingerStiffness, setFingerStiffness] = useState(
     initial?.fingerStiffness ?? 0
@@ -224,7 +227,7 @@ export function MorningCheckin({
             disabled={submitting}
             className="training-center-cta"
           >
-            {submitting ? "Saving…" : "Save check-in"}
+            {submitting ? "Saving…" : submitLabel}
           </button>
         </div>
       </form>

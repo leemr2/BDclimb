@@ -13,11 +13,19 @@ import { EasyClimbingLogger } from "./EasyClimbingLogger";
 import { CoreLogger } from "./CoreLogger";
 import { MobilityLogger } from "./MobilityLogger";
 import { WarmupLogger } from "./WarmupLogger";
+import { ARCClimbingLogger } from "./ARCClimbingLogger";
+import { FourByFourLogger } from "./FourByFourLogger";
+import { IntervalsLogger } from "./IntervalsLogger";
+import { IntermittentHangLogger } from "./IntermittentHangLogger";
+import { CriticalForceLogger } from "./CriticalForceLogger";
+import { CruxAfterFatigueLogger } from "./CruxAfterFatigueLogger";
+import { RoutePracticeLogger } from "./RoutePracticeLogger";
+import { ThresholdIntervalsLogger } from "./ThresholdIntervalsLogger";
 import { WorkoutSummary } from "./WorkoutSummary";
 import type { DrillDefinition, DrillType } from "@/lib/plans/bouldering/types";
+import type { PEDrillDefinition, PEDrillType } from "@/lib/plans/power-endurance/types";
 
-// Friendly label for drill types shown in the list
-const DRILL_TYPE_LABEL: Record<DrillType, string> = {
+const BOULDERING_DRILL_LABEL: Record<DrillType, string> = {
   warmup: "Warm-up",
   max_hang: "Max Hangs",
   max_hang_retest: "Max Hang Retest",
@@ -30,7 +38,27 @@ const DRILL_TYPE_LABEL: Record<DrillType, string> = {
   mobility: "Mobility",
 };
 
-function drillMeta(drill: DrillDefinition): string {
+const PE_DRILL_LABEL: Record<PEDrillType, string> = {
+  warmup: "Warm-up",
+  max_hang: "Max Hangs",
+  max_hang_retest: "Max Hang Retest",
+  pull_up: "Pull-ups",
+  campus: "Campus Board",
+  antagonist: "Antagonist Work",
+  core: "Core",
+  mobility: "Mobility",
+  easy_climbing: "Easy Climbing",
+  arc_climbing: "ARC Climbing",
+  four_by_four: "Bouldering 4×4",
+  intervals: "Route Intervals",
+  intermittent_hang: "Intermittent Hang Endurance",
+  critical_force: "Critical-Force Blocks",
+  crux_after_fatigue: "Crux-After-Fatigue",
+  route_practice: "Route Practice",
+  threshold_intervals: "Threshold Intervals",
+};
+
+function drillMeta(drill: DrillDefinition | PEDrillDefinition): string {
   const parts: string[] = [];
   if (drill.sets != null) {
     parts.push(`${drill.sets} sets`);
@@ -39,6 +67,13 @@ function drillMeta(drill: DrillDefinition): string {
   if (drill.intensity != null) parts.push(drill.intensity);
   if (drill.restSeconds != null) parts.push(`${drill.restSeconds}s rest`);
   return parts.join(" · ");
+}
+
+function drillTypeLabel(type: string, goalType: string): string {
+  if (goalType === "route_power_endurance") {
+    return PE_DRILL_LABEL[type as PEDrillType] ?? type;
+  }
+  return BOULDERING_DRILL_LABEL[type as DrillType] ?? type;
 }
 
 export function WorkoutFlow() {
@@ -54,6 +89,7 @@ export function WorkoutFlow() {
     weightUnit,
     progressionSuggestion,
     targetLoadForMaxHang,
+    goalType,
   } = useWorkout();
 
   const durationMinutes = useMemo(() => {
@@ -61,7 +97,6 @@ export function WorkoutFlow() {
     return Math.round((Date.now() - startTime.getTime()) / 60000);
   }, [startTime]);
 
-  // ── Drill list view ───────────────────────────────────────────────────────
   if (phase === "drill-list") {
     const completedCount = drills.filter((d) => d.completed).length;
     const totalCount = session.drills.length;
@@ -79,7 +114,6 @@ export function WorkoutFlow() {
         </div>
 
         <div className="training-assessment-content">
-          {/* Progress bar */}
           <div className="training-tasklist-progress">
             <div className="training-tasklist-progress-label">
               {completedCount} of {totalCount} drills complete
@@ -92,21 +126,19 @@ export function WorkoutFlow() {
             </div>
           </div>
 
-          {/* Drill list */}
           <div className="training-tasklist">
             {session.drills.map((drill, index) => {
               const done = drills[index]?.completed ?? false;
               const partial = !done && (drills[index]?.partial ?? false);
               const setsCompleted = drills[index]?.setsCompleted;
               const meta = drillMeta(drill);
-              const typeLabel = DRILL_TYPE_LABEL[drill.type as DrillType] ?? drill.type;
+              const typeLabel = drillTypeLabel(drill.type, goalType);
 
               return (
                 <div
                   key={drill.id}
                   className={`training-tasklist-item${done ? " training-tasklist-item--done" : ""}${partial ? " training-tasklist-item--partial" : ""}`}
                 >
-                  {/* Status icon */}
                   <div className="training-tasklist-status">
                     {done ? (
                       <span className="training-tasklist-check" aria-label="Complete">✓</span>
@@ -117,7 +149,6 @@ export function WorkoutFlow() {
                     )}
                   </div>
 
-                  {/* Info */}
                   <div className="training-tasklist-info">
                     <div className="training-tasklist-title">{drill.name}</div>
                     <p className="training-tasklist-desc">{drill.description}</p>
@@ -137,7 +168,6 @@ export function WorkoutFlow() {
                     </div>
                   </div>
 
-                  {/* Action */}
                   <div className="training-tasklist-action">
                     <button
                       type="button"
@@ -153,7 +183,6 @@ export function WorkoutFlow() {
           </div>
         </div>
 
-        {/* Finish session */}
         <div className="training-assessment-actions">
           <button
             type="button"
@@ -176,7 +205,6 @@ export function WorkoutFlow() {
     );
   }
 
-  // ── Workout summary ───────────────────────────────────────────────────────
   if (phase === "workout-summary") {
     return (
       <WorkoutSummary
@@ -185,7 +213,6 @@ export function WorkoutFlow() {
     );
   }
 
-  // ── Drill instructions view ───────────────────────────────────────────────
   if (!currentDrill) {
     return (
       <div className="training-workout-flow">
@@ -197,7 +224,6 @@ export function WorkoutFlow() {
   if (phase === "instructions") {
     return (
       <div>
-        {/* Back link to drill list */}
         <button
           type="button"
           onClick={() => dispatch({ type: "BACK_TO_DRILL_LIST" })}
@@ -213,7 +239,6 @@ export function WorkoutFlow() {
     );
   }
 
-  // ── Logging views ─────────────────────────────────────────────────────────
   if (phase === "logging") {
     const onComplete = () => {
       dispatch({ type: "SHOW_DRILL_SUMMARY" });
@@ -221,15 +246,16 @@ export function WorkoutFlow() {
 
     const currentDrillState = drills[currentDrillIndex];
     const resumeSet = currentDrillState?.setsCompleted ?? 0;
+    const drillType = currentDrill.type;
 
-    switch (currentDrill.type as DrillType) {
+    switch (drillType) {
       case "warmup":
-        return <WarmupLogger drill={currentDrill} onComplete={onComplete} />;
+        return <WarmupLogger drill={currentDrill as DrillDefinition} onComplete={onComplete} />;
       case "max_hang": {
         const partialSets = (currentDrillState?.data?.partialSets as PartialSetData[] | undefined);
         return (
           <MaxHangLogger
-            drill={currentDrill}
+            drill={currentDrill as DrillDefinition}
             targetLoad={targetLoadForMaxHang}
             bodyweight={bodyweight}
             weightUnit={weightUnit}
@@ -243,19 +269,19 @@ export function WorkoutFlow() {
       case "max_hang_retest":
         return (
           <MaxHangRetestLogger
-            drill={currentDrill}
+            drill={currentDrill as DrillDefinition}
             onComplete={onComplete}
           />
         );
       case "limit_boulder":
-        return <BoulderLogger drill={currentDrill} onComplete={onComplete} />;
+        return <BoulderLogger drill={currentDrill as DrillDefinition} onComplete={onComplete} />;
       case "campus":
-        return <CampusLogger drill={currentDrill} onComplete={onComplete} />;
+        return <CampusLogger drill={currentDrill as DrillDefinition} onComplete={onComplete} />;
       case "pull_up": {
         const partialSets = (currentDrillState?.data?.partialSets as PullUpPartialSetData[] | undefined);
         return (
           <PullUpLogger
-            drill={currentDrill}
+            drill={currentDrill as DrillDefinition}
             initialSet={resumeSet}
             initialSetData={partialSets}
             onComplete={onComplete}
@@ -263,17 +289,73 @@ export function WorkoutFlow() {
         );
       }
       case "antagonist":
-        return <AntagonistLogger drill={currentDrill} onComplete={onComplete} />;
+        return <AntagonistLogger drill={currentDrill as DrillDefinition} onComplete={onComplete} />;
       case "easy_climbing":
-        return <EasyClimbingLogger drill={currentDrill} onComplete={onComplete} />;
+        return <EasyClimbingLogger drill={currentDrill as DrillDefinition} onComplete={onComplete} />;
       case "core":
-        return <CoreLogger drill={currentDrill} onComplete={onComplete} />;
+        return <CoreLogger drill={currentDrill as DrillDefinition} onComplete={onComplete} />;
       case "mobility":
-        return <MobilityLogger drill={currentDrill} onComplete={onComplete} />;
+        return <MobilityLogger drill={currentDrill as DrillDefinition} onComplete={onComplete} />;
+      case "arc_climbing":
+        return (
+          <ARCClimbingLogger
+            drill={currentDrill as PEDrillDefinition}
+            onComplete={onComplete}
+          />
+        );
+      case "four_by_four":
+        return (
+          <FourByFourLogger
+            drill={currentDrill as PEDrillDefinition}
+            onComplete={onComplete}
+          />
+        );
+      case "intervals":
+        return (
+          <IntervalsLogger
+            drill={currentDrill as PEDrillDefinition}
+            onComplete={onComplete}
+          />
+        );
+      case "intermittent_hang":
+        return (
+          <IntermittentHangLogger
+            drill={currentDrill as PEDrillDefinition}
+            onComplete={onComplete}
+          />
+        );
+      case "critical_force":
+        return (
+          <CriticalForceLogger
+            drill={currentDrill as PEDrillDefinition}
+            onComplete={onComplete}
+          />
+        );
+      case "crux_after_fatigue":
+        return (
+          <CruxAfterFatigueLogger
+            drill={currentDrill as PEDrillDefinition}
+            onComplete={onComplete}
+          />
+        );
+      case "route_practice":
+        return (
+          <RoutePracticeLogger
+            drill={currentDrill as PEDrillDefinition}
+            onComplete={onComplete}
+          />
+        );
+      case "threshold_intervals":
+        return (
+          <ThresholdIntervalsLogger
+            drill={currentDrill as PEDrillDefinition}
+            onComplete={onComplete}
+          />
+        );
       default:
         return (
           <div className="training-workout-flow">
-            <p>Unknown drill type: {currentDrill.type}</p>
+            <p>Unknown drill type: {drillType}</p>
             <button
               type="button"
               className="training-timer-btn"
@@ -291,7 +373,6 @@ export function WorkoutFlow() {
     }
   }
 
-  // Resting phase — show a minimal "back to list" option
   if (phase === "resting") {
     return (
       <div className="training-workout-flow">

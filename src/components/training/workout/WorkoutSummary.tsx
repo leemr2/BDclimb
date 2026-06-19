@@ -5,32 +5,39 @@ import { useRouter } from "next/navigation";
 import { useWorkout } from "@/lib/hooks/training/useWorkout";
 import { useActiveProgram } from "@/lib/hooks/training/useActiveProgram";
 import {
-  completeWorkout,
-  getCompletedSessionLabelsForWeek,
+  completeWorkout as completeBoulderingWorkout,
+  getCompletedSessionLabelsForWeek as getBoulderingCompletedLabels,
   type CompleteWorkoutInput,
   type SkinCondition,
 } from "@/lib/firebase/training/bouldering-workouts";
+import {
+  completeWorkout as completePEWorkout,
+  getCompletedSessionLabelsForWeek as getPECompletedLabels,
+} from "@/lib/firebase/training/power-endurance-workouts";
 import { advanceProgramWeekIfComplete } from "@/lib/firebase/training/program";
 
 export interface WorkoutSummaryProps {
-  /** Duration in minutes (from workout start to now). */
   durationMinutes: number;
   onSaved?: () => void;
 }
 
 export function WorkoutSummary({ durationMinutes, onSaved }: WorkoutSummaryProps) {
   const router = useRouter();
-  const { workoutId, userId, programId, workoutWeek } = useWorkout();
+  const { workoutId, userId, programId, workoutWeek, goalType } = useWorkout();
   const { program } = useActiveProgram();
+  const [duration, setDuration] = useState(durationMinutes);
   const [rpe, setRpe] = useState(6);
   const [sessionQuality, setSessionQuality] = useState(3);
   const [fingerPainDuring, setFingerPainDuring] = useState(0);
+  const [shoulderSymptomScore, setShoulderSymptomScore] = useState(0);
   const [skinCondition, setSkinCondition] = useState<SkinCondition>("good");
   const [notes, setNotes] = useState("");
+
+  const isPE = goalType === "route_power_endurance";
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const srpe = durationMinutes * rpe;
+  const srpe = duration * rpe;
 
   const handleSave = useCallback(async () => {
     setSaving(true);
@@ -42,25 +49,21 @@ export function WorkoutSummary({ durationMinutes, onSaved }: WorkoutSummaryProps
         fingerPainDuring,
         skinCondition,
         notes: notes || undefined,
+        durationMinutes: Number.isNaN(duration) ? 0 : duration,
+        ...(isPE ? { shoulderSymptomScore } : {}),
       };
+      const completeWorkout = isPE ? completePEWorkout : completeBoulderingWorkout;
+      const getCompletedLabels = isPE ? getPECompletedLabels : getBoulderingCompletedLabels;
+
       await completeWorkout(userId, workoutId, summary);
 
       if (program && programId && workoutWeek > 0) {
-        const completedLabels = await getCompletedSessionLabelsForWeek(
-          userId,
-          programId,
-          workoutWeek
-        );
-        await advanceProgramWeekIfComplete(
-          userId,
-          program,
-          workoutWeek,
-          completedLabels
-        );
+        const completedLabels = await getCompletedLabels(userId, programId, workoutWeek);
+        await advanceProgramWeekIfComplete(userId, program, workoutWeek, completedLabels);
       }
 
       onSaved?.();
-      router.push("/training-center/dashboard");
+      router.push("/training-center");
     } catch (e) {
       setError(e instanceof Error ? e.message : "Failed to save workout");
     } finally {
@@ -72,9 +75,13 @@ export function WorkoutSummary({ durationMinutes, onSaved }: WorkoutSummaryProps
     programId,
     workoutWeek,
     program,
+    goalType,
+    isPE,
+    duration,
     rpe,
     sessionQuality,
     fingerPainDuring,
+    shoulderSymptomScore,
     skinCondition,
     notes,
     router,
@@ -85,10 +92,32 @@ export function WorkoutSummary({ durationMinutes, onSaved }: WorkoutSummaryProps
     <div className="training-workout-summary">
       <h3 className="training-workout-summary-title">Workout complete</h3>
       <p className="training-workout-summary-duration">
-        Duration: {durationMinutes} min · sRPE: {srpe} (duration × RPE)
+        sRPE: {srpe} (duration × RPE)
       </p>
 
       <form onSubmit={(e) => { e.preventDefault(); handleSave(); }} className="training-workout-summary-form">
+        <label className="training-form-group">
+          Duration (minutes)
+          <input
+            type="number"
+            min={0}
+            inputMode="numeric"
+            value={Number.isNaN(duration) ? "" : duration}
+            onChange={(e) => {
+              const next = e.target.value === "" ? NaN : Number(e.target.value);
+              setDuration(Number.isNaN(next) ? NaN : Math.max(0, Math.round(next)));
+            }}
+            onBlur={() => {
+              if (Number.isNaN(duration)) setDuration(0);
+            }}
+            className="training-form-group input"
+          />
+          <span className="training-form-hint">
+            Auto-filled from your session timer. Adjust if you split the session,
+            forgot to start the timer, or the app reloaded mid-workout.
+          </span>
+        </label>
+
         <label className="training-form-group">
           Session RPE – Rate of Perceived Exertion (0–10)
           <span className="training-workout-summary-value">{rpe}</span>
@@ -130,6 +159,23 @@ export function WorkoutSummary({ durationMinutes, onSaved }: WorkoutSummaryProps
             className="training-form-group range"
           />
         </label>
+
+        {isPE && (
+          <label className="training-form-group">
+            Shoulder symptom score (0–10)
+            <span className="training-workout-summary-value">
+              {shoulderSymptomScore}
+            </span>
+            <input
+              type="range"
+              min={0}
+              max={10}
+              value={shoulderSymptomScore}
+              onChange={(e) => setShoulderSymptomScore(Number(e.target.value))}
+              className="training-form-group range"
+            />
+          </label>
+        )}
 
         <label className="training-form-group">
           Skin condition

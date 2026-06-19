@@ -9,14 +9,12 @@ import { useActiveProgram } from "@/lib/hooks/training/useActiveProgram";
 import { useSafety } from "@/lib/hooks/training/useSafety";
 import { useTodaysCheckin } from "@/lib/hooks/training/useCheckin";
 import { useRecentCheckinsForSafety } from "@/lib/hooks/training/useCheckin";
-import {
-  getCompletedWorkoutsAll,
-  getCompletedWorkouts,
-  type BoulderingWorkout,
-} from "@/lib/firebase/training/bouldering-workouts";
+import { getCompletedWorkouts } from "@/lib/firebase/training/bouldering-workouts";
+import { getCompletedWorkouts as getPEWorkouts } from "@/lib/firebase/training/power-endurance-workouts";
 import { getAssessmentsForProgram as getBoulderingAssessments } from "@/lib/firebase/training/bouldering-assessments";
 import { getAssessmentsForProgram as getPEAssessments } from "@/lib/firebase/training/power-endurance-assessments";
 import { getProgramId, cancelProgram } from "@/lib/firebase/training/program";
+import { getWeeklyStreak } from "@/lib/calculations/metrics";
 import { useMilestoneEducation } from "@/lib/hooks/training/useMilestoneEducation";
 import { ProfileCard } from "@/components/training/dashboard/ProfileCard";
 import { MilestoneModal } from "@/components/training/education/MilestoneModal";
@@ -79,6 +77,18 @@ const GOAL_LABELS: Record<string, string> = {
   route_power_endurance: "Route Power/Endurance",
 };
 
+/** Minimal shape needed to render a workout row; satisfied by both modules' workouts. */
+type RecentWorkoutRow = {
+  id: string;
+  week: number;
+  sessionLabel: string;
+  sessionType: string;
+  completedAt: Timestamp | null;
+  duration: number;
+  rpe: number;
+  srpe: number;
+};
+
 function formatDate(ts: Timestamp | null): string {
   if (!ts) return "—";
   const date = new Date(ts.toMillis());
@@ -112,9 +122,7 @@ export default function TrainingCenterPage() {
   const { user, loading: authLoading } = useAuth();
   const router = useRouter();
   const { program, loading: programLoading } = useActiveProgram();
-  const [recentWorkouts, setRecentWorkouts] = useState<
-    Array<BoulderingWorkout & { id: string }>
-  >([]);
+  const [recentWorkouts, setRecentWorkouts] = useState<RecentWorkoutRow[]>([]);
   const [workoutsLoading, setWorkoutsLoading] = useState(false);
   const [latestBoulderingAssessment, setLatestBoulderingAssessment] =
     useState<BoulderingAssessment | null>(null);
@@ -152,13 +160,27 @@ export default function TrainingCenterPage() {
   }, [user, authLoading, router]);
 
   useEffect(() => {
-    if (!user || programLoading) return;
+    if (!user || programLoading || !program || program.currentWeek === 0) {
+      setRecentWorkouts([]);
+      return;
+    }
+    const programId = getProgramId(program);
     setWorkoutsLoading(true);
-    getCompletedWorkoutsAll(user.uid, 5)
-      .then(setRecentWorkouts)
+    const promise =
+      program.goalType === "route_power_endurance"
+        ? getPEWorkouts(user.uid, programId, 100)
+        : getCompletedWorkouts(user.uid, programId, 100);
+    promise
+      .then((list) => setRecentWorkouts(list))
       .catch(() => setRecentWorkouts([]))
       .finally(() => setWorkoutsLoading(false));
-  }, [user, programLoading]);
+  }, [
+    user,
+    programLoading,
+    program?.goalType,
+    program?.startDate,
+    program?.currentWeek,
+  ]);
 
   useEffect(() => {
     if (!user || !program || program.currentWeek === 0) {
@@ -265,6 +287,7 @@ export default function TrainingCenterPage() {
     100,
     Math.round((program.currentWeek / 12) * 100)
   );
+  const weeklyStreak = getWeeklyStreak(recentWorkouts, program.currentWeek);
 
   return (
     <div className="tc-home">
@@ -302,11 +325,13 @@ export default function TrainingCenterPage() {
             href={
               isWeekZero
                 ? "/training-center/assessment"
+                : !checkinLoading && !todaysCheckin
+                ? "/training-center/checkin?next=workout"
                 : "/training-center/dashboard"
             }
             className="tc-program-cta training-center-cta"
           >
-            {isWeekZero ? "Continue Assessment →" : isPE ? "Open Dashboard →" : "Start Next Workout →"}
+            {isWeekZero ? "Continue Assessment →" : isPE ? "Workout →" : "Start Next Workout →"}
           </Link>
           {isWeekZero && (
             <button
@@ -343,8 +368,12 @@ export default function TrainingCenterPage() {
             <span className="tc-stat-value">{recentWorkouts.length}</span>
             <span className="tc-stat-label">Sessions Logged</span>
           </div>
-          <div className="tc-stat-card tc-stat-placeholder">
-            <span className="tc-stat-value">—</span>
+          <div
+            className={`tc-stat-card${weeklyStreak === 0 ? " tc-stat-placeholder" : ""}`}
+          >
+            <span className="tc-stat-value">
+              {weeklyStreak === 0 ? "—" : weeklyStreak}
+            </span>
             <span className="tc-stat-label">Streak</span>
           </div>
         </section>
@@ -404,22 +433,56 @@ export default function TrainingCenterPage() {
         <section className="tc-section tc-section--checkin">
           <div className="tc-section-header">
             <h3 className="tc-section-title">Morning Check-in</h3>
+            {!checkinLoading && todaysCheckin && (
+              <Link href="/training-center/checkin" className="tc-section-link">
+                Update →
+              </Link>
+            )}
           </div>
           {checkinLoading ? (
             <p className="tc-section-empty">Loading…</p>
           ) : todaysCheckin ? (
-            <div className="tc-checkin-done">
-              <span className="tc-checkin-done-icon" aria-hidden>✓</span>
-              <p className="tc-placeholder-text">
-                Done for today. Fingers {todaysCheckin.fingerStiffness}/10
-                stiffness, {todaysCheckin.readinessForTraining}/5 readiness.
-              </p>
-              <Link
-                href="/training-center/checkin"
-                className="tc-placeholder-link"
-              >
-                Update check-in →
-              </Link>
+            <div className="tc-assessment-bubbles">
+              <div className="tc-assessment-bubble">
+                <span className="tc-assessment-bubble-label">Readiness</span>
+                <span className="tc-assessment-bubble-value">
+                  {todaysCheckin.readinessForTraining}
+                  <span className="tc-assessment-bubble-unit">/5</span>
+                </span>
+                <span className="tc-assessment-bubble-sub">
+                  Motivation {todaysCheckin.motivation}/5
+                </span>
+              </div>
+              <div className="tc-assessment-bubble">
+                <span className="tc-assessment-bubble-label">Energy</span>
+                <span className="tc-assessment-bubble-value">
+                  {todaysCheckin.energyLevel}
+                  <span className="tc-assessment-bubble-unit">/5</span>
+                </span>
+                <span className="tc-assessment-bubble-sub">Today&apos;s level</span>
+              </div>
+              <div className="tc-assessment-bubble">
+                <span className="tc-assessment-bubble-label">Sleep</span>
+                <span className="tc-assessment-bubble-value">
+                  {todaysCheckin.sleepHours}
+                  <span className="tc-assessment-bubble-unit">h</span>
+                </span>
+                <span className="tc-assessment-bubble-sub">
+                  Quality {todaysCheckin.sleepQuality}/5
+                </span>
+              </div>
+              <div className="tc-assessment-bubble">
+                <span className="tc-assessment-bubble-label">Fingers</span>
+                <span className="tc-assessment-bubble-value">
+                  {todaysCheckin.fingerStiffness}
+                  <span className="tc-assessment-bubble-unit">/10</span>
+                </span>
+                <span className="tc-assessment-bubble-sub">
+                  {todaysCheckin.sorenessLocations.length > 0
+                    ? `Sore: ${todaysCheckin.sorenessLocations.join(", ")}`
+                    : `Pain ${todaysCheckin.fingerPain}/10`}
+                </span>
+              </div>
             </div>
           ) : (
             <div className="tc-placeholder">

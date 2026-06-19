@@ -2610,12 +2610,14 @@ a {
 
 .training-center-goal-cards {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 1.25rem;
+  width: 100%;
 }
 
 .training-center-goal-card {
   position: relative;
+  aspect-ratio: 1;
   background-color: rgba(0, 0, 0, 0.5);
   border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 0.75rem;
@@ -2623,6 +2625,7 @@ a {
   display: flex;
   flex-direction: column;
   gap: 0.75rem;
+  min-width: 0;
 }
 
 .training-center-goal-card.available:hover {
@@ -2660,6 +2663,11 @@ a {
   color: rgba(255, 255, 255, 0.75);
   line-height: 1.45;
   flex: 1;
+  min-height: 0;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 5;
 }
 
 .training-center-goal-cta {
@@ -2678,6 +2686,17 @@ a {
 .training-center-goal-cta.disabled {
   opacity: 0.6;
   cursor: default;
+}
+
+@media (max-width: 640px) {
+  .training-center-goal-cards {
+    grid-template-columns: 1fr;
+  }
+
+  .training-center-goal-card {
+    aspect-ratio: auto;
+    min-height: 16rem;
+  }
 }
 
 /* ── Training Center Home Hub ─────────────────────────────────────── */
@@ -4232,6 +4251,52 @@ a {
   color: rgba(255, 255, 255, 0.5);
 }
 
+.training-crux-trend {
+  background: rgba(0, 0, 0, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 0.75rem;
+  padding: 1.25rem;
+}
+
+.training-crux-trend-bars {
+  display: flex;
+  align-items: flex-end;
+  gap: 0.5rem;
+  height: 72px;
+  margin-bottom: 0.75rem;
+}
+
+.training-crux-trend-bar {
+  flex: 1 1 0;
+  min-height: 2px;
+  background: linear-gradient(180deg, #38bdf8, #0ea5e9);
+  border-radius: 0.25rem 0.25rem 0 0;
+}
+
+.training-crux-trend-sequence {
+  margin: 0 0 0.5rem;
+  font-size: 0.95rem;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.training-crux-trend-label {
+  margin: 0;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.training-crux-trend-label--improving {
+  color: #4ade80;
+}
+
+.training-crux-trend-label--stable {
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.training-crux-trend-label--declining {
+  color: #f87171;
+}
+
 .training-week-zero-cta {
   background: rgba(255, 255, 255, 0.08);
   border: 1px solid rgba(255, 255, 255, 0.2);
@@ -4305,11 +4370,16 @@ a {
 }
 
 .community-page.day-mode .training-form-group label,
+.community-page.day-mode .training-onboarding-step-title,
 .community-page.day-mode .training-confirmation-title,
 .community-page.day-mode .training-today-title,
 .community-page.day-mode .training-week-title,
 .community-page.day-mode .training-metrics-title {
   color: #333;
+}
+
+.community-page.day-mode .training-frequency-intro {
+  color: #555;
 }
 
 .community-page.day-mode .training-form-group input,
@@ -4380,10 +4450,19 @@ a {
 
 .community-page.day-mode .training-today-card,
 .community-page.day-mode .training-week-schedule,
-.community-page.day-mode .training-key-metrics {
+.community-page.day-mode .training-key-metrics,
+.community-page.day-mode .training-crux-trend {
   background: #fff;
   border-color: #eaeaea;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+.community-page.day-mode .training-crux-trend-sequence {
+  color: #1f2937;
+}
+
+.community-page.day-mode .training-crux-trend-label--stable {
+  color: #6b7280;
 }
 
 .community-page.day-mode .training-week-session-card {
@@ -4608,6 +4687,24 @@ a {
   font-size: 0.95rem;
 }
 .training-timer-btn:hover { background: rgba(255, 255, 255, 0.25); }
+.training-timer-btn--active {
+  background: rgba(59, 130, 246, 0.5);
+  border-color: rgba(96, 165, 250, 0.9);
+  color: #fff;
+  font-weight: 600;
+}
+.training-timer-btn--active:hover { background: rgba(59, 130, 246, 0.65); }
+
+.training-four-by-four-falls-btns {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  margin-top: 0.35rem;
+}
+.training-four-by-four-falls-btns .training-timer-btn {
+  margin: 0;
+  min-width: 2.5rem;
+}
 
 .training-rest-timer-display { margin: 1rem 0; }
 .training-rest-timer-value { font-size: 2.5rem; font-variant-numeric: tabular-nums; color: #fff; }
@@ -4683,7 +4780,15 @@ a {
 .training-easy-climbing-log,
 .training-core-log,
 .training-mobility-log,
-.training-warmup-log {
+.training-warmup-log,
+.training-caf-log,
+.training-arc-log,
+.training-four-by-four-log,
+.training-intervals-log,
+.training-ihe-log,
+.training-cfb-log,
+.training-route-practice-log,
+.training-threshold-log {
   padding: 1.25rem;
   border-radius: 0.75rem;
   border: 1px solid rgba(255, 255, 255, 0.1);
@@ -4697,7 +4802,52 @@ a {
 .training-easy-climbing-log h4,
 .training-core-log h4,
 .training-mobility-log h4,
-.training-warmup-log h4 { margin: 0 0 1rem; color: rgba(255, 255, 255, 0.95); }
+.training-warmup-log h4,
+.training-caf-log-title,
+.training-arc-log-title,
+.training-four-by-four-log-title,
+.training-intervals-log-title,
+.training-ihe-log-title,
+.training-cfb-log-title,
+.training-route-practice-log-title,
+.training-threshold-log-title { margin: 0 0 1rem; color: rgba(255, 255, 255, 0.95); }
+.training-caf-log-hint,
+.training-arc-log-hint,
+.training-four-by-four-log-hint,
+.training-intervals-log-hint,
+.training-ihe-log-hint,
+.training-cfb-log-hint,
+.training-threshold-log-hint { margin: 0 0 1rem; font-size: 0.9rem; color: rgba(255, 255, 255, 0.7); }
+.training-caf-log-targets {
+  margin: 0 0 1rem;
+  padding: 0.75rem;
+  border-radius: 0.5rem;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+.training-caf-log-targets .training-caf-log-hint { margin: 0 0 0.35rem; }
+.training-caf-log-targets .training-caf-log-hint:last-child { margin-bottom: 0; }
+.training-caf-log-targets-note { font-style: italic; color: rgba(255, 255, 255, 0.6) !important; }
+.training-caf-log-stats,
+.training-arc-log-stats,
+.training-four-by-four-log-stats,
+.training-ihe-log-stats,
+.training-cfb-log-stats { margin: 0 0 1rem; font-size: 0.9rem; color: rgba(255, 255, 255, 0.75); }
+.training-arc-log-warning,
+.training-four-by-four-log-warning,
+.training-cfb-log-warning {
+  margin: 0 0 1rem;
+  padding: 0.75rem;
+  border-radius: 0.5rem;
+  background: rgba(234, 179, 8, 0.15);
+  border-left: 4px solid rgb(234, 179, 8);
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 0.9rem;
+}
+.training-arc-log-timer { display: flex; align-items: center; gap: 1rem; margin-bottom: 1rem; font-size: 1.25rem; }
+.training-arc-log-constraints { margin-bottom: 1rem; padding: 0.75rem; border-radius: 0.5rem; background: rgba(255, 255, 255, 0.05); }
+.training-intervals-log-item { margin-bottom: 1rem; padding: 0.75rem; border-radius: 0.5rem; background: rgba(255, 255, 255, 0.05); }
+.training-caf-round-form { margin-bottom: 1rem; }
 .training-form-group { margin-bottom: 1rem; }
 .training-form-group.input,
 .training-form-group.range { display: block; width: 100%; margin-top: 0.35rem; padding: 0.5rem; border-radius: 0.4rem; border: 1px solid rgba(255, 255, 255, 0.2); background: rgba(255, 255, 255, 0.06); color: #fff; }
@@ -4728,6 +4878,7 @@ a {
 .training-workout-summary-title { margin: 0 0 1rem; color: #fff; }
 .training-workout-summary-duration { margin: 0 0 1.5rem; color: rgba(255, 255, 255, 0.8); }
 .training-workout-summary-form .training-form-group { display: block; margin-bottom: 1.25rem; }
+.training-form-hint { display: block; margin-top: 0.35rem; font-size: 0.8rem; line-height: 1.35; color: rgba(255, 255, 255, 0.55); font-weight: 400; }
 .training-workout-summary-value { margin-left: 0.5rem; font-variant-numeric: tabular-nums; font-weight: 600; }
 .training-workout-summary-quality { display: flex; gap: 0.5rem; margin-top: 0.35rem; }
 .training-workout-summary-quality-btn { width: 2.5rem; height: 2.5rem; border-radius: 0.5rem; border: 1px solid rgba(255, 255, 255, 0.25); background: rgba(255, 255, 255, 0.1); color: #fff; cursor: pointer; font-size: 1rem; }
@@ -6719,6 +6870,13 @@ a {
   color: #1a1a1a;
 }
 .community-page.day-mode .training-timer-btn:hover { background: #d1d5db; }
+.community-page.day-mode .training-timer-btn--active {
+  background: #2563eb;
+  border-color: #1d4ed8;
+  color: #fff;
+  font-weight: 600;
+}
+.community-page.day-mode .training-timer-btn--active:hover { background: #1d4ed8; }
 .community-page.day-mode .training-rest-timer-value { color: #1a1a1a; }
 .community-page.day-mode .training-rest-timer-label { color: #666; }
 .community-page.day-mode .training-rest-timer-next { color: #888; }
@@ -6786,10 +6944,27 @@ a {
 .community-page.day-mode .training-easy-climbing-log,
 .community-page.day-mode .training-core-log,
 .community-page.day-mode .training-mobility-log,
-.community-page.day-mode .training-warmup-log {
+.community-page.day-mode .training-warmup-log,
+.community-page.day-mode .training-caf-log,
+.community-page.day-mode .training-arc-log,
+.community-page.day-mode .training-four-by-four-log,
+.community-page.day-mode .training-intervals-log,
+.community-page.day-mode .training-ihe-log,
+.community-page.day-mode .training-cfb-log,
+.community-page.day-mode .training-route-practice-log,
+.community-page.day-mode .training-threshold-log {
   background: #fff;
   border-color: #e5e7eb;
 }
+.community-page.day-mode .training-warmup-log h4,
+.community-page.day-mode .training-caf-log-title,
+.community-page.day-mode .training-arc-log-title,
+.community-page.day-mode .training-four-by-four-log-title,
+.community-page.day-mode .training-intervals-log-title,
+.community-page.day-mode .training-ihe-log-title,
+.community-page.day-mode .training-cfb-log-title,
+.community-page.day-mode .training-route-practice-log-title,
+.community-page.day-mode .training-threshold-log-title,
 .community-page.day-mode .training-max-hang-log h4,
 .community-page.day-mode .training-boulder-log-title,
 .community-page.day-mode .training-campus-log h4,
@@ -6799,6 +6974,32 @@ a {
 .community-page.day-mode .training-core-log h4,
 .community-page.day-mode .training-mobility-log h4,
 .community-page.day-mode .training-warmup-log h4 { color: #1a1a1a; }
+.community-page.day-mode .training-caf-log-hint,
+.community-page.day-mode .training-arc-log-hint,
+.community-page.day-mode .training-four-by-four-log-hint,
+.community-page.day-mode .training-intervals-log-hint,
+.community-page.day-mode .training-ihe-log-hint,
+.community-page.day-mode .training-cfb-log-hint,
+.community-page.day-mode .training-threshold-log-hint { color: #555; }
+.community-page.day-mode .training-caf-log-targets {
+  background: #f3f4f6;
+  border-color: #e5e7eb;
+}
+.community-page.day-mode .training-caf-log-targets-note { color: #666 !important; }
+.community-page.day-mode .training-caf-log-stats,
+.community-page.day-mode .training-arc-log-stats,
+.community-page.day-mode .training-four-by-four-log-stats,
+.community-page.day-mode .training-ihe-log-stats,
+.community-page.day-mode .training-cfb-log-stats { color: #555; }
+.community-page.day-mode .training-arc-log-warning,
+.community-page.day-mode .training-four-by-four-log-warning,
+.community-page.day-mode .training-cfb-log-warning {
+  background: #fef9c3;
+  border-left-color: #ca8a04;
+  color: #713f12;
+}
+.community-page.day-mode .training-arc-log-constraints,
+.community-page.day-mode .training-intervals-log-item { background: #f3f4f6; }
 .community-page.day-mode .training-form-group.input,
 .community-page.day-mode .training-form-group.range {
   background: #f9fafb;
@@ -6818,6 +7019,7 @@ a {
    ============================================================ */
 .community-page.day-mode .training-workout-summary-title { color: #1a1a1a; }
 .community-page.day-mode .training-workout-summary-duration { color: #555; }
+.community-page.day-mode .training-form-hint { color: #666; }
 .community-page.day-mode .training-workout-summary-quality-btn {
   background: #f3f4f6;
   border-color: #d1d5db;
@@ -7420,4 +7622,89 @@ a {
   background: #f3f4f6;
   color: #374151;
   border-color: #d1d5db;
+}
+
+/* --- Tier reference card (Profile Score System) --- */
+.training-tier-card {
+  margin-bottom: 2rem;
+  border-radius: 0.75rem;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  background: rgba(255, 255, 255, 0.06);
+  overflow: hidden;
+}
+.training-tier-card-header {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1rem 1.25rem;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  text-align: left;
+  color: #fff;
+}
+.training-tier-card-title {
+  font-size: 1.05rem;
+  font-weight: 600;
+}
+.training-tier-card-score {
+  margin-left: auto;
+  font-size: 0.85rem;
+  color: rgba(255, 255, 255, 0.6);
+}
+.training-tier-card-toggle {
+  font-size: 1.25rem;
+  line-height: 1;
+  color: rgba(255, 255, 255, 0.7);
+}
+.training-tier-card-note {
+  margin: 0 1.25rem 0.75rem;
+  font-size: 0.85rem;
+  color: rgba(255, 255, 255, 0.6);
+}
+.training-tier-card-list {
+  margin: 0;
+  padding: 0 1.25rem 1.25rem;
+}
+.training-tier-card-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.4rem 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+  font-size: 0.9rem;
+}
+.training-tier-card-row:last-child {
+  border-bottom: none;
+}
+.training-tier-card-row dt {
+  color: rgba(255, 255, 255, 0.7);
+}
+.training-tier-card-row dd {
+  margin: 0;
+  text-align: right;
+  color: #fff;
+  font-weight: 500;
+}
+.community-page.day-mode .training-tier-card {
+  background: #f8f9fa;
+  border-color: #eaeaea;
+}
+.community-page.day-mode .training-tier-card-header {
+  color: #1a1a1a;
+}
+.community-page.day-mode .training-tier-card-score,
+.community-page.day-mode .training-tier-card-note,
+.community-page.day-mode .training-tier-card-row dt {
+  color: #555;
+}
+.community-page.day-mode .training-tier-card-toggle {
+  color: #777;
+}
+.community-page.day-mode .training-tier-card-row {
+  border-color: #ececec;
+}
+.community-page.day-mode .training-tier-card-row dd {
+  color: #1a1a1a;
 }

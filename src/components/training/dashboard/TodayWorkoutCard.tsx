@@ -51,8 +51,8 @@ export function TodayWorkoutCard({
           </>
         ) : (
           <p className="training-today-empty">
-            Workout logging for this program is coming in Phase 2. Your schedule
-            is shown below — complete your Week 0 assessment to begin training.
+            Complete your Week 0 assessment to unlock workout logging for this
+            program.
           </p>
         )}
       </div>

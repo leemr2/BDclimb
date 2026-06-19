@@ -58,9 +58,11 @@ The power-endurance module uses the same routing shell as bouldering. No new rou
   → Dashboard: Week 1 schedule appears
   → Sessions follow mesocycle structure:
       Meso 1 (Wks 1-3): Aerobic Base + Max Force Foundation
-      Week 4: Deload + Retest
+      Week 4: Deload + Retest (retest battery is folded into Session A, run
+              back-to-back with that day's deload work; Session A is marked
+              complete once the retest assessment is saved)
       Meso 2 (Wks 5-7): Power-Endurance Build + Crux Simulations
-      Week 8: Deload + Retest
+      Week 8: Deload + Retest (same Session A folding as Week 4)
       Meso 3 (Wks 9-11): Specific Linking + Redpoint Focus
       Week 12: Taper + Performance
   → Education modal at each mesocycle transition
@@ -80,7 +82,15 @@ Extends the same `users/{userId}` document. The existing fields (`trainingProfil
 users/
   {userId}/
     // Existing shared fields (unchanged)
-    trainingProfile: { age, weight, weightUnit, experienceLevel, currentLimitGrade, ... }
+    trainingProfile: {
+      age, weight, weightUnit, experienceLevel, currentLimitGrade, currentRouteGrade, goalRouteGrade,
+      // --- Profile Score System (CruxTracker) — PE foundation layer ---
+      profileScore: { c1ClimbingAge, c2AgeRecovery, c3TrainingStructure, rawScore, injuryCeiling, finalScore, tier, tierLabel, ... },
+      progressionParams: { loadIncrementPct, sessionsToConfirm, minWeeksPerStep, holdThresholdRPE, regressionThresholdRPE, volumeIncrementPct, restReductionSec, deloadVolumeReductionPct, deloadIntensityReductionPct, symptomDeloadTrigger, minRestDaysBetweenFingerSessions, weeklySRPECeiling, startingIntensityFloorPct, startingIntensityCeilingPct, ... },
+      performanceAxis: { maxHangPctBW, fssBand, fssPercentile, enduranceReps, esBand, repeaterStartSets, cafBaseline, cafsBand, initialELS, initialCruxGrade },
+      startingState: { startingIntensityPct, repeaterStartSets, initialELS, initialCruxGrade },
+      ...
+    }
     activeProgram: {
       goalType: "route_power_endurance"   // NEW value
       frequency: 2 | 3 | 4
@@ -228,6 +238,20 @@ users/
         skinCondition: "good" | "fair" | "poor"
         notes: string
 ```
+
+### Profile Score System integration (foundation layer)
+
+The CruxTracker Profile Score System (`docs/CruxTracker_Profile_Score_System.md`) is integrated into the PE module as a **foundation layer**:
+
+- **Onboarding** captures climbing age (C1), structured-training history (C3), and finger-injury history; C2 is derived from the existing `age`. `calcProfileScore` produces the tier and the `progressionParams` are stored once on `trainingProfile`.
+- **Week 0 assessment** derives the `performanceAxis` (FSS / ES / CAFS bands) and resolves the `startingState` (starting intensity bounded by the tier range, repeater start sets, initial ELS) — stored on `trainingProfile`.
+- **Drill targets** are tier-aware (display): starting intensity, percentage load increment, volume increment, and rest-reduction steps are read from `startingState` + `progressionParams` (see `src/lib/plans/power-endurance/profileScore.ts` and `drills.ts`). A read-only tier reference card surfaces the parameters on the dashboard.
+
+**Scheduled for Phase 7 — Profile Score Autoregulation Engine (see §14):**
+
+- The Section 5.4 runtime autoregulation engine: per-session confirmation counters, hold-threshold/regression gates, increment proposal+confirm flow, and weekly sRPE-ceiling enforcement.
+- The Section 5.2 mid-program tier downgrade and Section 5.3 score-recalculation triggers.
+- Applying tiers to the bouldering module (PE-only through Phase 7).
 
 ### Drill Data Shapes — Power-Endurance Specific
 
@@ -1431,9 +1455,9 @@ CAF success rate fluctuates significantly between individual sessions based on f
 
 ## 14. Implementation Priority (Build Order)
 
-Most of the foundation (Phases 1-4 from bouldering) is already complete. The PE module can be built incrementally against the existing framework.
+Most of the foundation (Phases 1-4 from bouldering) is already complete. The PE module can be built incrementally against the existing framework. The **Profile Score System** (CruxTracker) is layered into Phases 1-2 as a foundation (compute, store, display) with its runtime autoregulation engine scheduled as a dedicated later phase (Phase 7).
 
-### Phase 1: Plan Engine + Assessment (1-2 weeks dev)
+### Phase 1: Plan Engine + Assessment — ✅ COMPLETE
 
 1. Create `/src/lib/plans/power-endurance/types.ts` extending bouldering types
 2. Create PE drill catalog (`drills.ts`) — all CAF, IHE, CFB, ARC, 4×4, interval drills defined
@@ -1445,50 +1469,82 @@ Most of the foundation (Phases 1-4 from bouldering) is already complete. The PE 
 8. Extend `AssessmentFlow.tsx` to include PE-specific steps when goalType is PE
 9. Create `educationTriggers.ts` for PE milestone triggers
 
-### Phase 2: Core Workout Drills (2-3 weeks dev)
+**Profile Score System — foundation (onboarding + assessment):**
 
-10. `ARCClimbingLogger.tsx` — ARC with silent feet + fluency counters + pump monitor
-11. `CruxAfterFatigueLogger.tsx` — lead-in timer + crux logging + round tracking (PRIMARY)
-12. `FourByFourLogger.tsx` — round/problem/falls matrix
-13. `IntervalsLogger.tsx` — interval set/rest/completion tracking
-14. `IntermittentHangLogger.tsx` — leverages `RepeaterTimer.tsx`; adds reps + force quality logging
-15. `CriticalForceLogger.tsx` — block logging + intensity calibration + cross-cycle table
-16. `RoutePracticeLogger.tsx` — burn-by-burn route logging with fluency toggle
-17. `ThresholdIntervalsLogger.tsx` — Meso 3 sustained effort tracking
-18. Wire all new drills into `DrillCard.tsx` switch/registry
-19. Add PE-specific safety rules to `safety.ts`
-20. Add PE-specific calculations to `calculations.ts` (IHE load, crux trends, fluency trends)
+10. Create `profileScore.ts` — tier tables (`TIER_PARAMS`), `calcProfileScore`, Performance Axis band helpers, `deriveStartingState`/`deriveProfilePerformance`
+11. Extend `TrainingProfile` (`profile.ts`) with `profileScore` / `progressionParams` / `performanceAxis` / `startingState` + `saveProfileScore` / `saveStartingState` helpers
+12. `ProfileScoreStep.tsx` onboarding step (C1 climbing age, C3 training history, injury history; C2 from age) with live tier preview; wired into PE onboarding flow to compute + save score + params on confirm
+13. Derive `performanceAxis` + `startingState` at the Week 0 assessment (`assessment/page.tsx`); surface starting intensity / FSS band / repeater sets in the assessment summary
+
+### Phase 2: Core Workout Drills — ✅ COMPLETE
+
+14. `ARCClimbingLogger.tsx` — ARC with silent feet + fluency counters + pump monitor
+15. `CruxAfterFatigueLogger.tsx` — lead-in timer + crux logging + round tracking (PRIMARY)
+16. `FourByFourLogger.tsx` — round/problem/falls matrix
+17. `IntervalsLogger.tsx` — interval set/rest/completion tracking
+18. `IntermittentHangLogger.tsx` — leverages `RepeaterTimer.tsx`; adds reps + force quality logging
+19. `CriticalForceLogger.tsx` — block logging + intensity calibration + cross-cycle table
+20. `RoutePracticeLogger.tsx` — burn-by-burn route logging with fluency toggle
+21. `ThresholdIntervalsLogger.tsx` — Meso 3 sustained effort tracking
+22. Wire all new drills into `DrillCard.tsx` switch/registry
+23. Add PE-specific safety rules to `safety.ts`
+24. Add PE-specific calculations to `calculations.ts` (IHE load, crux trends, fluency trends)
+
+**Profile Score System — foundation (tier-aware display):**
+
+25. Make drill targets tier-aware (`applyTierContext` in `drills.ts`, threaded through `resolveDrills` → `getSessionWithDrills` → workout page + `usePlan`): starting intensity, percentage load increment, IHE starting set count + volume increment, and rest-reduction steps resolved from `startingState` + `progressionParams` (display only)
+26. `TierReferenceCard.tsx` — read-only Appendix quick-reference for the user's tier, surfaced on the dashboard
 
 ### Phase 3: Dashboard + Safety Monitor (1 week dev)
 
-21. Adapt `KeyMetrics.tsx` for PE — crux success rate, fluency stops, IHE reps as headline metrics
-22. Add shoulder symptom score to safety monitor section
-23. Add crux trend mini-chart to dashboard
-24. Extend `powerEnduranceWorkouts.ts` Firestore operations
-25. Add PE-specific fields to daily check-in (or reuse existing check-in fields)
+27. Adapt `KeyMetrics.tsx` for PE — crux success rate, fluency stops, IHE reps as headline metrics
+28. Add shoulder symptom score to safety monitor section
+29. Add crux trend mini-chart to dashboard
+30. Extend `powerEnduranceWorkouts.ts` Firestore operations
+31. Add PE-specific fields to daily check-in (or reuse existing check-in fields)
 
 ### Phase 4: Progress Visualization (1-2 weeks dev)
 
-26. `CruxSuccessRateChart.tsx` — line chart across all CAF sessions
-27. `FluencyStopChart.tsx` — stops/set trend (inverted — lower = better)
-28. `IntermittentEnduranceChart.tsx` — IHE reps across program
-29. `ShoulderSymptomChart.tsx` — session-by-session shoulder score
-30. Wire PE metric rows into `AssessmentComparisonTable.tsx`
-31. Adapt `RadarComparison.tsx` PE axes (max hang, IHE reps, crux rate, pull-up, recovery)
+32. `CruxSuccessRateChart.tsx` — line chart across all CAF sessions
+33. `FluencyStopChart.tsx` — stops/set trend (inverted — lower = better)
+34. `IntermittentEnduranceChart.tsx` — IHE reps across program
+35. `ShoulderSymptomChart.tsx` — session-by-session shoulder score
+36. Wire PE metric rows into `AssessmentComparisonTable.tsx`
+37. Adapt `RadarComparison.tsx` PE axes (max hang, IHE reps, crux rate, pull-up, recovery)
 
 ### Phase 5: Education Content (1 week dev)
 
-32. Write 9 MDX education files in `/src/content/training/power-endurance/`
-33. Wire PE education slugs into milestone modal system
-34. Verify education triggers fire at correct mesocycle transitions
+38. Write 9 MDX education files in `/src/content/training/power-endurance/`
+39. Wire PE education slugs into milestone modal system
+40. Verify education triggers fire at correct mesocycle transitions
+41. Wire why-your-program-is-built-around-you.mdx (created and currently in /docs folder) to fire at the onboarding of the PE program, before creating profile, and move file to education files
 
 ### Phase 6: Polish + Testing (1-2 weeks dev)
 
-35. Edge case handling (first session before assessment, skipped sessions, early termination)
-36. Progressive overload display in drill screens ("Last session: X; Today's target: Y")
-37. Post-session summary PE metrics (crux rate, fluency summary alongside sRPE)
-38. Real-device testing at gym (ARC session timers, rest timers between CAF rounds)
-39. Load testing with simulated 12-week dataset
+41. Edge case handling (first session before assessment, skipped sessions, early termination)
+42. Progressive overload display in drill screens ("Last session: X; Today's target: Y")
+43. Post-session summary PE metrics (crux rate, fluency summary alongside sRPE)
+44. Real-device testing at gym (ARC session timers, rest timers between CAF rounds)
+45. Load testing with simulated 12-week dataset
+
+### Phase 7: Profile Score Autoregulation Engine (2-3 weeks dev)
+
+Activates the runtime half of the Profile Score System. The foundation (Phases 1-2) computes, stores, and displays tier parameters and starting state; this phase makes the plan engine *enforce* them session-by-session. Depends on mature per-session workout logging (Phases 2-3) so that current load, RPE, and session counts are reliably persisted.
+
+46. Persist per-session progression state on the max-strength drill log: current working load, `sessionsAtCurrentLoad` counter, `weeksSinceLastLoadChange`, and the recent-RPE window
+47. Implement the Section 5.4 plan-engine reading order in `calculations.ts` / a new `progressionEngine.ts`:
+    - Confirmation-counter gate (`sessionsAtCurrentLoad < progressionParams.sessionsToConfirm` → hold)
+    - Minimum-time gate (`weeksSinceLastLoadChange < progressionParams.minWeeksPerStep` → hold)
+    - Hold-threshold gate (session RPE ≥ `holdThresholdRPE` → hold and reset counter)
+    - Regression gate (RPE > `regressionThresholdRPE` for `regressionSessionCount` sessions → drop one step, reset counter)
+48. Increment proposal + athlete confirmation UI in the drill flow (system proposes the next `+loadIncrementPct` load; never auto-applies — Section 5.4)
+49. Counter-reset rules (Section 5.1): reset on 2+ missed sessions, deload start, hold trigger, regression, or tier downgrade
+50. Volume / rest-reduction autoregulation: apply `volumeIncrementPct` and `restReductionSec` steps to IHE / interval / 4×4 / threshold drills under the same confirmation-session gates
+51. Weekly sRPE-ceiling enforcement (Section 2.4): track projected weekly sRPE vs `weeklySRPECeiling`; flag and reduce the highest-RPE remaining session's volume when the ceiling is approached
+52. Tier-specific deload application (Section 2.3): apply `deloadVolumeReductionPct` + `deloadIntensityReductionPct`, and trigger symptom-based early deloads from `symptomDeloadTrigger` / tier-specific finger-symptom signals
+53. Mid-program tier downgrade (Section 5.2): on a new finger injury, re-apply the injury ceiling, drop tier + parameters at the next session, reduce load to the new tier floor if exceeded, and reset the counter
+54. Score-recalculation triggers (Section 5.3): recompute on new injury report or return from a 3+ month break (C3 detraining); Performance Axis refresh already runs at each testing week (Weeks 4/8/12)
+55. (Optional, separate track) Apply the tier system to the bouldering module — deferred; PE-only through Phase 7
 
 ---
 

@@ -17,6 +17,38 @@ This plan targets routes that require sustained climbing for several minutes whi
 
 ------
 
+## Step 0: Profile Score Onboarding
+
+**Complete this before the Week 0 assessment.** The Profile Score determines *how fast* your program advances; the assessment battery determines *where it starts*.
+
+Complete the four onboarding inputs from the **CruxTracker Profile Score System** (`docs/CruxTracker_Profile_Score_System.md`):
+
+1. **Climbing age** (C1, max 45 pts): years of consistent climbing at ≥2 sessions/week for ≥8 months/year
+2. **Chronological age** (C2, max 25 pts): recovery capacity and collagen synthesis rate
+3. **Structured training history** (C3, max 30 pts): exposure to deliberate tendon-loading protocols
+4. **Injury ceiling**: finger injury history caps the Final Profile Score regardless of raw score
+
+```
+Raw Score = C1 + C2 + C3
+Final Profile Score (FPS) = min(Raw Score, Injury Ceiling)
+```
+
+| FPS | Tier | Label |
+|---|---|---|
+| 0–20 | 1 | Developing |
+| 21–40 | 2 | Building |
+| 41–60 | 3 | Established |
+| 61–80 | 4 | Experienced |
+| 81–100 | 5 | Seasoned |
+
+**Record your tier before reading further.** Every progression parameter, deload cut, and safety threshold in this plan is tier-keyed. See the quick reference at the bottom of this plan.
+
+> **Tier 1-2 athletes on the 4-day plan**: The Monday/Thursday layout provides a 3-day gap between high-intensity finger sessions, which satisfies Tier 3-5. However, Tier 1-2 athletes are recommended to use a **Tuesday/Saturday layout** (4-day gap) as an additional safety margin. The weekly sRPE target of 1,000-1,400 stated in this plan's Quick Reference Card is appropriate for Tiers 4-5 — Tier 3 athletes on the 4-day plan will approach or reach their ceiling (1,100) by Mesocycle 2 and should monitor closely. Tiers 1-2 should consider whether the 3-day plan better matches their structural readiness.
+
+> **40+ athletes**: Your C2 score already reduces your FPS. If this brings you to Tier 3 or below, strongly consider the 3-day plan as your primary option.
+
+---
+
 ## Pre-Plan Assessment (Week 0)
 
 ### Assessment Battery
@@ -90,9 +122,9 @@ Come in completely fresh. This is the highest-intensity session of the week.
 - 6 sets × 10 seconds at 85-95% of max hang; 2-3 min rest between sets
 - **Week 1**: 6 × 10s at 85% | **Week 2**: 6 × 10s at 88-90% | **Week 3**: 6 × 10s at 90-93%
 
-**Progression Rule**: Complete all 6 reps with perfect form for 2 consecutive sessions → add 2-3kg. Never progress if any rep was questionable.
+**Progression Rule**: Governed by your Profile Score tier. After completing the required consecutive confirmation sessions (Tiers 1-2: 3 sessions; Tiers 3-5: 2 sessions) at RPE below your hold threshold, add **your tier's load increment percentage** (e.g., Tier 4 = +4.5% of current load, rounded to nearest 0.25 kg). Never progress if any rep was questionable, and never advance if the minimum time gate has not elapsed. Never progress if RPE meets or exceeds your tier's hold threshold.
 
-**Track**: Load used, all reps completed (yes/no), form quality, finger pain (0-10)
+**Track**: Load used, all reps completed (yes/no), form quality, finger pain (0-10), session RPE
 
 #### Part 2: Heavy Pulling Strength (20-25 min)
 
@@ -460,8 +492,9 @@ Alternate between these two. They target the same energy system from different a
 | Signal | Threshold | Action |
 | ------ | --------- | ------ |
 | Finger pain trend | Increasing 3+ weeks | Immediate deload |
-| Morning stiffness | >30 min, 4+ days | Reduce volume 30% |
-| Strain increase week-to-week | >20% jump | Add recovery day |
+| Morning stiffness | Tier 1: any occurrence / Tier 2: 2+ consecutive days / Tier 3: 3+ consecutive days / Tiers 4-5: 4+ days | Unscheduled deload; reset progression counter |
+| Weekly sRPE | Exceeds your tier ceiling (see quick reference) | Reduce next session's volume |
+| Strain increase week-to-week | >20-25% jump | Add recovery day |
 | Session quality declining | 2+ weeks | Deload week |
 | Motivation drop | Dreading sessions | Mental break needed |
 
@@ -492,9 +525,13 @@ Alternate between these two. They target the same energy system from different a
 
 ### For Hangboard (Workout A)
 
-**Mesocycle 1**: Progress every 1-2 sessions if form is perfect. Add 2-3kg when 6/6 reps completed with strict form for 2 consecutive sessions. Never add more than 5% per week.
+**Mesocycle 1**: Progress is governed by your **Profile Score tier** (see Step 0 and quick reference below). Replace the old "+2-3kg" rule:
+- Add **your tier's load increment percentage** (Tier 1: 1.5%, Tier 2: 2.5%, Tier 3: 3.5%, Tier 4: 4.5%, Tier 5: 5.0%) of the current working load, rounded to nearest 0.25 kg.
+- Wait for **your tier's sessions-to-confirm** (Tiers 1-2: 3 sessions; Tiers 3-5: 2 sessions) AND the minimum calendar time per step.
+- **Hold gate**: if session RPE ≥ your tier's hold threshold, reset the counter.
+- **Regression gate**: if session RPE exceeds the regression threshold for 2 consecutive sessions, drop one step.
 
-**Mesocycles 2-3**: Maintain load or add very conservatively. Priority has shifted to other qualities.
+**Mesocycles 2-3**: Maintain load or add very conservatively. Priority has shifted to other qualities. Even maintenance sessions are subject to the hold and regression gates.
 
 ### For Aerobic Work (Workout B)
 
@@ -513,20 +550,37 @@ Increase target force only once all blocks are completed with stable technique. 
 ### For Power-Endurance (Workout C)
 
 Progress priorities (one at a time):
-1. Add reps/duration within sets
+1. Add reps/duration within sets (by your tier's volume increment: 10-20%)
 2. Add sets
-3. Reduce rest slightly (maximum 10% reduction)
+3. Reduce rest by your tier's rest reduction step (Tier 1: 15 sec; Tier 5: 30-45 sec) — never in max-strength sessions
 4. Increase difficulty
 
-Never progress if success rate drops below 30% for 2 consecutive weeks.
+Never progress if success rate drops below 30% for 2 consecutive weeks. Confirmation sessions before each step: Tiers 1-2 require 3 sessions; Tiers 3-5 require 2 sessions.
 
 ### For Specific Work (Workout D)
 
-Change only one variable per week:
+Change only one variable per step (confirm for required sessions before advancing):
 1. ELS — add entry moves or raise entry grade (primary progression lever)
 2. Number of rounds (4 → 5 → 6)
-3. Crux grade (+1 grade when session score plateaus and success rate >60%)
-4. Rest reduction (only in final mesocycle; max 10%)
+3. Crux grade (+1 grade when session score plateaus AND success rate >60%)
+4. Rest reduction (only in final mesocycle; by your tier's rest reduction step)
+
+---
+
+### Quick Reference: Tier Progression Parameters
+
+| Parameter | Tier 1 | Tier 2 | Tier 3 | Tier 4 | Tier 5 |
+|---|---|---|---|---|---|
+| Load increment (hangboard) | 1.5% | 2.5% | 3.5% | 4.5% | 5.0% |
+| Sessions to confirm advance | 3 | 3 | 2 | 2 | 2 |
+| Min time per step | 3 wks | 2-3 wks | 2 wks | 2 wks | 1-2 wks |
+| Hold threshold (RPE ≥) | 7.5 | 8.0 | 8.0 | 8.5 | 8.5 |
+| Regression trigger (RPE >) | 8.0 × 2 | 8.5 × 2 | 9.0 × 2 | 9.0 × 2 | 9.5 × 2 |
+| Volume increment | 10% | 12% | 15% | 17% | 20% |
+| Rest reduction per step | 15 sec | 20 sec | 25 sec | 30 sec | 30-45 sec |
+| Weekly sRPE ceiling | 800 | 950 | 1,100 | 1,300 | 1,500 |
+| Deload volume cut | 55% | 50% | 45% | 40% | 35% |
+| Min days between finger sessions | 3 | 3 | 2-3 | 2 | 2 |
 
 ------
 
@@ -540,7 +594,15 @@ Change only one variable per week:
 
 **Sequencing**: Never place high-intensity finger sessions back-to-back. Monday and Thursday are separated by 3 days; if schedule shifts, maintain 2+ day gap between finger-intensive sessions.
 
-**Deloads (Weeks 4 & 8)**: Mandatory. With 4 days/week, accumulated fatigue is real. Skipping deloads substantially raises injury risk.
+**Early deload triggers (tier-specific)** — these trigger an unscheduled deload regardless of calendar position:
+- **Tier 1**: any A2 or pulley-region pain during or after climbing
+- **Tier 2**: morning stiffness in finger joints on 2 or more consecutive days
+- **Tier 3**: morning stiffness in finger joints on 3 or more consecutive days
+- **Tiers 4-5**: standard red flags only (sharp pain, pop, significant swelling)
+
+**Deloads (Weeks 4 & 8)**: Mandatory. With 4 days/week, accumulated fatigue is real. Apply your tier's volume reduction (Tier 1: 55%; Tier 5: 35%). Tiers 1-2 also reduce working load by 15% and 10% respectively; Tiers 3-5 maintain intensity. Skipping deloads substantially raises injury risk.
+
+**Mid-cycle injury**: Apply the injury ceiling from the Profile Score System. If the ceiling drops your FPS into a lower tier, that tier's parameters (load increment, confirmation sessions, RPE gates, minimum time) take effect immediately at the next session. Current load is reduced to the new tier's floor if it exceeds the new ceiling.
 
 **Red Flags**:
 
@@ -578,7 +640,7 @@ Change only one variable per week:
 ### Critical Monitoring
 
 - Track sRPE every session
-- Weekly total sRPE: 1000-1400
+- Weekly total sRPE target: 1,000-1,400 (**this range applies to Tiers 4-5**; see tier ceiling in quick reference — Tier 3 ceiling is 1,100; Tiers 1-2 are 800-950)
 - Full test battery every 4 weeks (Weeks 0, 4, 8, 12)
 - Saturday becomes Testing Day on deload weeks—not a workout
 

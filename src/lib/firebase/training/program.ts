@@ -22,8 +22,13 @@ import {
   getWeekDefinition as getPEWeekDefinition,
   isWeekFullyComplete as isPEWeekFullyComplete,
   resolveProgramWeek as resolvePEProgramWeek,
+  getRetestSessionLabel as getPERetestSessionLabel,
   type PEFrequency,
 } from "@/lib/plans/power-endurance/planEngine";
+import {
+  getAssessmentForWeek as getPEAssessmentForWeek,
+  isPETestWeek,
+} from "@/lib/firebase/training/power-endurance-assessments";
 
 export type GoalType =
   | "bouldering"
@@ -143,13 +148,23 @@ export async function advanceProgramWeekIfComplete(
   }
 
   const frequency = program.frequency;
+
+  // On PE retest weeks the assessment battery is folded into a session that is
+  // completed via the assessment flow (not a logged workout). Count it as done
+  // when the retest assessment for the week exists so the week can advance.
+  let peLabels = completedSessionLabels;
+  if (program.goalType === "route_power_endurance" && isPETestWeek(completedWeek)) {
+    const retestLabel = getPERetestSessionLabel(frequency as PEFrequency, completedWeek);
+    if (retestLabel && !peLabels.includes(retestLabel)) {
+      const programId = getProgramId(program);
+      const retest = await getPEAssessmentForWeek(userId, programId, completedWeek);
+      if (retest) peLabels = [...peLabels, retestLabel];
+    }
+  }
+
   const weekComplete =
     program.goalType === "route_power_endurance"
-      ? isPEWeekFullyComplete(
-          frequency as PEFrequency,
-          completedWeek,
-          completedSessionLabels
-        )
+      ? isPEWeekFullyComplete(frequency as PEFrequency, completedWeek, peLabels)
       : isBoulderingWeekFullyComplete(
           frequency as BoulderingFrequency,
           completedWeek,

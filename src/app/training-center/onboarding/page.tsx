@@ -4,17 +4,37 @@ import { useState, useEffect, useMemo } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { useAuth } from "@/lib/firebase/auth";
-import { saveTrainingProfile } from "@/lib/firebase/training/profile";
+import {
+  saveTrainingProfile,
+  saveProfileScore,
+} from "@/lib/firebase/training/profile";
 import { startProgram, type GoalType } from "@/lib/firebase/training/program";
 import { TrainingProfileForm } from "@/components/training/onboarding/TrainingProfileForm";
 import type { TrainingProfileFormData } from "@/components/training/onboarding/TrainingProfileForm";
 import { FrequencySelector } from "@/components/training/onboarding/FrequencySelector";
 import type { FrequencyOption } from "@/components/training/onboarding/FrequencySelector";
 import { OnboardingConfirmation } from "@/components/training/onboarding/OnboardingConfirmation";
+import { ProfileScoreStep } from "@/components/training/onboarding/ProfileScoreStep";
+import type { ProfileScoreStepData } from "@/components/training/onboarding/ProfileScoreStep";
+import { OnboardingEducationStep } from "@/components/training/onboarding/OnboardingEducationStep";
+import {
+  calcProfileScore,
+  getProgressionParams,
+} from "@/lib/plans/power-endurance/profileScore";
 
-const STEP_PROFILE = 0;
-const STEP_FREQUENCY = 1;
-const STEP_CONFIRM = 2;
+const STEP_INTRO = 0;
+const STEP_PROFILE = 1;
+const STEP_PROFILE_SCORE = 2;
+const STEP_FREQUENCY = 3;
+const STEP_CONFIRM = 4;
+
+const PE_ONBOARDING_EDUCATION_SLUG = "pe-why-program-built-around-you";
+
+const defaultProfileScoreData: ProfileScoreStepData = {
+  climbingAgeBand: "2to5",
+  trainingHistoryBand: "occasional",
+  injuryHistory: "none",
+};
 
 const SUPPORTED_GOALS: GoalType[] = ["bouldering", "route_power_endurance"];
 
@@ -53,8 +73,15 @@ export default function OnboardingPage() {
     [goalParam]
   );
 
-  const [step, setStep] = useState(STEP_PROFILE);
+  const isPE = goal === "route_power_endurance";
+
+  const [step, setStep] = useState(() =>
+    isPE ? STEP_INTRO : STEP_PROFILE
+  );
   const [profile, setProfile] = useState<TrainingProfileFormData>(defaultBoulderingProfile);
+  const [profileScoreData, setProfileScoreData] = useState<ProfileScoreStepData>(
+    defaultProfileScoreData
+  );
   const [frequency, setFrequency] = useState<FrequencyOption | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -94,8 +121,20 @@ export default function OnboardingPage() {
             }
           : { currentLimitGrade: profile.currentLimitGrade ?? "V4" }),
       });
+      if (goal === "route_power_endurance") {
+        const profileScore = calcProfileScore({
+          climbingAgeBand: profileScoreData.climbingAgeBand,
+          age: profile.age,
+          trainingHistoryBand: profileScoreData.trainingHistoryBand,
+          injuryHistory: profileScoreData.injuryHistory,
+        });
+        await saveProfileScore(user.uid, {
+          profileScore,
+          progressionParams: getProgressionParams(profileScore.tier),
+        });
+      }
       await startProgram(user.uid, goal, frequency);
-      router.replace("/training-center/assessment");
+      router.replace("/training-center/dashboard");
     } catch (err) {
       console.error("Onboarding error:", err);
       setIsSubmitting(false);
@@ -120,6 +159,17 @@ export default function OnboardingPage() {
         ← Back to goals
       </Link>
       <div className="training-onboarding-steps">
+        {step === STEP_INTRO && isPE && (
+          <>
+            <h2 className="training-onboarding-step-title">
+              Before we build your program
+            </h2>
+            <OnboardingEducationStep
+              slug={PE_ONBOARDING_EDUCATION_SLUG}
+              onContinue={() => setStep(STEP_PROFILE)}
+            />
+          </>
+        )}
         {step === STEP_PROFILE && (
           <>
             <h2 className="training-onboarding-step-title">
@@ -129,7 +179,23 @@ export default function OnboardingPage() {
               goalType={goal}
               data={profile}
               onChange={setProfile}
+              onSubmit={() =>
+                setStep(isPE ? STEP_PROFILE_SCORE : STEP_FREQUENCY)
+              }
+            />
+          </>
+        )}
+        {step === STEP_PROFILE_SCORE && isPE && (
+          <>
+            <h2 className="training-onboarding-step-title">
+              Your readiness profile
+            </h2>
+            <ProfileScoreStep
+              age={profile.age}
+              data={profileScoreData}
+              onChange={setProfileScoreData}
               onSubmit={() => setStep(STEP_FREQUENCY)}
+              onBack={() => setStep(STEP_PROFILE)}
             />
           </>
         )}
@@ -141,7 +207,7 @@ export default function OnboardingPage() {
             <button
               type="button"
               className="training-onboarding-back-step"
-              onClick={() => setStep(STEP_PROFILE)}
+              onClick={() => setStep(isPE ? STEP_PROFILE_SCORE : STEP_PROFILE)}
             >
               ← Back
             </button>

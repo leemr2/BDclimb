@@ -14,13 +14,20 @@ import {
   getPlanDefinition as getPEPlanDefinition,
   getCurrentWeekSchedule as getPEWeekSchedule,
   getSessionWithDrills,
+  getRetestSessionLabel,
   type PEFrequency,
 } from "@/lib/plans/power-endurance/planEngine";
 import { getCAFWorkoutBaseline } from "@/lib/plans/power-endurance/calculations";
-import { getCompletedSessionLabelsForWeek } from "@/lib/firebase/training/bouldering-workouts";
+import {
+  getTrainingProfile,
+  type TrainingProfile,
+} from "@/lib/firebase/training/profile";
+import { getCompletedSessionLabelsForWeek as getBoulderingCompletedLabels } from "@/lib/firebase/training/bouldering-workouts";
+import { getCompletedSessionLabelsForWeek as getPECompletedLabels } from "@/lib/firebase/training/power-endurance-workouts";
 import {
   getAssessmentForWeek,
   getAssessmentsForProgram,
+  isPETestWeek,
 } from "@/lib/firebase/training/power-endurance-assessments";
 import { getProgramId } from "@/lib/firebase/training/program";
 
@@ -35,18 +42,34 @@ export function usePlan(activeProgram: ActiveProgram | null): {
 } {
   const { user } = useAuth();
   const [completedLabels, setCompletedLabels] = useState<string[]>([]);
+  const [retestSessionLabel, setRetestSessionLabel] = useState<string | null>(null);
   const [cafBenchmark, setCafBenchmark] = useState<CAFBenchmark | null>(null);
+  const [trainingProfile, setTrainingProfile] = useState<TrainingProfile | null>(
+    null
+  );
 
   useEffect(() => {
-    if (!user?.uid || !activeProgram || activeProgram.goalType !== "bouldering") {
+    if (!user?.uid) {
+      setTrainingProfile(null);
+      return;
+    }
+    getTrainingProfile(user.uid)
+      .then(setTrainingProfile)
+      .catch(() => setTrainingProfile(null));
+  }, [user?.uid]);
+
+  useEffect(() => {
+    if (!user?.uid || !activeProgram) {
       setCompletedLabels([]);
       return;
     }
-    getCompletedSessionLabelsForWeek(
-      user.uid,
-      getProgramId(activeProgram),
-      activeProgram.currentWeek
-    )
+    const programId = getProgramId(activeProgram);
+    const loader =
+      activeProgram.goalType === "route_power_endurance"
+        ? getPECompletedLabels
+        : getBoulderingCompletedLabels;
+
+    loader(user.uid, programId, activeProgram.currentWeek)
       .then(setCompletedLabels)
       .catch(() => setCompletedLabels([]));
   }, [user?.uid, activeProgram?.currentWeek, activeProgram?.goalType, activeProgram?.startDate]);
@@ -62,6 +85,41 @@ export function usePlan(activeProgram: ActiveProgram | null): {
       .catch(() => setCafBenchmark(null));
   }, [user?.uid, activeProgram?.goalType, activeProgram?.startDate]);
 
+  // On retest deload weeks (4, 8) the assessment battery is folded into Session A
+  // and run through the separate assessment flow. Once the retest assessment for
+  // the week is saved, treat that Session A as completed in the week schedule.
+  useEffect(() => {
+    if (
+      !user?.uid ||
+      !activeProgram ||
+      activeProgram.goalType !== "route_power_endurance" ||
+      !isPETestWeek(activeProgram.currentWeek)
+    ) {
+      setRetestSessionLabel(null);
+      return;
+    }
+    const retestLabel = getRetestSessionLabel(
+      activeProgram.frequency as PEFrequency,
+      activeProgram.currentWeek
+    );
+    if (!retestLabel) {
+      setRetestSessionLabel(null);
+      return;
+    }
+    const programId = getProgramId(activeProgram);
+    getAssessmentForWeek(user.uid, programId, activeProgram.currentWeek)
+      .then((existing) =>
+        setRetestSessionLabel(existing ? retestLabel : null)
+      )
+      .catch(() => setRetestSessionLabel(null));
+  }, [
+    user?.uid,
+    activeProgram?.goalType,
+    activeProgram?.currentWeek,
+    activeProgram?.frequency,
+    activeProgram?.startDate,
+  ]);
+
   if (!activeProgram) {
     return { plan: null, schedule: null, workoutsAvailable: false, cafBenchmark: null };
   }
@@ -69,26 +127,35 @@ export function usePlan(activeProgram: ActiveProgram | null): {
   if (activeProgram.goalType === "route_power_endurance") {
     const frequency = activeProgram.frequency as PEFrequency;
     const plan = getPEPlanDefinition(frequency);
+    const effectiveCompletedLabels = retestSessionLabel
+      ? [...new Set([...completedLabels, retestSessionLabel])]
+      : completedLabels;
     const schedule = getPEWeekSchedule(
       activeProgram as Parameters<typeof getPEWeekSchedule>[0],
-      completedLabels
+      effectiveCompletedLabels
     );
+    const workoutsAvailable = cafBenchmark != null;
 
     if (schedule?.nextSession && cafBenchmark) {
       const expanded = getSessionWithDrills(
         schedule.nextSession,
         cafBenchmark,
-        frequency
+        frequency,
+        {
+          tier: trainingProfile?.profileScore?.tier ?? null,
+          progressionParams: trainingProfile?.progressionParams ?? null,
+          startingState: trainingProfile?.startingState ?? null,
+        }
       );
       return {
         plan,
         schedule: { ...schedule, nextSession: expanded },
-        workoutsAvailable: false,
+        workoutsAvailable,
         cafBenchmark,
       };
     }
 
-    return { plan, schedule, workoutsAvailable: false, cafBenchmark };
+    return { plan, schedule, workoutsAvailable, cafBenchmark };
   }
 
   if (activeProgram.goalType !== "bouldering") {

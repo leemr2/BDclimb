@@ -2,28 +2,41 @@ import fs from "node:fs/promises";
 import path from "node:path";
 import matter from "gray-matter";
 import { compileMDX } from "next-mdx-remote/rsc";
-import type { EducationPiece } from "@/lib/types/education";
+import type { EducationGoalType, EducationPiece, EducationPieceMeta } from "@/lib/types/education";
 import {
+  ALL_EDUCATION_REGISTRY,
   BOULDERING_EDUCATION_REGISTRY,
+  POWER_ENDURANCE_EDUCATION_REGISTRY,
   getAllEducationPieces,
   getEducationMeta,
   slugToFilename,
 } from "@/lib/content/educationRegistry";
 
 export {
+  ALL_EDUCATION_REGISTRY,
   BOULDERING_EDUCATION_REGISTRY,
+  POWER_ENDURANCE_EDUCATION_REGISTRY,
   getAllEducationPieces,
   getEducationMeta,
   slugToFilename,
 };
 
-const CONTENT_DIR = path.join(
-  process.cwd(),
-  "src/content/training/bouldering"
-);
+/** Content directory for each goal's MDX files. */
+const CONTENT_DIR_BY_GOAL: Record<EducationGoalType, string> = {
+  bouldering: path.join(process.cwd(), "src/content/training/bouldering"),
+  route_power_endurance: path.join(
+    process.cwd(),
+    "src/content/training/power-endurance"
+  ),
+  route_endurance: path.join(
+    process.cwd(),
+    "src/content/training/route-endurance"
+  ),
+  route_power: path.join(process.cwd(), "src/content/training/route-power"),
+};
 
 interface ParsedEducationSource {
-  meta: (typeof BOULDERING_EDUCATION_REGISTRY)[number];
+  meta: EducationPieceMeta;
   mdxBody: string;
   data: Record<string, unknown>;
 }
@@ -41,10 +54,11 @@ async function getParsedSource(
   const cached = parsedSourceCache.get(normalized);
   if (cached) return cached;
 
-  const meta = BOULDERING_EDUCATION_REGISTRY.find((p) => p.slug === normalized);
+  const meta = ALL_EDUCATION_REGISTRY.find((p) => p.slug === normalized);
   if (!meta) return null;
 
-  const filePath = path.join(CONTENT_DIR, meta.filename);
+  const contentDir = CONTENT_DIR_BY_GOAL[meta.goalType];
+  const filePath = path.join(contentDir, meta.filename);
   try {
     const raw = await fs.readFile(filePath, "utf8");
     const { content: mdxBody, data } = matter(raw);
@@ -63,7 +77,7 @@ async function getParsedSource(
 /** Warm filesystem + frontmatter cache when entering the education section. */
 export async function preloadEducationContent(): Promise<void> {
   await Promise.all(
-    BOULDERING_EDUCATION_REGISTRY.map((meta) => getParsedSource(meta.slug))
+    ALL_EDUCATION_REGISTRY.map((meta) => getParsedSource(meta.slug))
   );
 }
 

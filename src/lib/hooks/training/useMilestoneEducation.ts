@@ -5,7 +5,10 @@ import type { ActiveProgram } from "@/lib/firebase/training/program";
 import { markEducationSlugSeen } from "@/lib/firebase/training/program";
 import { getEducationMeta } from "@/lib/content/educationRegistry";
 import type { EducationPieceMeta } from "@/lib/types/education";
-import { getPendingEducationSlug as getBoulderingPendingSlug } from "@/lib/plans/bouldering/educationTriggers";
+import {
+  getPendingEducationSlug as getBoulderingPendingSlug,
+  type EducationSurface,
+} from "@/lib/plans/bouldering/educationTriggers";
 import { getPendingEducationSlug as getPEPendingSlug } from "@/lib/plans/power-endurance/educationTriggers";
 import type { BoulderingFrequency } from "@/lib/plans/bouldering/planEngine";
 import type { PEFrequency } from "@/lib/plans/power-endurance/planEngine";
@@ -14,12 +17,18 @@ interface UseMilestoneEducationOptions {
   program: ActiveProgram | null;
   userId: string | undefined;
   completedSessionLabelsForWeek12?: string[];
+  /**
+   * Which screen is rendering the modal. The "why we test" intro fires on the
+   * assessment launch; all other milestones fire on the dashboard.
+   */
+  surface?: EducationSurface;
 }
 
 export function useMilestoneEducation({
   program,
   userId,
   completedSessionLabelsForWeek12 = [],
+  surface = "dashboard",
 }: UseMilestoneEducationOptions) {
   const [dismissedSlug, setDismissedSlug] = useState<string | null>(null);
   const [pendingSlug, setPendingSlug] = useState<string | null>(null);
@@ -41,18 +50,20 @@ export function useMilestoneEducation({
         ? getPEPendingSlug(
             program,
             program.frequency as PEFrequency,
-            completedSessionLabelsForWeek12
+            completedSessionLabelsForWeek12,
+            surface
           )
         : getBoulderingPendingSlug(
             program,
             program.frequency as BoulderingFrequency,
-            completedSessionLabelsForWeek12
+            completedSessionLabelsForWeek12,
+            surface
           );
 
     setPendingSlug(slug);
     setMeta(slug ? getEducationMeta(slug) : null);
     setDismissedSlug(null);
-  }, [program, completedSessionLabelsForWeek12]);
+  }, [program, completedSessionLabelsForWeek12, surface]);
 
   const isVisible =
     pendingSlug != null &&

@@ -9,6 +9,103 @@ import {
   offsetVGrade,
   offsetYDSGrade,
 } from "./calculations";
+import type {
+  ProgressionParams,
+  StartingState,
+  Tier,
+} from "./profileScore";
+
+/**
+ * Profile-score-derived context applied to drill display targets.
+ * Foundation layer: alters the prescription/progression text shown to the
+ * athlete. The runtime confirmation-counter / gate engine is deferred.
+ */
+export interface TierContext {
+  tier?: Tier | null;
+  progressionParams?: ProgressionParams | null;
+  startingState?: StartingState | null;
+}
+
+const FINGER_LOAD_TYPES = new Set([
+  "max_hang",
+  "max_hang_retest",
+]);
+
+const REST_DENSITY_TYPES = new Set([
+  "intervals",
+  "four_by_four",
+  "threshold_intervals",
+]);
+
+function tierTag(ctx: TierContext): string {
+  return ctx.tier ? `Tier ${ctx.tier}` : "your tier";
+}
+
+/**
+ * Apply profile-score parameters to a drill's display (intensity + progression
+ * rules). Returns the drill unchanged when no tier context is available.
+ */
+export function applyTierContext(
+  drill: PEDrillDefinition,
+  ctx?: TierContext | null
+): PEDrillDefinition {
+  if (!ctx || (!ctx.progressionParams && !ctx.startingState)) return drill;
+  const { progressionParams: pp, startingState: ss } = ctx;
+
+  // Max-strength finger work: starting intensity + percentage load increment.
+  if (FINGER_LOAD_TYPES.has(drill.type) || drill.name.includes("Max Hangs")) {
+    const instructions = [...drill.instructions];
+    if (ss) {
+      instructions.unshift(
+        `Starting working intensity (${tierTag(ctx)}): ${Math.round(
+          ss.startingIntensityPct * 100
+        )}% MVC`
+      );
+    }
+    let progressionRules = drill.progressionRules;
+    if (pp) {
+      progressionRules = [
+        `Advance load by +${(pp.loadIncrementPct * 100).toFixed(1)}% of current load after ${pp.sessionsToConfirm} clean sessions (min ${pp.minWeeksPerStep} wk between steps).`,
+        `Hold (do not advance) if session RPE ≥ ${pp.holdThresholdRPE}; roll back one step if RPE > ${pp.regressionThresholdRPE} for ${pp.regressionSessionCount} sessions.`,
+      ];
+    }
+    return { ...drill, instructions, progressionRules };
+  }
+
+  // Intermittent hang endurance: tier starting set volume + volume step.
+  if (drill.type === "intermittent_hang") {
+    const instructions = [...drill.instructions];
+    if (ss) {
+      instructions.unshift(
+        `Tier starting volume: ${ss.repeaterStartSets} sets (from your endurance score).`
+      );
+    }
+    let progressionRules = drill.progressionRules;
+    if (pp) {
+      progressionRules = [
+        `Increase volume by +${(pp.volumeIncrementPct * 100).toFixed(
+          0
+        )}% per step after ${pp.restConfirmSessions} confirmation sessions (${tierTag(
+          ctx
+        )}).`,
+      ];
+    }
+    return { ...drill, instructions, progressionRules };
+  }
+
+  // Density work: rest-reduction step keyed to tier.
+  if (REST_DENSITY_TYPES.has(drill.type) && pp) {
+    const progressionRules = [
+      ...drill.progressionRules,
+      `Reduce rest by ${pp.restReductionSec}s per step after ${pp.restConfirmSessions} sessions at the current interval (${tierTag(
+        ctx
+      )}).`,
+    ];
+    return { ...drill, progressionRules };
+  }
+
+  return drill;
+}
 
 const DRILLS: Record<string, Omit<PEDrillDefinition, "id">> = {
   warmup_progressive: {
@@ -971,14 +1068,19 @@ export function resolveCAFDrill(
 export function resolveDrills(
   ids: string[],
   cafBenchmark?: CAFBenchmark | null,
-  frequency?: 2 | 3 | 4
+  frequency?: 2 | 3 | 4,
+  tierContext?: TierContext | null
 ): PEDrillDefinition[] {
   return ids
     .map((id) => {
+      let drill: PEDrillDefinition | undefined;
       if (cafBenchmark && frequency && drillCatalog[id]?.type === "crux_after_fatigue") {
-        return resolveCAFDrill(id, cafBenchmark, frequency);
+        drill = resolveCAFDrill(id, cafBenchmark, frequency);
+      } else {
+        drill = drillCatalog[id];
       }
-      return drillCatalog[id];
+      if (!drill) return undefined;
+      return applyTierContext(drill, tierContext);
     })
     .filter((d): d is PEDrillDefinition => d != null);
 }
