@@ -65,6 +65,7 @@ export default function DashboardPage() {
     program,
     userId: user?.uid,
     completedSessionLabelsForWeek12: week12SessionLabels,
+    surface: "dashboard",
   });
 
   async function handleCancelProgram() {

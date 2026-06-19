@@ -6,6 +6,8 @@ import Link from "next/link";
 import { useAuth } from "@/lib/firebase/auth";
 import { useActiveProgram } from "@/lib/hooks/training/useActiveProgram";
 import { useTrainingProfile } from "@/lib/hooks/training/useTrainingProfile";
+import { useMilestoneEducation } from "@/lib/hooks/training/useMilestoneEducation";
+import { MilestoneModal } from "@/components/training/education/MilestoneModal";
 import { AssessmentFlow } from "@/components/training/assessment/AssessmentFlow";
 import { AssessmentResultsView } from "@/components/training/assessment/AssessmentResultsView";
 import { PowerEnduranceAssessmentFlow } from "@/components/training/assessment/PowerEnduranceAssessmentFlow";
@@ -50,6 +52,12 @@ export default function AssessmentPage() {
   );
   const [assessmentsLoading, setAssessmentsLoading] = useState(false);
   const [retestPending, setRetestPending] = useState(false);
+
+  const milestone = useMilestoneEducation({
+    program,
+    userId: user?.uid,
+    surface: "assessment",
+  });
 
   const isPE = program?.goalType === "route_power_endurance";
   const isBouldering = program?.goalType === "bouldering";
@@ -323,6 +331,14 @@ export default function AssessmentPage() {
           bodyweight={bodyweight}
           weightUnit={weightUnit}
           onComplete={handleBoulderingComplete}
+        />
+      )}
+      {milestone.meta && (
+        <MilestoneModal
+          meta={milestone.meta}
+          open={milestone.isVisible}
+          onDismiss={milestone.dismissForLater}
+          onMarkRead={milestone.markRead}
         />
       )}
     </div>
