@@ -115,7 +115,9 @@ const safetyRules: Array<{
   {
     id: "recovery_poor",
     severity: "yellow",
-    condition: (d) => avgRecovery(d.checkins, 2) < 3,
+    // Requires 2 check-ins so a new user with no/partial data can't trigger it.
+    condition: (d) =>
+      d.checkins.length >= 2 && avgRecovery(d.checkins, 2) < 3,
     message: () =>
       "Recovery below 3/5 for two consecutive training days",
     action: "Insert extra rest day",
@@ -123,7 +125,10 @@ const safetyRules: Array<{
   {
     id: "energy_sustained_low",
     severity: "yellow",
-    condition: (d) => avgEnergy(d.checkins, 14) < 3,
+    // "2 consecutive weeks" needs sustained data; require ~2 weeks of check-ins
+    // so a new user with no/partial logging can't trigger a false positive.
+    condition: (d) =>
+      d.checkins.length >= 14 && avgEnergy(d.checkins, 14) < 3,
     message: () =>
       "Average energy below 3/5 for 2 consecutive weeks",
     action: "Reduce volume 20–30%",
