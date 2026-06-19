@@ -15,6 +15,40 @@ export interface ARCClimbingLoggerProps {
 
 type SetDraft = ARCClimbingData["sets"][number];
 
+/** Derive per-set duration (minutes) from a drill's `reps` field (e.g. "8 min"). */
+function parseDurationMinutes(reps: number | string | undefined, fallback = 15): number {
+  if (typeof reps === "number") return reps;
+  if (typeof reps === "string") {
+    const match = reps.match(/\d+(\.\d+)?/);
+    if (match) {
+      const value = Number(match[0]);
+      if (Number.isFinite(value) && value > 0) return value;
+    }
+  }
+  return fallback;
+}
+
+/** Parse a prescribed RPE range from a drill's `intensity` field (e.g. "RPE 6-7"). */
+function parseRPERange(
+  intensity: string | undefined,
+  fallback: { min: number; max: number } = { min: 4, max: 6 }
+): { min: number; max: number } {
+  if (typeof intensity === "string") {
+    const range = intensity.match(/RPE\s*(\d+)\s*[-–]\s*(\d+)/i);
+    if (range) {
+      const min = Number(range[1]);
+      const max = Number(range[2]);
+      if (Number.isFinite(min) && Number.isFinite(max) && min <= max) return { min, max };
+    }
+    const single = intensity.match(/RPE\s*(\d+)/i);
+    if (single) {
+      const value = Number(single[1]);
+      if (Number.isFinite(value)) return { min: value, max: value };
+    }
+  }
+  return fallback;
+}
+
 const TERRAIN_STYLES = ["traversing", "circuits", "up-down"] as const;
 const BREATHING = ["easy", "moderate", "hard"] as const;
 const MOVEMENT_QUALITY = ["smooth_relaxed", "good", "ok", "tense_inefficient"] as const;
@@ -22,7 +56,15 @@ const MOVEMENT_QUALITY = ["smooth_relaxed", "good", "ok", "tense_inefficient"] a
 export function ARCClimbingLogger({ drill, onComplete }: ARCClimbingLoggerProps) {
   const { dispatch, currentDrillIndex, persistDrills, drills } = useWorkout();
   const setCount = drill.sets ?? 2;
-  const durationMinutes = 15;
+  const durationMinutes = parseDurationMinutes(drill.reps);
+
+  // Prescribed intensity drives the RPE label/options and pump guidance so the
+  // same logger adapts to both ARC (RPE 4-6) and long-interval (RPE 6-7) drills.
+  const rpe = parseRPERange(drill.intensity);
+  const rpeOptions = Array.from({ length: rpe.max - rpe.min + 1 }, (_, i) => rpe.min + i);
+  const pumpLow = Math.max(1, rpe.min - 1);
+  const pumpHigh = Math.max(pumpLow, rpe.max - 1);
+  const pumpWarningThreshold = Math.min(10, rpe.max + 1);
 
   const [setIndex, setSetIndex] = useState(0);
   const [sets, setSets] = useState<SetDraft[]>([]);
@@ -33,9 +75,9 @@ export function ARCClimbingLogger({ drill, onComplete }: ARCClimbingLoggerProps)
   const [draft, setDraft] = useState<SetDraft>({
     durationMinutes,
     terrainStyle: "circuits",
-    targetRPE: 5,
-    actualRPE: 5,
-    pumpLevel: 4,
+    targetRPE: rpe.min,
+    actualRPE: rpe.min,
+    pumpLevel: pumpLow,
     breathing: "easy",
     silentFootSlips: 0,
     fluencyStops: 0,
@@ -55,7 +97,7 @@ export function ARCClimbingLogger({ drill, onComplete }: ARCClimbingLoggerProps)
     }
   }, [secondsRemaining, timerRunning, pause]);
 
-  const pumpWarning = draft.pumpLevel >= 7;
+  const pumpWarning = draft.pumpLevel >= pumpWarningThreshold;
 
   const handleStartTimer = () => {
     reset();
@@ -91,9 +133,9 @@ export function ARCClimbingLogger({ drill, onComplete }: ARCClimbingLoggerProps)
     setDraft({
       durationMinutes,
       terrainStyle: "circuits",
-      targetRPE: 5,
-      actualRPE: 5,
-      pumpLevel: 4,
+      targetRPE: rpe.min,
+      actualRPE: rpe.min,
+      pumpLevel: pumpLow,
       breathing: "easy",
       silentFootSlips: 0,
       fluencyStops: 0,
@@ -116,7 +158,7 @@ export function ARCClimbingLogger({ drill, onComplete }: ARCClimbingLoggerProps)
         {drill.name} — Set {setIndex + 1} of {setCount}
       </h4>
       <p className="training-arc-log-hint">
-        Target: {durationMinutes} min · RPE 4–6 · Silent feet + Fluency
+        Target: {durationMinutes} min · RPE {rpe.min}–{rpe.max} · Silent feet + Fluency
       </p>
 
       <div className="training-arc-log-timer">
@@ -161,12 +203,13 @@ export function ARCClimbingLogger({ drill, onComplete }: ARCClimbingLoggerProps)
         onChange={(v) => setDraft((d) => ({ ...d, pumpLevel: v }))}
         min={1}
         max={10}
-        hint="Should stay 3–5 for ARC"
+        hint={`Should stay ${pumpLow}–${pumpHigh} at RPE ${rpe.min}–${rpe.max}`}
       />
 
       {pumpWarning && (
         <p className="training-arc-log-warning">
-          Pump 7+/10 is too high for aerobic work. Back off — stay at RPE 4–6.
+          Pump {pumpWarningThreshold}+/10 is too high for this drill. Back off — stay at RPE{" "}
+          {rpe.min}–{rpe.max}.
         </p>
       )}
 
@@ -178,7 +221,7 @@ export function ARCClimbingLogger({ drill, onComplete }: ARCClimbingLoggerProps)
             onChange={(e) => setDraft((d) => ({ ...d, actualRPE: Number(e.target.value) }))}
             className="training-form-group input"
           >
-            {[4, 5, 6].map((n) => (
+            {rpeOptions.map((n) => (
               <option key={n} value={n}>
                 {n}
               </option>
