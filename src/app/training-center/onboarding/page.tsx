@@ -16,15 +16,19 @@ import type { FrequencyOption } from "@/components/training/onboarding/Frequency
 import { OnboardingConfirmation } from "@/components/training/onboarding/OnboardingConfirmation";
 import { ProfileScoreStep } from "@/components/training/onboarding/ProfileScoreStep";
 import type { ProfileScoreStepData } from "@/components/training/onboarding/ProfileScoreStep";
+import { OnboardingEducationStep } from "@/components/training/onboarding/OnboardingEducationStep";
 import {
   calcProfileScore,
   getProgressionParams,
 } from "@/lib/plans/power-endurance/profileScore";
 
-const STEP_PROFILE = 0;
-const STEP_PROFILE_SCORE = 1;
-const STEP_FREQUENCY = 2;
-const STEP_CONFIRM = 3;
+const STEP_INTRO = 0;
+const STEP_PROFILE = 1;
+const STEP_PROFILE_SCORE = 2;
+const STEP_FREQUENCY = 3;
+const STEP_CONFIRM = 4;
+
+const PE_ONBOARDING_EDUCATION_SLUG = "pe-why-program-built-around-you";
 
 const defaultProfileScoreData: ProfileScoreStepData = {
   climbingAgeBand: "2to5",
@@ -69,15 +73,17 @@ export default function OnboardingPage() {
     [goalParam]
   );
 
-  const [step, setStep] = useState(STEP_PROFILE);
+  const isPE = goal === "route_power_endurance";
+
+  const [step, setStep] = useState(() =>
+    isPE ? STEP_INTRO : STEP_PROFILE
+  );
   const [profile, setProfile] = useState<TrainingProfileFormData>(defaultBoulderingProfile);
   const [profileScoreData, setProfileScoreData] = useState<ProfileScoreStepData>(
     defaultProfileScoreData
   );
   const [frequency, setFrequency] = useState<FrequencyOption | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
-
-  const isPE = goal === "route_power_endurance";
 
   useEffect(() => {
     if (goal === "route_power_endurance") {
@@ -153,6 +159,17 @@ export default function OnboardingPage() {
         ← Back to goals
       </Link>
       <div className="training-onboarding-steps">
+        {step === STEP_INTRO && isPE && (
+          <>
+            <h2 className="training-onboarding-step-title">
+              Before we build your program
+            </h2>
+            <OnboardingEducationStep
+              slug={PE_ONBOARDING_EDUCATION_SLUG}
+              onContinue={() => setStep(STEP_PROFILE)}
+            />
+          </>
+        )}
         {step === STEP_PROFILE && (
           <>
             <h2 className="training-onboarding-step-title">

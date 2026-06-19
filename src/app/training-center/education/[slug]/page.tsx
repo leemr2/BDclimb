@@ -2,13 +2,13 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { cache } from "react";
 import {
-  BOULDERING_EDUCATION_REGISTRY,
+  ALL_EDUCATION_REGISTRY,
   getEducationPiece,
 } from "@/lib/content/education";
 import { EducationArticle } from "@/components/training/education/EducationArticle";
 
 export function generateStaticParams() {
-  return BOULDERING_EDUCATION_REGISTRY.map((piece) => ({
+  return ALL_EDUCATION_REGISTRY.map((piece) => ({
     slug: piece.slug,
   }));
 }

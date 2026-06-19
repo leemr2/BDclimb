@@ -1515,6 +1515,7 @@ Most of the foundation (Phases 1-4 from bouldering) is already complete. The PE 
 38. Write 9 MDX education files in `/src/content/training/power-endurance/`
 39. Wire PE education slugs into milestone modal system
 40. Verify education triggers fire at correct mesocycle transitions
+41. Wire why-your-program-is-built-around-you.mdx (created and currently in /docs folder) to fire at the onboarding of the PE program, before creating profile, and move file to education files
 
 ### Phase 6: Polish + Testing (1-2 weeks dev)
 
