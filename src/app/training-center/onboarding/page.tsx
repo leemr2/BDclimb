@@ -134,7 +134,7 @@ export default function OnboardingPage() {
         });
       }
       await startProgram(user.uid, goal, frequency);
-      router.replace("/training-center/assessment");
+      router.replace("/training-center/dashboard");
     } catch (err) {
       console.error("Onboarding error:", err);
       setIsSubmitting(false);
