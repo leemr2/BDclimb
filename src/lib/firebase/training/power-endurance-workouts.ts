@@ -177,3 +177,29 @@ export async function getCompletedWorkouts(
     })
     .slice(0, limitCount);
 }
+
+/**
+ * All completed power-endurance workouts for a user across every program,
+ * sorted by completion time (most recent first). Mirrors the bouldering
+ * equivalent so the history view can list every logged session.
+ */
+export async function getCompletedWorkoutsAll(
+  userId: string,
+  limitCount: number = 50
+): Promise<Array<PowerEnduranceWorkout & { id: string }>> {
+  const ref = collection(db, "users", userId, "powerEnduranceWorkouts");
+  const q = query(ref, where("status", "==", "completed"));
+  const snapshot = await getDocs(q);
+  const results = snapshot.docs.map((d) => ({
+    id: d.id,
+    ...d.data(),
+  })) as Array<PowerEnduranceWorkout & { id: string }>;
+
+  return results
+    .sort((a, b) => {
+      const aMs = (a.completedAt as Timestamp | null)?.toMillis?.() ?? 0;
+      const bMs = (b.completedAt as Timestamp | null)?.toMillis?.() ?? 0;
+      return bMs - aMs;
+    })
+    .slice(0, limitCount);
+}

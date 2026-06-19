@@ -5,7 +5,11 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/lib/firebase/auth";
 import { getWorkout } from "@/lib/firebase/training/bouldering-workouts";
+import { getWorkout as getPEWorkout } from "@/lib/firebase/training/power-endurance-workouts";
 import type { BoulderingWorkout } from "@/lib/firebase/training/bouldering-workouts";
+import type { PowerEnduranceWorkout } from "@/lib/firebase/training/power-endurance-workouts";
+
+type DisplayWorkout = BoulderingWorkout | PowerEnduranceWorkout;
 
 export default function WorkoutDetailPage({
   params,
@@ -15,7 +19,7 @@ export default function WorkoutDetailPage({
   const { user, loading: authLoading } = useAuth();
   const router = useRouter();
   const [workoutId, setWorkoutId] = useState<string | null>(null);
-  const [workout, setWorkout] = useState<BoulderingWorkout | null>(null);
+  const [workout, setWorkout] = useState<DisplayWorkout | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -30,9 +34,23 @@ export default function WorkoutDetailPage({
     if (!user || !workoutId) return;
     let cancelled = false;
     setLoading(true);
-    getWorkout(user.uid, workoutId)
+    const type =
+      typeof window !== "undefined"
+        ? new URLSearchParams(window.location.search).get("type")
+        : null;
+    const resolve = async (): Promise<DisplayWorkout | null> => {
+      if (type === "pe") return getPEWorkout(user.uid, workoutId);
+      const boulder = await getWorkout(user.uid, workoutId);
+      if (boulder) return boulder;
+      // Fallback for links without a type param (e.g. older history links).
+      return getPEWorkout(user.uid, workoutId);
+    };
+    resolve()
       .then((w) => {
         if (!cancelled) setWorkout(w);
+      })
+      .catch(() => {
+        if (!cancelled) setWorkout(null);
       })
       .finally(() => {
         if (!cancelled) setLoading(false);

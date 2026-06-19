@@ -101,6 +101,36 @@ export function getKeyMetrics(
   };
 }
 
+/**
+ * Weekly training streak: the number of consecutive program weeks (each with at
+ * least one completed session) counting back from the current week.
+ *
+ * An in-progress current week with no logged session yet does not break the
+ * streak — the run is anchored at `currentWeek` when it has a session, otherwise
+ * at `currentWeek - 1`. Returns 0 when there is no qualifying run.
+ */
+export function getWeeklyStreak(
+  workouts: Array<{ week: number }>,
+  currentWeek: number
+): number {
+  const weeksWithSessions = new Set<number>();
+  for (const w of workouts) {
+    if (typeof w.week === "number") weeksWithSessions.add(w.week);
+  }
+  if (weeksWithSessions.size === 0) return 0;
+
+  let anchor = weeksWithSessions.has(currentWeek)
+    ? currentWeek
+    : currentWeek - 1;
+
+  let streak = 0;
+  while (anchor >= 1 && weeksWithSessions.has(anchor)) {
+    streak += 1;
+    anchor -= 1;
+  }
+  return streak;
+}
+
 // --- Power-endurance key metrics (Phase 3) ---
 
 /** PE dashboard headline metrics with previous values for trend display. */

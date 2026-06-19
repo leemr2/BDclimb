@@ -9,14 +9,12 @@ import { useActiveProgram } from "@/lib/hooks/training/useActiveProgram";
 import { useSafety } from "@/lib/hooks/training/useSafety";
 import { useTodaysCheckin } from "@/lib/hooks/training/useCheckin";
 import { useRecentCheckinsForSafety } from "@/lib/hooks/training/useCheckin";
-import {
-  getCompletedWorkoutsAll,
-  getCompletedWorkouts,
-  type BoulderingWorkout,
-} from "@/lib/firebase/training/bouldering-workouts";
+import { getCompletedWorkouts } from "@/lib/firebase/training/bouldering-workouts";
+import { getCompletedWorkouts as getPEWorkouts } from "@/lib/firebase/training/power-endurance-workouts";
 import { getAssessmentsForProgram as getBoulderingAssessments } from "@/lib/firebase/training/bouldering-assessments";
 import { getAssessmentsForProgram as getPEAssessments } from "@/lib/firebase/training/power-endurance-assessments";
 import { getProgramId, cancelProgram } from "@/lib/firebase/training/program";
+import { getWeeklyStreak } from "@/lib/calculations/metrics";
 import { useMilestoneEducation } from "@/lib/hooks/training/useMilestoneEducation";
 import { ProfileCard } from "@/components/training/dashboard/ProfileCard";
 import { MilestoneModal } from "@/components/training/education/MilestoneModal";
@@ -79,6 +77,18 @@ const GOAL_LABELS: Record<string, string> = {
   route_power_endurance: "Route Power/Endurance",
 };
 
+/** Minimal shape needed to render a workout row; satisfied by both modules' workouts. */
+type RecentWorkoutRow = {
+  id: string;
+  week: number;
+  sessionLabel: string;
+  sessionType: string;
+  completedAt: Timestamp | null;
+  duration: number;
+  rpe: number;
+  srpe: number;
+};
+
 function formatDate(ts: Timestamp | null): string {
   if (!ts) return "—";
   const date = new Date(ts.toMillis());
@@ -112,9 +122,7 @@ export default function TrainingCenterPage() {
   const { user, loading: authLoading } = useAuth();
   const router = useRouter();
   const { program, loading: programLoading } = useActiveProgram();
-  const [recentWorkouts, setRecentWorkouts] = useState<
-    Array<BoulderingWorkout & { id: string }>
-  >([]);
+  const [recentWorkouts, setRecentWorkouts] = useState<RecentWorkoutRow[]>([]);
   const [workoutsLoading, setWorkoutsLoading] = useState(false);
   const [latestBoulderingAssessment, setLatestBoulderingAssessment] =
     useState<BoulderingAssessment | null>(null);
@@ -152,13 +160,27 @@ export default function TrainingCenterPage() {
   }, [user, authLoading, router]);
 
   useEffect(() => {
-    if (!user || programLoading) return;
+    if (!user || programLoading || !program || program.currentWeek === 0) {
+      setRecentWorkouts([]);
+      return;
+    }
+    const programId = getProgramId(program);
     setWorkoutsLoading(true);
-    getCompletedWorkoutsAll(user.uid, 5)
-      .then(setRecentWorkouts)
+    const promise =
+      program.goalType === "route_power_endurance"
+        ? getPEWorkouts(user.uid, programId, 100)
+        : getCompletedWorkouts(user.uid, programId, 100);
+    promise
+      .then((list) => setRecentWorkouts(list))
       .catch(() => setRecentWorkouts([]))
       .finally(() => setWorkoutsLoading(false));
-  }, [user, programLoading]);
+  }, [
+    user,
+    programLoading,
+    program?.goalType,
+    program?.startDate,
+    program?.currentWeek,
+  ]);
 
   useEffect(() => {
     if (!user || !program || program.currentWeek === 0) {
@@ -265,6 +287,7 @@ export default function TrainingCenterPage() {
     100,
     Math.round((program.currentWeek / 12) * 100)
   );
+  const weeklyStreak = getWeeklyStreak(recentWorkouts, program.currentWeek);
 
   return (
     <div className="tc-home">
@@ -345,8 +368,12 @@ export default function TrainingCenterPage() {
             <span className="tc-stat-value">{recentWorkouts.length}</span>
             <span className="tc-stat-label">Sessions Logged</span>
           </div>
-          <div className="tc-stat-card tc-stat-placeholder">
-            <span className="tc-stat-value">—</span>
+          <div
+            className={`tc-stat-card${weeklyStreak === 0 ? " tc-stat-placeholder" : ""}`}
+          >
+            <span className="tc-stat-value">
+              {weeklyStreak === 0 ? "—" : weeklyStreak}
+            </span>
             <span className="tc-stat-label">Streak</span>
           </div>
         </section>
