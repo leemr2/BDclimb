@@ -24,7 +24,12 @@ import {
 import { getCAFWorkoutBaseline } from "@/lib/plans/power-endurance/calculations";
 import { deriveProfilePerformance } from "@/lib/plans/power-endurance/profileScore";
 import { saveStartingState } from "@/lib/firebase/training/profile";
-import { getProgramId, updateActiveProgram } from "@/lib/firebase/training/program";
+import {
+  getProgramId,
+  updateActiveProgram,
+  advanceProgramWeekIfComplete,
+} from "@/lib/firebase/training/program";
+import { getCompletedSessionLabelsForWeek as getPECompletedLabels } from "@/lib/firebase/training/power-endurance-workouts";
 import type { BoulderingAssessment } from "@/lib/plans/bouldering/types";
 import type { PowerEnduranceAssessment } from "@/lib/plans/power-endurance/types";
 
@@ -161,6 +166,23 @@ export default function AssessmentPage() {
       } else {
         await updateActiveProgram(user.uid, { status: "active" });
         setRetestPending(false);
+        // The retest completes its folded Session A. If the remaining deload
+        // sessions for the week are already logged, advance to the next week.
+        try {
+          const labels = await getPECompletedLabels(
+            user.uid,
+            programId,
+            program.currentWeek
+          );
+          await advanceProgramWeekIfComplete(
+            user.uid,
+            program,
+            program.currentWeek,
+            labels
+          );
+        } catch (e) {
+          console.error("Failed to advance week after retest", e);
+        }
       }
       router.push("/training-center");
     } catch (e) {

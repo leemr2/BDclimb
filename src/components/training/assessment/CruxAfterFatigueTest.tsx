@@ -62,7 +62,9 @@ export function CruxAfterFatigueTest({
     });
   }, [profile]);
 
-  const [step, setStep] = useState<"setup" | "attempts">(isRetest && lockedBenchmark ? "attempts" : "setup");
+  // Retests pre-fill from the Week 0 benchmark but stay editable: gym routes vary,
+  // and per-round grade/move multipliers keep the score comparable across weeks.
+  const [step, setStep] = useState<"setup" | "attempts">("setup");
   const [attemptPhase, setAttemptPhase] = useState<AttemptPhase>("logging");
   const [activeRoundIndex, setActiveRoundIndex] = useState(0);
   const [savedRoundCount, setSavedRoundCount] = useState(0);
@@ -86,15 +88,15 @@ export function CruxAfterFatigueTest({
 
   const benchmark = useMemo(
     () =>
-      lockedBenchmark ??
       buildCAFBenchmark({
         entryGrade,
         entryMoves,
-        cruxDescription: cruxDescription.trim(),
+        cruxDescription:
+          cruxDescription.trim() || lockedBenchmark?.cruxDescription || "Benchmark crux",
         cruxGrade,
         cruxTotalMoves,
       }),
-    [lockedBenchmark, entryGrade, entryMoves, cruxDescription, cruxGrade, cruxTotalMoves]
+    [entryGrade, entryMoves, cruxDescription, cruxGrade, cruxTotalMoves, lockedBenchmark]
   );
 
   const [rounds, setRounds] = useState<CAFRoundDraft[]>(() =>
@@ -145,16 +147,26 @@ export function CruxAfterFatigueTest({
     onComplete(buildCruxAfterFatigueAssessment(benchmark, attempts, limitingFactor));
   };
 
-  if (step === "setup" && !isRetest) {
+  if (step === "setup") {
     return (
       <div className="training-assessment-screen">
         <div className="training-assessment-header">
-          <h2 className="training-assessment-title">Crux-After-Fatigue Simulation</h2>
+          <h2 className="training-assessment-title">
+            {isRetest ? `Week ${week} CAF Retest — Setup` : "Crux-After-Fatigue Simulation"}
+          </h2>
           <p className="training-assessment-subtitle">
-            Establish your workout baseline — session CAF score shows how you perform at this demand.
+            {isRetest
+              ? "Adjust entry and crux to match the routes available at your gym. Your Week 0 setup is pre-filled, and scores stay comparable because grade and moves are normalized."
+              : "Establish your workout baseline — session CAF score shows how you perform at this demand."}
           </p>
         </div>
         <div className="training-assessment-content">
+          {isRetest && lockedBenchmark && (
+            <p className="training-assessment-section-hint">
+              Week 0 reference: {lockedBenchmark.entryMoves} moves @ {lockedBenchmark.entryGrade} →{" "}
+              {lockedBenchmark.cruxGrade} ({lockedBenchmark.cruxTotalMoves} moves)
+            </p>
+          )}
           {profile?.currentRouteGrade && profile?.goalRouteGrade && (
             <p className="training-assessment-section-hint">
               Current route: {profile.currentRouteGrade} → Goal: {profile.goalRouteGrade}
@@ -168,7 +180,9 @@ export function CruxAfterFatigueTest({
               <li>Rest 10 minutes between rounds</li>
             </ol>
             <p style={{ marginTop: "0.75rem" }}>
-              This setup becomes your workout baseline for the 12-week program.
+              {isRetest
+                ? "You can still fine-tune any round during the test if a route varies."
+                : "This setup becomes your workout baseline for the 12-week program."}
             </p>
           </div>
           <div className="training-assessment-form">
@@ -251,7 +265,7 @@ export function CruxAfterFatigueTest({
           <button
             type="button"
             onClick={handleStartAttempts}
-            disabled={!cruxDescription.trim()}
+            disabled={!isRetest && !cruxDescription.trim()}
             className="training-center-cta"
           >
             Start
@@ -276,8 +290,14 @@ export function CruxAfterFatigueTest({
           {" · "}
           {benchmark.entryMoves} moves @ {benchmark.entryGrade} → {benchmark.cruxGrade} (
           {benchmark.cruxTotalMoves} moves)
-          {isRetest ? " — locked to Week 0 benchmark" : ""}
         </p>
+        {isRetest && lockedBenchmark && (
+          <p className="training-assessment-subtitle">
+            Week 0 reference: {lockedBenchmark.entryMoves} moves @ {lockedBenchmark.entryGrade} →{" "}
+            {lockedBenchmark.cruxGrade} ({lockedBenchmark.cruxTotalMoves} moves) · adjust any field
+            below to match your gym
+          </p>
+        )}
       </div>
 
       <div className="training-assessment-content">
@@ -297,7 +317,6 @@ export function CruxAfterFatigueTest({
             benchmark={benchmark}
             value={rounds[activeRoundIndex]}
             onChange={(draft) => updateRound(activeRoundIndex, draft)}
-            lockEntry={isRetest}
             footer={
               <div className="training-assessment-actions">
                 <button
@@ -404,22 +423,13 @@ export function CruxAfterFatigueTest({
       </div>
 
       <div className="training-assessment-actions">
-        {!isRetest && savedRoundCount === 0 && attemptPhase === "logging" && (
+        {savedRoundCount === 0 && attemptPhase === "logging" && (
           <button
             type="button"
             onClick={() => setStep("setup")}
             className="training-center-cta training-btn-secondary"
           >
-            Back
-          </button>
-        )}
-        {onBack && isRetest && savedRoundCount === 0 && attemptPhase === "logging" && (
-          <button
-            type="button"
-            onClick={onBack}
-            className="training-center-cta training-btn-secondary"
-          >
-            Back
+            Back to setup
           </button>
         )}
       </div>

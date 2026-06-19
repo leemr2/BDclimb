@@ -59,6 +59,24 @@ export function getWeekDefinition(
   return plan.weeks.find((w) => w.weekNumber === weekNumber);
 }
 
+/**
+ * On retest deload weeks (4, 8) the assessment battery is folded into a single
+ * session (currently Session A) whose title is prefixed with "Retest Assessment".
+ * That session is completed via the separate assessment flow rather than a logged
+ * workout, so completion tracking needs to know which session label it maps to.
+ * Returns null for weeks without a folded retest (e.g. the Week 12 performance day).
+ */
+export function getRetestSessionLabel(
+  frequency: PEFrequency,
+  weekNumber: number
+): string | null {
+  const weekDef = getWeekDefinition(frequency, weekNumber);
+  const retestSession = weekDef?.sessions.find((s) =>
+    s.title.startsWith("Retest Assessment")
+  );
+  return retestSession?.label ?? null;
+}
+
 export function getNextSession(
   activeProgram: ActiveProgram,
   completedSessionLabels?: string[]

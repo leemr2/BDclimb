@@ -58,9 +58,11 @@ The power-endurance module uses the same routing shell as bouldering. No new rou
   → Dashboard: Week 1 schedule appears
   → Sessions follow mesocycle structure:
       Meso 1 (Wks 1-3): Aerobic Base + Max Force Foundation
-      Week 4: Deload + Retest
+      Week 4: Deload + Retest (retest battery is folded into Session A, run
+              back-to-back with that day's deload work; Session A is marked
+              complete once the retest assessment is saved)
       Meso 2 (Wks 5-7): Power-Endurance Build + Crux Simulations
-      Week 8: Deload + Retest
+      Week 8: Deload + Retest (same Session A folding as Week 4)
       Meso 3 (Wks 9-11): Specific Linking + Redpoint Focus
       Week 12: Taper + Performance
   → Education modal at each mesocycle transition

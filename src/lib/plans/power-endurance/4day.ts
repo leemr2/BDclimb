@@ -169,13 +169,16 @@ function meso3Week(weekNum: 9 | 10 | 11): SessionDefinition[] {
   ];
 }
 
+// Week 4 retest is folded into Session A: run the full assessment battery
+// (via the assessment flow), then the deload work back-to-back the same day.
+// Session A is marked complete once the retest assessment is saved.
 const DELOAD_W4: SessionDefinition[] = [
   session(
     "A",
     "Monday",
-    "Deload: Hangs + Pulling + Antagonist",
-    "40-50% volume reduction",
-    50,
+    "Retest Assessment + Deload Hangs + Pulling + Antagonist",
+    "Run the full retest battery, then reduced-volume strength back-to-back",
+    140,
     ["warmup_progressive", "max_hang_deload", "pull_up_maintenance", "antagonist_light"]
   ),
   session("B", "Tuesday", "Deload ARC", "Single ARC set with constraints", 35, [
@@ -190,23 +193,16 @@ const DELOAD_W4: SessionDefinition[] = [
     45,
     ["warmup_progressive", "route_intervals_deload", "core_circuit"]
   ),
-  session(
-    "D",
-    "Saturday",
-    "Assessment Retest",
-    "Full assessment battery — not a workout",
-    90,
-    ["assessment_battery"]
-  ),
 ];
 
+// Week 8 retest is folded into Session A (see Week 4 note above).
 const DELOAD_W8: SessionDefinition[] = [
   session(
     "A",
     "Monday",
-    "Deload: Hangs + Campus + Antagonist",
-    "Reduced volume",
-    45,
+    "Retest Assessment + Deload Hangs + Campus + Antagonist",
+    "Run the full retest battery, then reduced-volume strength back-to-back",
+    135,
     ["warmup_progressive", "max_hang_deload", "campus_deload", "antagonist_light"]
   ),
   session("B", "Tuesday", "Deload ARC", "Single ARC set", 35, ["warmup_easy", "arc_deload"]),
@@ -218,9 +214,6 @@ const DELOAD_W8: SessionDefinition[] = [
     50,
     ["warmup_progressive", "intermittent_hang_deload", "light_bouldering"]
   ),
-  session("D", "Saturday", "Assessment Retest", "Full assessment battery", 90, [
-    "assessment_battery",
-  ]),
 ];
 
 const WEEK12: SessionDefinition[] = [
