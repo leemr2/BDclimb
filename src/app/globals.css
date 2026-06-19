@@ -4370,11 +4370,16 @@ a {
 }
 
 .community-page.day-mode .training-form-group label,
+.community-page.day-mode .training-onboarding-step-title,
 .community-page.day-mode .training-confirmation-title,
 .community-page.day-mode .training-today-title,
 .community-page.day-mode .training-week-title,
 .community-page.day-mode .training-metrics-title {
   color: #333;
+}
+
+.community-page.day-mode .training-frequency-intro {
+  color: #555;
 }
 
 .community-page.day-mode .training-form-group input,
