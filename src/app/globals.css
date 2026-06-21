@@ -2066,6 +2066,18 @@ a {
   color: #333;
 }
 
+.community-page.day-mode .climbing-now-btn.checkout {
+  color: #333;
+  background-color: #f0f0f0;
+  border-color: #ddd;
+}
+
+.community-page.day-mode .climbing-now-btn.checkout:hover:not(:disabled) {
+  color: #fff;
+  background-color: rgba(239, 68, 68, 0.9);
+  border-color: rgba(239, 68, 68, 0.7);
+}
+
 .community-page.day-mode .climbing-now-loading,
 .community-page.day-mode .climbing-now-empty {
   color: #777;
