@@ -41,10 +41,12 @@ Round Score = ELS + CDS
 
 **Session CAF Score**
 ```
-Session Score = Round 1 + Round 2 + Round 3 + Round 4 + Round 5
+Session CAF Score = (Round 1 + Round 2 + Round 3 + Round 4 + Round 5) / number of rounds
 ```
 
-The session score is the number you track across the program.
+The session CAF score is the **total round score divided by the number of rounds** — an average round score that stays comparable regardless of how many rounds you logged. This is the number you track across the program. (The raw sum of round scores is retained internally but the tracked KPI is this per-round average.)
+
+**Crux success rate** — the percentage of rounds you sent (all crux moves completed) — is shown alongside the CAF score as a secondary metric.
 
 ---
 
@@ -100,7 +102,7 @@ Linear scale: V-grade + 1.
 | 4     | 20          | 5.9   | 20.0 | 6 / 8              | V2         | 18.0 | 38.0       |
 | 5     | 20          | 5.9   | 20.0 | 3 / 8              | V2         | 9.0  | 29.0       |
 
-**Session CAF Score: 166.0**
+**Session CAF Score: 166.0/5 = 33.2**
 
 Four weeks later, the same athlete on the same setup:
 
@@ -112,7 +114,7 @@ Four weeks later, the same athlete on the same setup:
 | 4     | 20.0 | 8 / 8 ✓ SEND   | 24.0 | 44.0        |
 | 5     | 20.0 | 7 / 8           | 21.0 | 41.0        |
 
-**Session CAF Score: 208.0**
+**Session CAF Score: 208.0/5 = 41.6**
 
 Same entry load. 25% higher session score. That's the improvement — not estimated, not subjective, directly counted.
 

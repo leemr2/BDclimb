@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import type { PowerEnduranceAssessment } from "@/lib/plans/power-endurance/types";
-import { getIHEWorkingLoad } from "@/lib/plans/power-endurance/calculations";
+import { getIHEWorkingLoad, cafScoreOf } from "@/lib/plans/power-endurance/calculations";
 
 interface Props {
   assessments: PowerEnduranceAssessment[];
@@ -106,7 +106,7 @@ export function PowerEnduranceAssessmentResultsView({
 
         <div className="training-assessment-summary-card">
           <h3 className="training-assessment-summary-label">Session CAF Score</h3>
-          <p className="training-assessment-summary-value">{caf.sessionCAFScore}</p>
+          <p className="training-assessment-summary-value">{cafScoreOf(caf) ?? "—"}</p>
           <p className="training-assessment-summary-sub">
             Success rate: {caf.successRate}% · Avg CDS: {caf.avgCDS}
           </p>
@@ -157,7 +157,7 @@ export function PowerEnduranceAssessmentResultsView({
               <tr>
                 <td>Session CAF Score</td>
                 {assessments.map((ass) => (
-                  <td key={ass.week}>{ass.cruxAfterFatigue.sessionCAFScore}</td>
+                  <td key={ass.week}>{cafScoreOf(ass.cruxAfterFatigue) ?? "—"}</td>
                 ))}
               </tr>
               <tr>

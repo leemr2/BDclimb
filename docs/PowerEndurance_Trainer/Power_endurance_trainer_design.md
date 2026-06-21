@@ -7,10 +7,10 @@
 
 The **Power-Endurance Training Module** is the fourth goal-based training program in the Training Center. When users select "Route Power/Endurance" on `/training-center`, they start a 12-week training cycle targeting routes with sustained climbing demands and late crux sequences — routes where you climb at moderate intensity for several minutes, then must execute a hard crux when already fatigued.
 
-This module provides a guided, step-by-step workout experience that automatically calculates load metrics, tracks the primary KPI (crux-after-fatigue success rate), monitors recovery and injury signals, flags overtraining risks, and surfaces targeted education at every mesocycle transition.
+This module provides a guided, step-by-step workout experience that automatically calculates load metrics, tracks the primary KPI (the session CAF score — total round score ÷ rounds, with crux success rate alongside), monitors recovery and injury signals, flags overtraining risks, and surfaces targeted education at every mesocycle transition.
 
 ### Core Value Props
-- **Crux simulation as primary metric**: Every session tracks crux success rate under fatigue — the only metric that directly reflects goal-route performance
+- **Crux simulation as primary metric**: Every session tracks the CAF score under fatigue (with crux success rate alongside) — the only metric that directly reflects goal-route performance
 - **Fluency and silent feet quantification**: Converts low-intensity ARC sessions into skill-development sessions with objective tracking (stop counts, slip counts)
 - **Three energy system layers**: Aerobic base, anaerobic capacity (4×4 + intervals), and specific threshold training (intermittent hang endurance + critical-force blocks) — all tracked automatically
 - **Guided redpoint progression**: Meso 3 route-linking sessions are structured as guided burn-by-burn experiences with fluency constraint toggling
@@ -163,9 +163,9 @@ users/
             notes: string
           }]
           // Auto-calculated session totals
-          sessionCAFScore: number           // auto: sum of all roundScores
-          avgRoundScore: number             // auto
-          successRate: number               // auto: successes / attempts %
+          sessionCAFScore: number           // auto: sum of all roundScores (raw total, kept internally)
+          avgRoundScore: number             // auto: sessionCAFScore / rounds — the tracked "Session CAF score" KPI
+          successRate: number               // auto: successes / attempts % (secondary metric shown alongside)
           avgMovesCompleted: number         // auto
           avgPumpBeforeCrux: number         // auto
           limitingFactor: "forearm_pump" | "finger_strength" | "technique" | "mental" | "power"
@@ -382,7 +382,8 @@ type CriticalForceData = {
 //   ELS (Entry Load Score)  = entryMoves × entryGradeMultiplier
 //   CDS (Crux Demand Score) = movesCompleted × cruxGradeMultiplier
 //   Round Score             = ELS + CDS
-//   Session CAF Score       = sum of all round scores (5 rounds standard)
+//   Session CAF Score       = (sum of all round scores) / number of rounds  ← tracked KPI (avgRoundScore)
+//                             sessionCAFScore field stores the raw sum; the displayed KPI is the per-round average
 //
 // Entry grade multipliers (linear, +0.1 per sub-grade from 5.9 base):
 //   5.8=0.9, 5.9=1.0, 5.10a=1.1, 5.10b=1.2, 5.10c=1.3, 5.10d=1.4,
@@ -423,9 +424,9 @@ type CruxAfterFatigueData = {
 
   // Auto-calculated session totals
   totalRounds: number
-  sessionCAFScore: number           // sum of all roundScores — primary tracking number
-  avgRoundScore: number             // auto
-  successRate: number               // % (sent / rounds)
+  sessionCAFScore: number           // sum of all roundScores (raw total, kept internally)
+  avgRoundScore: number             // sessionCAFScore / rounds — the tracked "Session CAF score" KPI
+  successRate: number               // % (sent / rounds) — secondary metric shown alongside
   avgMovesCompleted: number
   avgPumpBeforeCrux: number
   avgExecutionQuality: number       // 1-5
@@ -782,10 +783,11 @@ The PE dashboard uses the same layout shell as the bouldering dashboard but surf
 │                                                     │
 │  ┌──── KEY METRICS ─────────────────────────────┐   │
 │  │                                               │   │
-│  │  Crux Success Rate  IHE Reps  Max Hang       │   │
-│  │  67% (+14%)         38 (+6)   168 lb (+4%)   │   │
-│  │  ▁▂▄▅▆▇             ▁▂▄▆▇     ▁▂▃▄▅          │   │
-│  │  (sparklines — test weeks / CAF sessions)     │   │
+│  │  Session CAF Score  IHE Reps  Max Hang       │   │
+│  │  44.4 (+3.2)        38 (+6)   168 lb (+4%)   │   │
+│  │  67% crux success   ▁▂▄▆▇     ▁▂▃▄▅          │   │
+│  │  (CAF score = total round score ÷ rounds;     │   │
+│  │   crux success rate shown alongside)          │   │
 │  │                                               │   │
 │  │  Fluency Stops      Silent Foot Slips        │   │
 │  │  8/set (↓ from 14)  3/session (↓ from 9)    │   │
@@ -813,18 +815,19 @@ The PE dashboard uses the same layout shell as the bouldering dashboard but surf
 │  │  ✓ No flags this week                        │   │
 │  └───────────────────────────────────────────────┘   │
 │                                                     │
-│  ┌──── CRUX SUCCESS TREND ──────────────────────┐   │
-│  │  Last 5 CAF sessions:                        │   │
-│  │  33% → 40% → 50% → 60% → 67%  ↑ Improving  │   │
+│  ┌──── CRUX CAF SCORE TREND ────────────────────┐   │
+│  │  Last 5 CAF sessions (score):                │   │
+│  │  33.2 → 35.0 → 38.5 → 41.6 → 44.4 ↑ Improving │   │
+│  │  Success rate: 33% → 40% → 50% → 60% → 67%   │   │
 │  └───────────────────────────────────────────────┘   │
 └─────────────────────────────────────────────────────┘
 ```
 
 **Key Difference from Bouldering Dashboard:**
-- Primary metric display: **Crux Success Rate** (not max hang as headline)
+- Primary metric display: **Session CAF Score** (total round score ÷ rounds; not max hang as headline), with **crux success rate** shown alongside as a secondary number
 - Fluency stops and silent foot slips shown as downward-trend sparklines
 - **Shoulder symptom score** in safety monitor (PE-specific injury signal)
-- **Crux success trend** mini-chart always visible (not buried in progress page)
+- **Crux CAF score trend** mini-chart always visible (not buried in progress page), with success-rate sequence underneath
 
 ---
 
@@ -979,8 +982,8 @@ In addition to the existing bouldering safety interrupts (pain > 2/10), PE adds:
 | ELS (Entry Load Score) | `entryMoves × entryGradeMultiplier` | Per CAF round |
 | CDS (Crux Demand Score) | `movesCompleted × cruxGradeMultiplier` | Per CAF round |
 | Round Score | `ELS + CDS` | Per CAF round |
-| Session CAF Score | `sum of all roundScores` | Primary CAF tracking number |
-| Crux success rate | `(successes / totalRounds) × 100` | Secondary KPI dashboard |
+| Session CAF Score | `sum of all roundScores / number of rounds` (avgRoundScore) | Primary CAF tracking number (headline KPI) |
+| Crux success rate | `(successes / totalRounds) × 100` | Secondary metric shown alongside CAF score |
 | Avg moves completed | `sum(movesCompleted) / rounds` | CAF session summary |
 | Fluency stops per set | `totalStops / sets` | ARC session tracking |
 | Silent foot slips per session | Count logged during ARC | ARC session tracking |
@@ -1098,12 +1101,12 @@ function evaluateCAFProgression(recentSessions: CruxAfterFatigueData[]): Progres
 
 ### Charts to Build (Recharts — same library as bouldering)
 
-**1. Crux-After-Fatigue Success Rate (Line Chart) — PRIMARY**
+**1. Session CAF Score (Line Chart) — PRIMARY**
 - X-axis: Session dates (all CAF sessions, not just test weeks)
-- Y-axis: Success rate % (0-100)
+- Y-axis (left): Session CAF score (total round score ÷ rounds)
+- Y-axis (right): Crux success rate % (0-100) — secondary metric shown alongside
 - Annotations: mesocycle boundaries, deload weeks
-- Color changes per mesocycle (harder crux = separate line segment)
-- Sub-line: average moves completed (secondary axis)
+- Workout vs assessment-benchmark CAF score render as separate lines
 
 **2. Max Hang Progression (Line Chart) — reused from bouldering**
 - X-axis: Test weeks (0, 4, 8, 12)
@@ -1419,9 +1422,9 @@ No other rule changes needed. The existing pattern handles all new PE subcollect
 
 ## 13. Key Design Decisions Explained
 
-### Why crux-after-fatigue success rate is the primary KPI (not max hang)
+### Why the session CAF score is the primary KPI (not max hang)
 
-The bouldering module's headline metric is max hang load because bouldering performance is primarily strength-limited at the intermediate level. Power-endurance performance is limited by the ability to execute hard moves *when already fatigued* — and the only way to measure that directly is the crux simulation. All other metrics (max hang, IHE reps, aerobic base) are upstream inputs that should show up in the crux rate. If they don't, the training isn't transferring, which is the most important thing to know.
+The bouldering module's headline metric is max hang load because bouldering performance is primarily strength-limited at the intermediate level. Power-endurance performance is limited by the ability to execute hard moves *when already fatigued* — and the only way to measure that directly is the crux simulation. The headline KPI is the **session CAF score** (total round score ÷ rounds), which captures both the entry load endured and the crux moves completed in a single comparable number. Crux success rate (the percentage of rounds fully sent) is shown alongside it as a secondary signal. All other metrics (max hang, IHE reps, aerobic base) are upstream inputs that should show up in the CAF score. If they don't, the training isn't transferring, which is the most important thing to know.
 
 ### Why fluency stops and silent foot slips get their own tracking
 
@@ -1577,7 +1580,7 @@ This document provides a complete blueprint for the **Power-Endurance Training M
 
 | Area | Bouldering | Power-Endurance |
 |---|---|---|
-| Primary KPI | Max hang load | Crux success rate (CAF) |
+| Primary KPI | Max hang load | Session CAF score (total ÷ rounds); crux success rate secondary |
 | Key new drills | Max hangs, campus, limit boulders | ARC (constrained), 4×4, IHE, CFB, CAF, route practice |
 | Technique metrics | Boulder send rate | Silent foot slips, fluency stops per set |
 | Safety focal point | Finger pulley (A2) | Finger + shoulder symptom compound tracking |

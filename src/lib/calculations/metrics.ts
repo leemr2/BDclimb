@@ -8,7 +8,7 @@ import type { BoulderingWorkout } from "@/lib/firebase/training/bouldering-worko
 import type { LimitBoulderData } from "@/lib/plans/bouldering/types";
 import type { PowerEnduranceAssessment } from "@/lib/plans/power-endurance/types";
 import type { PowerEnduranceWorkout } from "@/lib/firebase/training/power-endurance-workouts";
-import { getRecentCAFSessions, getRecentARCSessions } from "@/lib/plans/power-endurance/calculations";
+import { getRecentCAFSessions, getRecentARCSessions, cafScoreOf } from "@/lib/plans/power-endurance/calculations";
 
 /** Latest assessment plus optional previous for trend (e.g. % change). */
 export interface KeyMetricsResult {
@@ -135,7 +135,11 @@ export function getWeeklyStreak(
 
 /** PE dashboard headline metrics with previous values for trend display. */
 export interface PEKeyMetricsResult {
-  /** Crux-after-fatigue success rate 0–100 (latest CAF session, else latest assessment). */
+  /** Session CAF score (total / rounds) — primary KPI (latest CAF session, else latest assessment). */
+  cafScore: number | null;
+  /** Previous session CAF score for trend. */
+  previousCafScore: number | null;
+  /** Crux-after-fatigue success rate 0–100 (latest CAF session, else latest assessment) — secondary. */
   cruxSuccessRate: number | null;
   /** Previous crux success rate for trend. */
   previousCruxSuccessRate: number | null;
@@ -165,15 +169,23 @@ export function getPEKeyMetrics(
   const latest = assessments.length > 0 ? assessments[assessments.length - 1] : null;
   const previous = assessments.length >= 2 ? assessments[assessments.length - 2] : null;
 
-  // Crux success rate: prefer the last two CAF workout sessions; fall back to assessments.
+  // CAF score (total / rounds) and crux success rate: prefer the last two CAF
+  // workout sessions; fall back to assessments.
   const cafSessions = getRecentCAFSessions(workouts, 2);
+  let cafScore: number | null = null;
+  let previousCafScore: number | null = null;
   let cruxSuccessRate: number | null = null;
   let previousCruxSuccessRate: number | null = null;
   if (cafSessions.length > 0) {
+    cafScore = cafScoreOf(cafSessions[cafSessions.length - 1]);
+    previousCafScore =
+      cafSessions.length >= 2 ? cafScoreOf(cafSessions[cafSessions.length - 2]) : null;
     cruxSuccessRate = cafSessions[cafSessions.length - 1].successRate;
     previousCruxSuccessRate =
       cafSessions.length >= 2 ? cafSessions[cafSessions.length - 2].successRate : null;
   } else {
+    cafScore = cafScoreOf(latest?.cruxAfterFatigue);
+    previousCafScore = cafScoreOf(previous?.cruxAfterFatigue);
     cruxSuccessRate = latest?.cruxAfterFatigue?.successRate ?? null;
     previousCruxSuccessRate = previous?.cruxAfterFatigue?.successRate ?? null;
   }
@@ -194,6 +206,8 @@ export function getPEKeyMetrics(
     : null;
 
   return {
+    cafScore,
+    previousCafScore,
     cruxSuccessRate,
     previousCruxSuccessRate,
     iheTotalReps,

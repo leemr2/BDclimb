@@ -18,12 +18,15 @@ import {
   getWeekDefinition,
   type PEFrequency,
 } from "@/lib/plans/power-endurance/planEngine";
+import { cafScoreOf } from "@/lib/plans/power-endurance/calculations";
 
 const TEST_WEEKS = [0, 4, 8, 12] as const;
 
 export interface CruxSuccessPoint {
   week: number;
   label: string;
+  /** Session CAF score (total / rounds) — primary KPI. */
+  cafScore: number | null;
   successRate: number | null;
   avgMovesCompleted: number | null;
   source: "workout" | "assessment";
@@ -125,6 +128,7 @@ export function buildCruxSuccessRateSeries(
     points.push({
       week,
       label: weekLabel(week),
+      cafScore: cafScoreOf(caf),
       successRate: caf.successRate ?? null,
       avgMovesCompleted: caf.avgMovesCompleted ?? null,
       source: "assessment",
@@ -139,9 +143,14 @@ export function buildCruxSuccessRateSeries(
     if (assessmentByWeek.has(week)) continue; // assessment point takes precedence
     const sessions = byWeek.get(week);
     if (!sessions || sessions.length === 0) continue;
+    const cafScores = sessions
+      .map((s) => cafScoreOf(s))
+      .filter((v): v is number => v != null);
     points.push({
       week,
       label: weekLabel(week),
+      cafScore:
+        cafScores.length > 0 ? Math.round(average(cafScores) * 10) / 10 : null,
       successRate: Math.round(average(sessions.map((s) => s.successRate))),
       avgMovesCompleted:
         Math.round(average(sessions.map((s) => s.avgMovesCompleted)) * 10) / 10,
