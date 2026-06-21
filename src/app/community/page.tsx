@@ -7,6 +7,7 @@ import Image from "next/image";
 import { useAuth } from "@/lib/firebase/auth";
 import { getUserProfile } from "@/lib/firebase/users";
 import { CalendarDaySummary } from "@/components/Calendar/CalendarDaySummary";
+import { ClimbingNow } from "@/components/Calendar/ClimbingNow";
 import { Chat } from "@/components/Chat/Chat";
 import { DisplayNameSetup } from "@/components/DisplayNameSetup";
 import { EventsSection } from "@/components/Events/EventsSection";
@@ -126,6 +127,7 @@ export default function CommunityPage() {
       </div>
       <div className="community-content">
         <div className="community-left">
+          <ClimbingNow userId={user.uid} displayName={displayName} />
           <div className="calendar-section">
             <CalendarDaySummary displayName={displayName} />
           </div>

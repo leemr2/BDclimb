@@ -50,6 +50,7 @@ All backend logic goes through Firebase. No traditional server-side API routes e
 |---|---|---|
 | `users` | User profiles (`displayName`, `email`) | `userId` |
 | `calendar` | Workout commitments per date+time | `userId` |
+| `checkins` | Live "climbing now" presence; auto-expires after 4h (client-side) | `userId` |
 | `messages` | Legacy flat chat (unused; app uses conversations) | `userId` |
 | `conversations` | Chat conversation threads (title, createdBy, updatedAt) | `createdBy` |
 | `conversations/{id}/messages` | Messages within a conversation | `userId` |
@@ -58,6 +59,7 @@ Security rules enforce that authenticated users can read all records but can onl
 
 Data access functions live in `src/lib/firebase/`:
 - `calendar.ts` — CRUD for calendar entries
+- `checkins.ts` — live check-in/check-out presence ("climbing now"); subscribe filters out and lazily deletes check-ins older than 4h (`CHECKIN_DURATION_MS`)
 - `conversations.ts` — conversations (create, list by `updatedAt` desc) and conversation messages (send reply, delete own)
 - `messages.ts` — legacy flat messages (unused by current chat UI)
 - `users.ts` — user profile operations
