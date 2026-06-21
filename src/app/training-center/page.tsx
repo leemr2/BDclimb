@@ -15,6 +15,7 @@ import { getAssessmentsForProgram as getBoulderingAssessments } from "@/lib/fire
 import { getAssessmentsForProgram as getPEAssessments } from "@/lib/firebase/training/power-endurance-assessments";
 import { getProgramId, cancelProgram } from "@/lib/firebase/training/program";
 import { getWeeklyStreak } from "@/lib/calculations/metrics";
+import { cafScoreOf } from "@/lib/plans/power-endurance/calculations";
 import { useMilestoneEducation } from "@/lib/hooks/training/useMilestoneEducation";
 import { ProfileCard } from "@/components/training/dashboard/ProfileCard";
 import { MilestoneModal } from "@/components/training/education/MilestoneModal";
@@ -569,7 +570,7 @@ export default function TrainingCenterPage() {
               <div className="tc-assessment-bubble">
                 <span className="tc-assessment-bubble-label">CAF Score</span>
                 <span className="tc-assessment-bubble-value">
-                  {latestPEAssessment.cruxAfterFatigue.sessionCAFScore ?? latestPEAssessment.cruxAfterFatigue.successRate}
+                  {cafScoreOf(latestPEAssessment.cruxAfterFatigue) ?? latestPEAssessment.cruxAfterFatigue.successRate}
                 </span>
                 <span className="tc-assessment-bubble-sub">
                   {latestPEAssessment.cruxAfterFatigue.benchmark

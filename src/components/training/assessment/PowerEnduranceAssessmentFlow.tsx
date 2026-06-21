@@ -21,7 +21,7 @@ import type {
   PullingStrengthAssessment,
 } from "@/lib/plans/bouldering/types";
 import type { TrainingProfile } from "@/lib/firebase/training/profile";
-import { getIHEWorkingLoad } from "@/lib/plans/power-endurance/calculations";
+import { getIHEWorkingLoad, cafScoreOf } from "@/lib/plans/power-endurance/calculations";
 import { deriveProfilePerformance } from "@/lib/plans/power-endurance/profileScore";
 
 const FSS_BAND_LABELS: Record<string, string> = {
@@ -451,7 +451,7 @@ export function PowerEnduranceAssessmentFlow({
             </div>
             <div className="training-assessment-summary-card">
               <h3 className="training-assessment-summary-label">Session CAF Score</h3>
-              <p className="training-assessment-summary-value">{cafData.sessionCAFScore}</p>
+              <p className="training-assessment-summary-value">{cafScoreOf(cafData) ?? "—"}</p>
               <p className="training-assessment-summary-sub">
                 Success rate: {cafData.successRate}% · Benchmark ELS {cafData.benchmark.baselineELS}
               </p>

@@ -10,6 +10,7 @@ import type {
   PowerEnduranceAssessment,
   PEInjuryBaseline,
 } from "@/lib/plans/power-endurance/types";
+import { cafScoreOf } from "@/lib/plans/power-endurance/calculations";
 
 export type PERadarAxis =
   | "maxHang"
@@ -155,6 +156,11 @@ function fmtIHEReps(a: PowerEnduranceAssessment): string {
   return reps != null ? `${reps}` : "—";
 }
 
+function fmtCafScore(a: PowerEnduranceAssessment): string {
+  const score = cafScoreOf(a.cruxAfterFatigue);
+  return score != null ? `${score}` : "—";
+}
+
 function fmtCruxRate(a: PowerEnduranceAssessment): string {
   const rate = a.cruxAfterFatigue?.successRate;
   return rate != null ? `${Math.round(rate)}%` : "—";
@@ -217,6 +223,18 @@ export function buildPEComparisonTable(
       deltaFromBaseline:
         latestRaw.iheReps != null && baseRaw.iheReps != null
           ? deltaPct(latestRaw.iheReps, baseRaw.iheReps)
+          : null,
+    },
+    {
+      metric: "Session CAF Score",
+      values: valuesFor(fmtCafScore),
+      deltaFromBaseline:
+        cafScoreOf(latest.cruxAfterFatigue) != null &&
+        cafScoreOf(baseline.cruxAfterFatigue) != null
+          ? deltaAbs(
+              cafScoreOf(latest.cruxAfterFatigue) as number,
+              cafScoreOf(baseline.cruxAfterFatigue) as number
+            )
           : null,
     },
     {

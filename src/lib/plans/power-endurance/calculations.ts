@@ -246,6 +246,45 @@ export function computeSessionCAFScore(rounds: Array<{ roundScore: number }>): n
   return Math.round(rounds.reduce((sum, r) => sum + r.roundScore, 0) * 10) / 10;
 }
 
+/**
+ * Session CAF score = total round score / number of rounds (the tracked KPI).
+ * This is the average round score; the raw sum is `sessionCAFScore`.
+ */
+export function computeAvgRoundScore(rounds: Array<{ roundScore: number }>): number {
+  if (rounds.length === 0) return 0;
+  return Math.round((computeSessionCAFScore(rounds) / rounds.length) * 10) / 10;
+}
+
+/**
+ * Resolve the session CAF score (total / rounds) from a stored CAF data or
+ * assessment object. Prefers `avgRoundScore`; falls back to `sessionCAFScore`
+ * divided by the round count for older documents that predate the field.
+ */
+export function cafScoreOf(
+  caf:
+    | {
+        avgRoundScore?: number | null;
+        sessionCAFScore?: number | null;
+        totalRounds?: number | null;
+        attempts?: unknown[];
+      }
+    | null
+    | undefined
+): number | null {
+  if (!caf) return null;
+  if (typeof caf.avgRoundScore === "number") return caf.avgRoundScore;
+  const nRounds =
+    typeof caf.totalRounds === "number"
+      ? caf.totalRounds
+      : Array.isArray(caf.attempts)
+        ? caf.attempts.length
+        : 0;
+  if (typeof caf.sessionCAFScore === "number" && nRounds > 0) {
+    return Math.round((caf.sessionCAFScore / nRounds) * 10) / 10;
+  }
+  return null;
+}
+
 export function buildCruxAfterFatigueAssessment(
   benchmark: CAFBenchmark,
   attempts: CAFRoundBase[],
@@ -572,17 +611,20 @@ export function getRecentARCSessions(
 }
 
 export interface CruxSessionTrend {
-  /** Success rate (0–100) per CAF session, oldest-first. */
+  /** Success rate (0–100) per CAF session, oldest-first (secondary metric). */
   rates: number[];
-  /** Session CAF score per CAF session, oldest-first. */
+  /** Session CAF score (total / rounds) per CAF session, oldest-first (primary metric). */
   scores: number[];
   trend: "improving" | "stable" | "declining";
   /** Most recent success rate, or null when no CAF sessions logged. */
   latest: number | null;
+  /** Most recent session CAF score, or null when no CAF sessions logged. */
+  latestScore: number | null;
 }
 
 /**
- * Crux-after-fatigue success-rate trend for the dashboard mini-chart.
+ * Crux-after-fatigue trend for the dashboard mini-chart. The primary series is
+ * the session CAF score (total / rounds); success rate is kept alongside.
  * Direction compares the most recent session to the first in the window.
  */
 export function getCruxSessionScoreTrend(
@@ -591,18 +633,19 @@ export function getCruxSessionScoreTrend(
 ): CruxSessionTrend {
   const sessions = getRecentCAFSessions(workouts, lastN);
   const rates = sessions.map((s) => s.successRate);
-  const scores = sessions.map((s) => s.sessionCAFScore);
+  const scores = sessions.map((s) => cafScoreOf(s) ?? 0);
   const latest = rates.length > 0 ? rates[rates.length - 1] : null;
+  const latestScore = scores.length > 0 ? scores[scores.length - 1] : null;
 
   let trend: CruxSessionTrend["trend"] = "stable";
-  if (rates.length >= 2) {
-    const first = rates[0];
-    const last = rates[rates.length - 1];
+  if (scores.length >= 2) {
+    const first = scores[0];
+    const last = scores[scores.length - 1];
     if (last > first) trend = "improving";
     else if (last < first) trend = "declining";
   }
 
-  return { rates, scores, trend, latest };
+  return { rates, scores, trend, latest, latestScore };
 }
 
 export interface PESafetyInput {

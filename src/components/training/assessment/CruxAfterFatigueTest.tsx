@@ -11,7 +11,7 @@ import {
   buildCAFBenchmark,
   buildCruxAfterFatigueAssessment,
   getCAFAssessmentSuggestions,
-  computeSessionCAFScore,
+  computeAvgRoundScore,
   CAF_CRUX_GRADES,
   YDS_ENTRY_GRADES,
   normalizeCAFCruxGrade,
@@ -107,7 +107,7 @@ export function CruxAfterFatigueTest({
     setRounds((prev) => prev.map((r, i) => (i === index ? draft : r)));
   };
 
-  const sessionScore = computeSessionCAFScore(rounds.map(draftToCAFRound));
+  const sessionCafScore = computeAvgRoundScore(rounds.map(draftToCAFRound));
   const allRoundsSaved = savedRoundCount >= ROUND_COUNT;
 
   const handleStartAttempts = () => {
@@ -398,7 +398,7 @@ export function CruxAfterFatigueTest({
             </div>
 
             <p className="training-assessment-section-hint">
-              Session CAF score: <strong>{sessionScore}</strong> · Success rate:{" "}
+              Session CAF score: <strong>{sessionCafScore}</strong> · Success rate:{" "}
               {Math.round(
                 (rounds.map(draftToCAFRound).filter((r) => r.success).length / ROUND_COUNT) * 100
               )}

@@ -4469,6 +4469,16 @@ a {
   color: rgba(255, 255, 255, 0.9);
 }
 
+.training-crux-trend-secondary {
+  margin: 0 0 0.5rem;
+  font-size: 0.8rem;
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.community-page.day-mode .training-crux-trend-secondary {
+  color: #6b7280;
+}
+
 .training-crux-trend-label {
   margin: 0;
   font-size: 0.85rem;
